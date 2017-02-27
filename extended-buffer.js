@@ -359,6 +359,23 @@ module.exports = class ExtendedBuffer {
     };
 
     /**
+     * https://github.com/dcodeIO/bytebuffer.js/blob/f3f310b6786e5d44686d385a2cc60c6720a1069b/src/types/varints/varint32.js
+     * @param value
+     * @returns {ExtendedBuffer}
+     */
+    writeVarInt32(value) {
+        value = parseInt(value) || 0;
+        value >>>= 0;
+        let b;
+        while (value >= 0x80) {
+            b = (value & 0x7f) | 0x80;
+            this.writeUInt8(b);
+            value >>>= 7;
+        }
+        return this.writeUInt8(value);
+    }
+
+    /**
      * @param size
      * @param asNative
      * @returns {ExtendedBuffer|Buffer}
@@ -568,4 +585,23 @@ module.exports = class ExtendedBuffer {
         this.pointer += 8;
         return this.buffer.readDoubleLE(this.pointer - 8, noAssert);
     };
+
+    /**
+     * https://github.com/dcodeIO/bytebuffer.js/blob/f3f310b6786e5d44686d385a2cc60c6720a1069b/src/types/varints/varint32.js
+     * @returns {number}
+     */
+    readVarInt32() {
+        let c = 0,
+            value = 0 >>> 0,
+            b;
+        do {
+            b = this.readUInt8();
+            if (c < 5) {
+                value |= (b & 0x7f) << (7*c);
+            }
+            ++c;
+        } while ((b & 0x80) !== 0);
+        value |= 0;
+        return value;
+    }
 };
