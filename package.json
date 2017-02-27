@@ -1,0 +1,23 @@
+{
+  "name": "node-extended-buffer",
+  "version": "0.1.0",
+  "description": "Node JS extended Buffer",
+  "main": "extended-buffer.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mvcbox/node-extended-buffer.git"
+  },
+  "keywords": [
+    "Buffer",
+    "Binary data"
+  ],
+  "author": "mvcbox.org@gmail.com",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/mvcbox/node-extended-buffer/issues"
+  },
+  "homepage": "https://github.com/mvcbox/node-extended-buffer#readme"
+}
