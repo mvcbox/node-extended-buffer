@@ -1,6 +1,10 @@
 {
   "name": "extended-buffer",
-  "version": "0.1.0",
+  "version": "0.2.0",
+  "engines": {
+    "node": ">=5.10.0"
+  },
+  "engineStrict" : true,
   "description": "Node JS extended Buffer",
   "main": "extended-buffer.js",
   "scripts": {
