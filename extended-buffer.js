@@ -138,7 +138,7 @@ module.exports = class ExtendedBuffer {
      * @param byteLength
      * @param noAssert
      * @param unshift
-     * @returns {*}
+     * @returns {ExtendedBuffer}
      */
     writeIntBE(value, byteLength, noAssert, unshift) {
         let buffer = Buffer.alloc(byteLength);
@@ -189,7 +189,7 @@ module.exports = class ExtendedBuffer {
      * @param value
      * @param noAssert
      * @param unshift
-     * @returns {*}
+     * @returns {ExtendedBuffer}
      */
     writeInt8(value, noAssert, unshift) {
         return this.writeIntBE(value, 1, noAssert, unshift);
@@ -209,7 +209,7 @@ module.exports = class ExtendedBuffer {
      * @param value
      * @param noAssert
      * @param unshift
-     * @returns {*}
+     * @returns {ExtendedBuffer}
      */
     writeInt16BE(value, noAssert, unshift) {
         return this.writeIntBE(value, 2, noAssert, unshift);
@@ -249,7 +249,7 @@ module.exports = class ExtendedBuffer {
      * @param value
      * @param noAssert
      * @param unshift
-     * @returns {*}
+     * @returns {ExtendedBuffer}
      */
     writeInt32BE(value, noAssert, unshift) {
         return this.writeIntBE(value, 4, noAssert, unshift);
@@ -289,7 +289,7 @@ module.exports = class ExtendedBuffer {
      * @param value
      * @param noAssert
      * @param unshift
-     * @returns {*}
+     * @returns {ExtendedBuffer}
      */
     writeInt64BE(value, noAssert, unshift) {
         return this.writeIntBE(value, 8, noAssert, unshift);
