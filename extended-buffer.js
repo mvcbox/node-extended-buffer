@@ -109,13 +109,14 @@ module.exports = class ExtendedBuffer {
 
     /**
      * @param value
+     * @param unshift
      * @returns {ExtendedBuffer}
      */
-    writeBuffer(value) {
+    writeBuffer(value, unshift) {
         if (value instanceof ExtendedBuffer && value.buffer instanceof Buffer) {
-            this.buffer = Buffer.concat([this.buffer, value.buffer]);
+            this.buffer = Buffer.concat(unshift ? [value.buffer, this.buffer] : [this.buffer, value.buffer]);
         } else if (value instanceof Buffer) {
-            this.buffer = Buffer.concat([this.buffer, value]);
+            this.buffer = Buffer.concat(unshift ? [value, this.buffer] : [this.buffer, value]);
         } else {
             throw new TypeError('"value" is incorrect buffer');
         }
@@ -125,237 +126,251 @@ module.exports = class ExtendedBuffer {
     /**
      * @param value
      * @param encoding
+     * @param unshift
      * @returns {ExtendedBuffer}
      */
-    writeString(value, encoding) {
-        this.buffer = Buffer.concat([this.buffer, Buffer.from(value, encoding)]);
-        return this;
+    writeString(value, encoding, unshift) {
+        return this.writeBuffer(Buffer.from(value, encoding), unshift);
     }
 
     /**
      * @param value
      * @param byteLength
      * @param noAssert
-     * @returns {ExtendedBuffer}
+     * @param unshift
+     * @returns {*}
      */
-    writeIntBE(value, byteLength, noAssert) {
+    writeIntBE(value, byteLength, noAssert, unshift) {
         let buffer = Buffer.alloc(byteLength);
         buffer.writeIntBE(value, 0, byteLength, noAssert);
-        this.buffer = Buffer.concat([this.buffer, buffer]);
-        return this;
+        return this.writeBuffer(buffer, unshift);
     };
 
     /**
      * @param value
      * @param byteLength
      * @param noAssert
+     * @param unshift
      * @returns {ExtendedBuffer}
      */
-    writeIntLE(value, byteLength, noAssert) {
+    writeIntLE(value, byteLength, noAssert, unshift) {
         let buffer = Buffer.alloc(byteLength);
         buffer.writeIntLE(value, 0, byteLength, noAssert);
-        this.buffer = Buffer.concat([this.buffer, buffer]);
-        return this;
+        return this.writeBuffer(buffer, unshift);
     };
 
     /**
      * @param value
      * @param byteLength
      * @param noAssert
+     * @param unshift
      * @returns {ExtendedBuffer}
      */
-    writeUIntBE(value, byteLength, noAssert) {
+    writeUIntBE(value, byteLength, noAssert, unshift) {
         let buffer = Buffer.alloc(byteLength);
         buffer.writeUIntBE(value, 0, byteLength, noAssert);
-        this.buffer = Buffer.concat([this.buffer, buffer]);
-        return this;
+        return this.writeBuffer(buffer, unshift);
     };
 
     /**
      * @param value
      * @param byteLength
      * @param noAssert
+     * @param unshift
      * @returns {ExtendedBuffer}
      */
-    writeUIntLE(value, byteLength, noAssert) {
+    writeUIntLE(value, byteLength, noAssert, unshift) {
         let buffer = Buffer.alloc(byteLength);
         buffer.writeUIntLE(value, 0, byteLength, noAssert);
-        this.buffer = Buffer.concat([this.buffer, buffer]);
-        return this;
+        return this.writeBuffer(buffer, unshift);
     };
 
     /**
      * @param value
      * @param noAssert
-     * @returns {ExtendedBuffer}
+     * @param unshift
+     * @returns {*}
      */
-    writeInt8(value, noAssert) {
-        return this.writeIntBE(value, 1, noAssert);
+    writeInt8(value, noAssert, unshift) {
+        return this.writeIntBE(value, 1, noAssert, unshift);
     };
 
     /**
      * @param value
      * @param noAssert
+     * @param unshift
      * @returns {ExtendedBuffer}
      */
-    writeUInt8(value, noAssert) {
-        return this.writeUIntBE(value, 1, noAssert);
+    writeUInt8(value, noAssert, unshift) {
+        return this.writeUIntBE(value, 1, noAssert, unshift);
     };
 
     /**
      * @param value
      * @param noAssert
-     * @returns {ExtendedBuffer}
+     * @param unshift
+     * @returns {*}
      */
-    writeInt16BE(value, noAssert) {
-        return this.writeIntBE(value, 2, noAssert);
+    writeInt16BE(value, noAssert, unshift) {
+        return this.writeIntBE(value, 2, noAssert, unshift);
     };
 
     /**
      * @param value
      * @param noAssert
+     * @param unshift
      * @returns {ExtendedBuffer}
      */
-    writeInt16LE(value, noAssert) {
-        return this.writeIntLE(value, 2, noAssert);
+    writeInt16LE(value, noAssert, unshift) {
+        return this.writeIntLE(value, 2, noAssert, unshift);
     };
 
     /**
      * @param value
      * @param noAssert
+     * @param unshift
      * @returns {ExtendedBuffer}
      */
-    writeUInt16BE(value, noAssert) {
-        return this.writeUIntBE(value, 2, noAssert);
+    writeUInt16BE(value, noAssert, unshift) {
+        return this.writeUIntBE(value, 2, noAssert, unshift);
     };
 
     /**
      * @param value
      * @param noAssert
+     * @param unshift
      * @returns {ExtendedBuffer}
      */
-    writeUInt16LE(value, noAssert) {
-        return this.writeUIntLE(value, 2, noAssert);
+    writeUInt16LE(value, noAssert, unshift) {
+        return this.writeUIntLE(value, 2, noAssert, unshift);
     };
 
     /**
      * @param value
      * @param noAssert
-     * @returns {ExtendedBuffer}
+     * @param unshift
+     * @returns {*}
      */
-    writeInt32BE(value, noAssert) {
-        return this.writeIntBE(value, 4, noAssert);
+    writeInt32BE(value, noAssert, unshift) {
+        return this.writeIntBE(value, 4, noAssert, unshift);
     };
 
     /**
      * @param value
      * @param noAssert
+     * @param unshift
      * @returns {ExtendedBuffer}
      */
-    writeInt32LE(value, noAssert) {
-        return this.writeIntLE(value, 4, noAssert);
+    writeInt32LE(value, noAssert, unshift) {
+        return this.writeIntLE(value, 4, noAssert, unshift);
     };
 
     /**
      * @param value
      * @param noAssert
+     * @param unshift
      * @returns {ExtendedBuffer}
      */
-    writeUInt32BE(value, noAssert) {
-        return this.writeUIntBE(value, 4, noAssert);
+    writeUInt32BE(value, noAssert, unshift) {
+        return this.writeUIntBE(value, 4, noAssert, unshift);
     };
 
     /**
      * @param value
      * @param noAssert
+     * @param unshift
      * @returns {ExtendedBuffer}
      */
-    writeUInt32LE(value, noAssert) {
-        return this.writeUIntLE(value, 4, noAssert);
+    writeUInt32LE(value, noAssert, unshift) {
+        return this.writeUIntLE(value, 4, noAssert, unshift);
     };
 
     /**
      * @param value
      * @param noAssert
-     * @returns {ExtendedBuffer}
+     * @param unshift
+     * @returns {*}
      */
-    writeInt64BE(value, noAssert) {
-        return this.writeIntBE(value, 8, noAssert);
+    writeInt64BE(value, noAssert, unshift) {
+        return this.writeIntBE(value, 8, noAssert, unshift);
     };
 
     /**
      * @param value
      * @param noAssert
+     * @param unshift
      * @returns {ExtendedBuffer}
      */
-    writeInt64LE(value, noAssert) {
-        return this.writeIntLE(value, 8, noAssert);
+    writeInt64LE(value, noAssert, unshift) {
+        return this.writeIntLE(value, 8, noAssert, unshift);
     };
 
     /**
      * @param value
      * @param noAssert
+     * @param unshift
      * @returns {ExtendedBuffer}
      */
-    writeUInt64BE(value, noAssert) {
-        return this.writeUIntBE(value, 8, noAssert);
+    writeUInt64BE(value, noAssert, unshift) {
+        return this.writeUIntBE(value, 8, noAssert, unshift);
     };
 
     /**
      * @param value
      * @param noAssert
+     * @param unshift
      * @returns {ExtendedBuffer}
      */
-    writeUInt64LE(value, noAssert) {
-        return this.writeUIntLE(value, 8, noAssert);
+    writeUInt64LE(value, noAssert, unshift) {
+        return this.writeUIntLE(value, 8, noAssert, unshift);
     };
 
     /**
      * @param value
      * @param noAssert
+     * @param unshift
      * @returns {ExtendedBuffer}
      */
-    writeFloatBE(value, noAssert) {
+    writeFloatBE(value, noAssert, unshift) {
         let buffer = Buffer.alloc(4);
         buffer.writeFloatBE(value, 0, noAssert);
-        this.buffer = Buffer.concat([this.buffer, buffer]);
-        return this;
+        return this.writeBuffer(buffer, unshift);
     };
 
     /**
      * @param value
      * @param noAssert
+     * @param unshift
      * @returns {ExtendedBuffer}
      */
-    writeFloatLE(value, noAssert) {
+    writeFloatLE(value, noAssert, unshift) {
         let buffer = Buffer.alloc(4);
         buffer.writeFloatLE(value, 0, noAssert);
-        this.buffer = Buffer.concat([this.buffer, buffer]);
-        return this;
+        return this.writeBuffer(buffer, unshift);
     };
 
     /**
      * @param value
      * @param noAssert
+     * @param unshift
      * @returns {ExtendedBuffer}
      */
-    writeDoubleBE(value, noAssert) {
+    writeDoubleBE(value, noAssert, unshift) {
         let buffer = Buffer.alloc(8);
         buffer.writeDoubleBE(value, 0, noAssert);
-        this.buffer = Buffer.concat([this.buffer, buffer]);
-        return this;
+        return this.writeBuffer(buffer, unshift);
     };
 
     /**
      * @param value
      * @param noAssert
+     * @param unshift
      * @returns {ExtendedBuffer}
      */
-    writeDoubleLE(value, noAssert) {
+    writeDoubleLE(value, noAssert, unshift) {
         let buffer = Buffer.alloc(8);
         buffer.writeDoubleLE(value, 0, noAssert);
-        this.buffer = Buffer.concat([this.buffer, buffer]);
-        return this;
+        return this.writeBuffer(buffer, unshift);
     };
 
     /**
@@ -363,7 +378,7 @@ module.exports = class ExtendedBuffer {
      * @param value
      * @returns {ExtendedBuffer}
      */
-    writeVarInt32(value) {
+    writeVarInt32LE(value) {
         value = parseInt(value) || 0;
         value >>>= 0;
         let b;
@@ -590,7 +605,7 @@ module.exports = class ExtendedBuffer {
      * https://github.com/dcodeIO/bytebuffer.js/blob/f3f310b6786e5d44686d385a2cc60c6720a1069b/src/types/varints/varint32.js
      * @returns {number}
      */
-    readVarInt32() {
+    readVarInt32BE() {
         let c = 0,
             value = 0 >>> 0,
             b;
