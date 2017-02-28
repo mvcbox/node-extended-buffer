@@ -60,6 +60,24 @@ module.exports = class ExtendedBuffer {
     }
 
     /**
+     * https://github.com/dcodeIO/bytebuffer.js/blob/f3f310b6786e5d44686d385a2cc60c6720a1069b/src/types/varints/varint32.js
+     * @param {number} value Signed 32bit integer
+     * @returns {number} Unsigned zigzag encoded 32bit integer
+     */
+    static zigZagEncode32(value) {
+        return (((value |= 0) << 1) ^ (value >> 31)) >>> 0;
+    }
+
+    /**
+     * https://github.com/dcodeIO/bytebuffer.js/blob/f3f310b6786e5d44686d385a2cc60c6720a1069b/src/types/varints/varint32.js
+     * @param {number} value Unsigned zigzag encoded 32bit integer
+     * @returns {number} Signed 32bit integer
+     */
+    static zigZagDecode32(value) {
+        return ((value >>> 1) ^ -(value & 1)) | 0;
+    }
+
+    /**
      * @param pointer
      * @returns {ExtendedBuffer}
      */
@@ -390,15 +408,6 @@ module.exports = class ExtendedBuffer {
     }
 
     /**
-     * https://github.com/dcodeIO/bytebuffer.js/blob/f3f310b6786e5d44686d385a2cc60c6720a1069b/src/types/varints/varint32.js
-     * @param {number} value Signed 32bit integer
-     * @returns {number} Unsigned zigzag encoded 32bit integer
-     */
-    zigZagEncode32(value) {
-        return (((value |= 0) << 1) ^ (value >> 31)) >>> 0;
-    }
-
-    /**
      * @param size
      * @param asNative
      * @returns {ExtendedBuffer|Buffer}
@@ -625,14 +634,5 @@ module.exports = class ExtendedBuffer {
             ++c;
         } while ((b & 0x80) !== 0);
         return value | 0;
-    }
-
-    /**
-     * https://github.com/dcodeIO/bytebuffer.js/blob/f3f310b6786e5d44686d385a2cc60c6720a1069b/src/types/varints/varint32.js
-     * @param {number} value Unsigned zigzag encoded 32bit integer
-     * @returns {number} Signed 32bit integer
-     */
-    zigZagDecode32(value) {
-        return ((value >>> 1) ^ -(value & 1)) | 0;
     }
 };
