@@ -25,9 +25,8 @@ module.exports = class ExtendedBuffer {
             return new ExtendedBuffer(buffer.buffer);
         } else if (buffer instanceof Buffer) {
             return Buffer.from(buffer);
-        } else {
-            throw new TypeError('"buffer" is not an instance of a class ExtendedBuffer or Buffer');
         }
+        throw new TypeError('"buffer" is not an instance of a class ExtendedBuffer or Buffer');
     }
 
     /**
@@ -384,10 +383,10 @@ module.exports = class ExtendedBuffer {
         let b;
         while (value >= 0x80) {
             b = (value & 0x7f) | 0x80;
-            this.writeUInt8(b);
+            this.writeInt8(b);
             value >>>= 7;
         }
-        return this.writeUInt8(value);
+        return this.writeInt8(value);
     }
 
     /**
@@ -616,7 +615,6 @@ module.exports = class ExtendedBuffer {
             }
             ++c;
         } while ((b & 0x80) !== 0);
-        value |= 0;
-        return value;
+        return value | 0;
     }
 };
