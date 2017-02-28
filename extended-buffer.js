@@ -377,16 +377,16 @@ module.exports = class ExtendedBuffer {
      * @param value
      * @returns {ExtendedBuffer}
      */
-    writeVarInt32LE(value) {
+    writeVarInt32(value) {
         value = parseInt(value) || 0;
         value >>>= 0;
         let b;
         while (value >= 0x80) {
             b = (value & 0x7f) | 0x80;
-            this.writeInt8(b);
+            this.writeUInt8(b);
             value >>>= 7;
         }
-        return this.writeInt8(value);
+        return this.writeUInt8(value);
     }
 
     /**
@@ -604,7 +604,7 @@ module.exports = class ExtendedBuffer {
      * https://github.com/dcodeIO/bytebuffer.js/blob/f3f310b6786e5d44686d385a2cc60c6720a1069b/src/types/varints/varint32.js
      * @returns {number}
      */
-    readVarInt32BE() {
+    readVarInt32() {
         let c = 0,
             value = 0 >>> 0,
             b;
