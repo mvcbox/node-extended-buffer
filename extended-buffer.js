@@ -1,6 +1,6 @@
 'use strict';
 
-module.exports = class ExtendedBuffer {
+class ExtendedBuffer {
     /**
      * @param input
      */
@@ -161,7 +161,7 @@ module.exports = class ExtendedBuffer {
         let buffer = Buffer.alloc(byteLength);
         buffer.writeIntBE(value, 0, byteLength, noAssert);
         return this.writeBuffer(buffer, unshift);
-    };
+    }
 
     /**
      * @param value
@@ -174,7 +174,7 @@ module.exports = class ExtendedBuffer {
         let buffer = Buffer.alloc(byteLength);
         buffer.writeIntLE(value, 0, byteLength, noAssert);
         return this.writeBuffer(buffer, unshift);
-    };
+    }
 
     /**
      * @param value
@@ -187,7 +187,7 @@ module.exports = class ExtendedBuffer {
         let buffer = Buffer.alloc(byteLength);
         buffer.writeUIntBE(value, 0, byteLength, noAssert);
         return this.writeBuffer(buffer, unshift);
-    };
+    }
 
     /**
      * @param value
@@ -200,7 +200,7 @@ module.exports = class ExtendedBuffer {
         let buffer = Buffer.alloc(byteLength);
         buffer.writeUIntLE(value, 0, byteLength, noAssert);
         return this.writeBuffer(buffer, unshift);
-    };
+    }
 
     /**
      * @param value
@@ -210,7 +210,7 @@ module.exports = class ExtendedBuffer {
      */
     writeInt8(value, noAssert, unshift) {
         return this.writeIntBE(value, 1, noAssert, unshift);
-    };
+    }
 
     /**
      * @param value
@@ -220,7 +220,7 @@ module.exports = class ExtendedBuffer {
      */
     writeUInt8(value, noAssert, unshift) {
         return this.writeUIntBE(value, 1, noAssert, unshift);
-    };
+    }
 
     /**
      * @param value
@@ -230,7 +230,7 @@ module.exports = class ExtendedBuffer {
      */
     writeInt16BE(value, noAssert, unshift) {
         return this.writeIntBE(value, 2, noAssert, unshift);
-    };
+    }
 
     /**
      * @param value
@@ -240,7 +240,7 @@ module.exports = class ExtendedBuffer {
      */
     writeInt16LE(value, noAssert, unshift) {
         return this.writeIntLE(value, 2, noAssert, unshift);
-    };
+    }
 
     /**
      * @param value
@@ -250,7 +250,7 @@ module.exports = class ExtendedBuffer {
      */
     writeUInt16BE(value, noAssert, unshift) {
         return this.writeUIntBE(value, 2, noAssert, unshift);
-    };
+    }
 
     /**
      * @param value
@@ -260,7 +260,7 @@ module.exports = class ExtendedBuffer {
      */
     writeUInt16LE(value, noAssert, unshift) {
         return this.writeUIntLE(value, 2, noAssert, unshift);
-    };
+    }
 
     /**
      * @param value
@@ -270,7 +270,7 @@ module.exports = class ExtendedBuffer {
      */
     writeInt32BE(value, noAssert, unshift) {
         return this.writeIntBE(value, 4, noAssert, unshift);
-    };
+    }
 
     /**
      * @param value
@@ -280,7 +280,7 @@ module.exports = class ExtendedBuffer {
      */
     writeInt32LE(value, noAssert, unshift) {
         return this.writeIntLE(value, 4, noAssert, unshift);
-    };
+    }
 
     /**
      * @param value
@@ -290,7 +290,7 @@ module.exports = class ExtendedBuffer {
      */
     writeUInt32BE(value, noAssert, unshift) {
         return this.writeUIntBE(value, 4, noAssert, unshift);
-    };
+    }
 
     /**
      * @param value
@@ -300,7 +300,7 @@ module.exports = class ExtendedBuffer {
      */
     writeUInt32LE(value, noAssert, unshift) {
         return this.writeUIntLE(value, 4, noAssert, unshift);
-    };
+    }
 
     /**
      * @param value
@@ -310,7 +310,7 @@ module.exports = class ExtendedBuffer {
      */
     writeInt64BE(value, noAssert, unshift) {
         return this.writeIntBE(value, 8, noAssert, unshift);
-    };
+    }
 
     /**
      * @param value
@@ -320,7 +320,7 @@ module.exports = class ExtendedBuffer {
      */
     writeInt64LE(value, noAssert, unshift) {
         return this.writeIntLE(value, 8, noAssert, unshift);
-    };
+    }
 
     /**
      * @param value
@@ -330,7 +330,7 @@ module.exports = class ExtendedBuffer {
      */
     writeUInt64BE(value, noAssert, unshift) {
         return this.writeUIntBE(value, 8, noAssert, unshift);
-    };
+    }
 
     /**
      * @param value
@@ -340,7 +340,7 @@ module.exports = class ExtendedBuffer {
      */
     writeUInt64LE(value, noAssert, unshift) {
         return this.writeUIntLE(value, 8, noAssert, unshift);
-    };
+    }
 
     /**
      * @param value
@@ -352,7 +352,7 @@ module.exports = class ExtendedBuffer {
         let buffer = Buffer.alloc(4);
         buffer.writeFloatBE(value, 0, noAssert);
         return this.writeBuffer(buffer, unshift);
-    };
+    }
 
     /**
      * @param value
@@ -364,7 +364,7 @@ module.exports = class ExtendedBuffer {
         let buffer = Buffer.alloc(4);
         buffer.writeFloatLE(value, 0, noAssert);
         return this.writeBuffer(buffer, unshift);
-    };
+    }
 
     /**
      * @param value
@@ -376,7 +376,7 @@ module.exports = class ExtendedBuffer {
         let buffer = Buffer.alloc(8);
         buffer.writeDoubleBE(value, 0, noAssert);
         return this.writeBuffer(buffer, unshift);
-    };
+    }
 
     /**
      * @param value
@@ -388,7 +388,7 @@ module.exports = class ExtendedBuffer {
         let buffer = Buffer.alloc(8);
         buffer.writeDoubleLE(value, 0, noAssert);
         return this.writeBuffer(buffer, unshift);
-    };
+    }
 
     /**
      * https://github.com/dcodeIO/bytebuffer.js/blob/f3f310b6786e5d44686d385a2cc60c6720a1069b/src/types/varints/varint32.js
@@ -418,7 +418,7 @@ module.exports = class ExtendedBuffer {
             return Buffer.from(this.buffer.slice(this.pointer - size, this.pointer));
         }
         return new ExtendedBuffer(this.buffer.slice(this.pointer - size, this.pointer));
-    };
+    }
 
     /**
      * @param size
@@ -428,7 +428,7 @@ module.exports = class ExtendedBuffer {
     readString(size, encoding) {
         this.pointer += size;
         return this.buffer.toString(encoding, this.pointer - size, this.pointer);
-    };
+    }
 
     /**
      * @param byteLength
@@ -438,7 +438,7 @@ module.exports = class ExtendedBuffer {
     readIntBE(byteLength, noAssert) {
         this.pointer += byteLength;
         return this.buffer.readIntBE(this.pointer - byteLength, byteLength, noAssert);
-    };
+    }
 
     /**
      * @param byteLength
@@ -448,7 +448,7 @@ module.exports = class ExtendedBuffer {
     readIntLE(byteLength, noAssert) {
         this.pointer += byteLength;
         return this.buffer.readIntLE(this.pointer - byteLength, byteLength, noAssert);
-    };
+    }
 
     /**
      * @param byteLength
@@ -458,7 +458,7 @@ module.exports = class ExtendedBuffer {
     readUIntBE(byteLength, noAssert) {
         this.pointer += byteLength;
         return this.buffer.readUIntBE(this.pointer - byteLength, byteLength, noAssert);
-    };
+    }
 
     /**
      * @param byteLength
@@ -468,7 +468,7 @@ module.exports = class ExtendedBuffer {
     readUIntLE(byteLength, noAssert) {
         this.pointer += byteLength;
         return this.buffer.readUIntLE(this.pointer - byteLength, byteLength, noAssert);
-    };
+    }
 
     /**
      * @param noAssert
@@ -476,7 +476,7 @@ module.exports = class ExtendedBuffer {
      */
     readInt8(noAssert) {
         return this.readIntBE(1, noAssert);
-    };
+    }
 
     /**
      * @param noAssert
@@ -484,7 +484,7 @@ module.exports = class ExtendedBuffer {
      */
     readUInt8(noAssert) {
         return this.readUIntBE(1, noAssert);
-    };
+    }
 
     /**
      * @param noAssert
@@ -492,7 +492,7 @@ module.exports = class ExtendedBuffer {
      */
     readInt16BE(noAssert) {
         return this.readIntBE(2, noAssert);
-    };
+    }
 
     /**
      * @param noAssert
@@ -500,7 +500,7 @@ module.exports = class ExtendedBuffer {
      */
     readInt16LE(noAssert) {
         return this.readIntLE(2, noAssert);
-    };
+    }
 
     /**
      * @param noAssert
@@ -508,7 +508,7 @@ module.exports = class ExtendedBuffer {
      */
     readUInt16BE(noAssert) {
         return this.readUIntBE(2, noAssert);
-    };
+    }
 
     /**
      * @param noAssert
@@ -516,7 +516,7 @@ module.exports = class ExtendedBuffer {
      */
     readUInt16LE(noAssert) {
         return this.readUIntLE(2, noAssert);
-    };
+    }
 
     /**
      * @param noAssert
@@ -524,7 +524,7 @@ module.exports = class ExtendedBuffer {
      */
     readInt32BE(noAssert) {
         return this.readIntBE(4, noAssert);
-    };
+    }
 
     /**
      * @param noAssert
@@ -532,7 +532,7 @@ module.exports = class ExtendedBuffer {
      */
     readInt32LE(noAssert) {
         return this.readIntLE(4, noAssert);
-    };
+    }
 
     /**
      * @param noAssert
@@ -540,7 +540,7 @@ module.exports = class ExtendedBuffer {
      */
     readUInt32BE(noAssert) {
         return this.readUIntBE(4, noAssert);
-    };
+    }
 
     /**
      * @param noAssert
@@ -548,7 +548,7 @@ module.exports = class ExtendedBuffer {
      */
     readUInt32LE(noAssert) {
         return this.readUIntLE(4, noAssert);
-    };
+    }
 
     /**
      * @param noAssert
@@ -556,7 +556,7 @@ module.exports = class ExtendedBuffer {
      */
     readInt64BE(noAssert) {
         return this.readIntBE(8, noAssert);
-    };
+    }
 
     /**
      * @param noAssert
@@ -564,7 +564,7 @@ module.exports = class ExtendedBuffer {
      */
     readInt64LE(noAssert) {
         return this.readIntLE(8, noAssert);
-    };
+    }
 
     /**
      * @param noAssert
@@ -572,7 +572,7 @@ module.exports = class ExtendedBuffer {
      */
     readUInt64BE(noAssert) {
         return this.readUIntBE(8, noAssert);
-    };
+    }
 
     /**
      * @param noAssert
@@ -580,7 +580,7 @@ module.exports = class ExtendedBuffer {
      */
     readUInt64LE(noAssert) {
         return this.readUIntLE(8, noAssert);
-    };
+    }
 
     /**
      * @param noAssert
@@ -589,7 +589,7 @@ module.exports = class ExtendedBuffer {
     readFloatBE(noAssert) {
         this.pointer += 4;
         return this.buffer.readFloatBE(this.pointer - 4, noAssert);
-    };
+    }
 
     /**
      * @param noAssert
@@ -598,7 +598,7 @@ module.exports = class ExtendedBuffer {
     readFloatLE(noAssert) {
         this.pointer += 4;
         return this.buffer.readFloatLE(this.pointer - 4, noAssert);
-    };
+    }
 
     /**
      * @param noAssert
@@ -607,7 +607,7 @@ module.exports = class ExtendedBuffer {
     readDoubleBE(noAssert) {
         this.pointer += 8;
         return this.buffer.readDoubleBE(this.pointer - 8, noAssert);
-    };
+    }
 
     /**
      * @param noAssert
@@ -616,7 +616,7 @@ module.exports = class ExtendedBuffer {
     readDoubleLE(noAssert) {
         this.pointer += 8;
         return this.buffer.readDoubleLE(this.pointer - 8, noAssert);
-    };
+    }
 
     /**
      * https://github.com/dcodeIO/bytebuffer.js/blob/f3f310b6786e5d44686d385a2cc60c6720a1069b/src/types/varints/varint32.js
@@ -635,4 +635,6 @@ module.exports = class ExtendedBuffer {
         } while ((b & 0x80) !== 0);
         return value | 0;
     }
-};
+}
+
+module.exports = ExtendedBuffer;
