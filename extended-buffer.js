@@ -33,6 +33,9 @@ class ExtendedBuffer {
      * @returns {ExtendedBuffer}
      */
     static from() {
+        if (arguments[0] instanceof ExtendedBuffer) {
+            arguments[0] = arguments[0].buffer;
+        }
         return new ExtendedBuffer(Buffer.from.apply(this, arguments));
     }
 
