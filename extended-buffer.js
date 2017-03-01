@@ -46,8 +46,7 @@ class ExtendedBuffer {
      */
     static concat(list, totalLength) {
         let result = Buffer.alloc(0);
-        let size = list.length;
-        for (let i = 0; i < size; i++) {
+        for (let i = 0; i < list.length; i++) {
             if (list[i] instanceof ExtendedBuffer && list[i].buffer instanceof Buffer) {
                 result = Buffer.concat([result, list[i].buffer]);
             } else if (list[i] instanceof Buffer) {
