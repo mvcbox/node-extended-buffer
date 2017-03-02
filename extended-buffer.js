@@ -17,26 +17,13 @@ class ExtendedBuffer {
     }
 
     /**
-     * @param buffer
-     * @returns {ExtendedBuffer}
-     */
-    static copy(buffer) {
-        if (buffer instanceof ExtendedBuffer && buffer.buffer instanceof Buffer) {
-            return new ExtendedBuffer(buffer.buffer);
-        } else if (buffer instanceof Buffer) {
-            return Buffer.from(buffer);
-        }
-        throw new TypeError('"buffer" is not an instance of a class ExtendedBuffer or Buffer');
-    }
-
-    /**
      * @returns {ExtendedBuffer}
      */
     static from() {
         if (arguments[0] instanceof ExtendedBuffer) {
             arguments[0] = arguments[0].buffer;
         }
-        return new ExtendedBuffer(Buffer.from.apply(this, arguments));
+        return new ExtendedBuffer(Buffer.from.apply(Buffer, arguments));
     }
 
     /**
