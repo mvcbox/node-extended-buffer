@@ -7,7 +7,7 @@ Node JS extended Buffer
 npm install extended-buffer --save
 ```
 
-### Class methods
+### Class methods:
 ###### ExtendedBuffer.from(array)
 ###### ExtendedBuffer.from(arrayBuffer[, byteOffset[, length]])
 ###### ExtendedBuffer.from(buffer)
@@ -16,12 +16,12 @@ npm install extended-buffer --save
 ###### ExtendedBuffer.zigZagEncode32(value)
 ###### ExtendedBuffer.zigZagDecode32(value)
 
-### Instance properties
+### Instance properties:
 ###### buffer.buffer - Instance of Buffer class
 ###### buffer.pointer - Current offset for buffer.buffer
 ###### buffer.length - Buffer size (getter for buffer.buffer.length)
 
-### Instance methods
+### Instance methods:
 ###### buffer.setPointer(value)
 ###### buffer.getPointer()
 ###### buffer.offset(value)
@@ -78,3 +78,16 @@ npm install extended-buffer --save
 ###### buffer.readDoubleBE([noAssert])
 ###### buffer.readDoubleLE([noAssert])
 ###### buffer.readVarInt32()
+
+### Example 1:
+```js
+const ExtendedBuffer = require('extended-buffer');
+let buffer = new ExtendedBuffer;
+console.log(buffer.length); // 0
+buffer.writeInt32LE(123).writeInt32LE(456).writeInt32LE(789);
+console.log(buffer.length); // 12
+
+console.log(buffer.readInt32LE()); // 123
+console.log(buffer.readInt32LE()); // 456
+console.log(buffer.readInt32LE()); // 789
+```
