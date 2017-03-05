@@ -22,7 +22,6 @@ npm install extended-buffer --save
 ###### buffer.length - Buffer size (getter for buffer.buffer.length)
 
 ### Instance methods
-###### ====================== Write ============================
 ###### buffer.setPointer(value)
 ###### buffer.getPointer()
 ###### buffer.offset(value)
@@ -54,7 +53,6 @@ npm install extended-buffer --save
 ###### buffer.writeDoubleBE(value[, noAssert[, unshift]])
 ###### buffer.writeDoubleLE(value[, noAssert[, unshift]])
 ###### buffer.writeVarInt32(value[, unshift])
-###### ====================== Read ============================
 ###### buffer.readBuffer(size[, asNative])
 ###### buffer.readString(size[, encoding])
 ###### buffer.readIntBE(byteLength[, noAssert])

@@ -382,18 +382,21 @@ class ExtendedBuffer {
     /**
      * https://github.com/dcodeIO/bytebuffer.js/blob/f3f310b6786e5d44686d385a2cc60c6720a1069b/src/types/varints/varint32.js
      * @param value
+     * @param unshift
      * @returns {ExtendedBuffer}
      */
-    writeVarInt32(value) {
+    writeVarInt32(value, unshift) {
         value = parseInt(value) || 0;
         value >>>= 0;
         let b;
+        let buffer = new ExtendedBuffer;
         while (value >= 0x80) {
             b = (value & 0x7f) | 0x80;
-            this.writeUInt8(b);
+            buffer.writeUInt8(b);
             value >>>= 7;
         }
-        return this.writeUInt8(value);
+        buffer.writeUInt8(value);
+        return this.writeBuffer(buffer, unshift);
     }
 
     /**
