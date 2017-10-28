@@ -17,20 +17,13 @@ class ExtendedBuffer {
     }
 
     /**
-     * @returns {number}
-     */
-    get length() {
-        return this.buffer.length;
-    }
-
-    /**
      * @returns {ExtendedBuffer}
      */
     static from() {
         if (arguments[0] instanceof ExtendedBuffer) {
             arguments[0] = arguments[0].buffer;
         }
-        return new ExtendedBuffer(Buffer.from.apply(Buffer, arguments));
+        return new this(Buffer.from.apply(Buffer, arguments));
     }
 
     /**
@@ -53,7 +46,7 @@ class ExtendedBuffer {
                 break;
             }
         }
-        return new ExtendedBuffer(result.slice(0, totalLength));
+        return new this(result.slice(0, totalLength));
     }
 
     /**
@@ -72,6 +65,13 @@ class ExtendedBuffer {
      */
     static zigZagDecode32(value) {
         return ((value >>> 1) ^ -(value & 1)) | 0;
+    }
+
+    /**
+     * @returns {number}
+     */
+    get length() {
+        return this.buffer.length;
     }
 
     /**
@@ -410,7 +410,7 @@ class ExtendedBuffer {
         value = parseInt(value) || 0;
         value >>>= 0;
         let b;
-        let buffer = new ExtendedBuffer;
+        let buffer = new this.constructor;
         while (value >= 0x80) {
             b = (value & 0x7f) | 0x80;
             buffer.writeUIntBE(b, 1);
@@ -430,7 +430,7 @@ class ExtendedBuffer {
         if (asNative) {
             return Buffer.from(this.buffer.slice(this.pointer - size, this.pointer));
         }
-        return new ExtendedBuffer(this.buffer.slice(this.pointer - size, this.pointer));
+        return new this.constructor(this.buffer.slice(this.pointer - size, this.pointer));
     }
 
     /**
