@@ -4,9 +4,16 @@ class ExtendedBuffer {
     /**
      * @param input
      */
-    constructor (input) {
-        this.buffer = Buffer.from((input instanceof Buffer) ? input : []);
+    constructor () {
         this.pointer = 0;
+        if (!arguments.length) {
+            this.buffer = Buffer.from([]);
+            return;
+        }
+        if (arguments[0] instanceof ExtendedBuffer) {
+            arguments[0] = arguments[0].buffer;
+        }
+        this.buffer = Buffer.from.apply(Buffer, arguments);
     }
 
     /**
@@ -33,7 +40,8 @@ class ExtendedBuffer {
      */
     static concat(list, totalLength) {
         let result = Buffer.alloc(0);
-        for (let i = 0; i < list.length; i++) {
+        let listLength = list.length;
+        for (let i = 0; i < listLength; ++i) {
             if (list[i] instanceof ExtendedBuffer && list[i].buffer instanceof Buffer) {
                 result = Buffer.concat([result, list[i].buffer]);
             } else if (list[i] instanceof Buffer) {
@@ -67,6 +75,18 @@ class ExtendedBuffer {
     }
 
     /**
+     * Garbage Collector
+     * @return {ExtendedBuffer}
+     */
+    gc() {
+        if (this.pointer > 0) {
+            this.buffer = this.buffer.slice(this.pointer);
+            this.pointer = 0;
+        }
+        return this;
+    }
+
+    /**
      * @param pointer
      * @returns {ExtendedBuffer}
      */
@@ -90,6 +110,7 @@ class ExtendedBuffer {
      */
     offset(offset) {
         this.pointer += parseInt(offset) || 0;
+        this.pointer = this.pointer < 0 ? 0 : this.pointer;
         return this;
     }
 
@@ -392,10 +413,10 @@ class ExtendedBuffer {
         let buffer = new ExtendedBuffer;
         while (value >= 0x80) {
             b = (value & 0x7f) | 0x80;
-            buffer.writeUInt8(b);
+            buffer.writeUIntBE(b, 1);
             value >>>= 7;
         }
-        buffer.writeUInt8(value);
+        buffer.writeUIntBE(value, 1);
         return this.writeBuffer(buffer, unshift);
     }
 
@@ -619,7 +640,7 @@ class ExtendedBuffer {
             value = 0 >>> 0,
             b;
         do {
-            b = this.readUInt8();
+            b = this.readUIntBE(1);
             if (c < 5) {
                 value |= (b & 0x7f) << (7*c);
             }
