@@ -1,19 +1,27 @@
 'use strict';
 
-class ExtendedBuffer {
+class ExtendedBuffer
+{
     /**
-     * @param input
+     * 
      */
     constructor () {
         this.pointer = 0;
+        this._pointerEnd = 0;
+        this._pointerStart = 0;
+        this._allocSizeEnd = 8192;
+        this._allocSizeStart = 8192;
+
         if (!arguments.length) {
-            this.buffer = Buffer.from([]);
+            this._nativeBuffer = Buffer.from([]);
             return;
         }
+
         if (arguments[0] instanceof ExtendedBuffer) {
             arguments[0] = arguments[0].buffer;
         }
-        this.buffer = Buffer.from.apply(Buffer, arguments);
+
+        this._nativeBuffer = Buffer.from.apply(Buffer, arguments);
     }
 
     /**
@@ -23,29 +31,33 @@ class ExtendedBuffer {
         if (arguments[0] instanceof ExtendedBuffer) {
             arguments[0] = arguments[0].buffer;
         }
+
         return new this(Buffer.from.apply(Buffer, arguments));
     }
 
     /**
-     * @param list
-     * @param totalLength
+     * @param {Array} list
+     * @param {number} totalLength
      * @returns {ExtendedBuffer}
      */
     static concat(list, totalLength) {
         let result = Buffer.alloc(0);
         let listLength = list.length;
+
         for (let i = 0; i < listLength; ++i) {
-            if (list[i] instanceof ExtendedBuffer && list[i].buffer instanceof Buffer) {
+            if (list[i] instanceof ExtendedBuffer) {
                 result = Buffer.concat([result, list[i].buffer]);
             } else if (list[i] instanceof Buffer) {
                 result = Buffer.concat([result, list[i]]);
             } else {
                 throw new TypeError('"list" have incorrect value');
             }
+
             if (totalLength && result.length >= totalLength) {
                 break;
             }
         }
+
         return new this(result.slice(0, totalLength));
     }
 
@@ -71,7 +83,112 @@ class ExtendedBuffer {
      * @returns {number}
      */
     get length() {
-        return this.buffer.length;
+        return this._pointerEnd - this._pointerStart;
+    }
+
+    /**
+     * @return {Buffer}
+     */
+    get buffer() {
+        return this._nativeBuffer.slice(this._pointerStart, this._pointerEnd);
+    }
+
+    /**
+     * @param {number} size
+     * @return {ExtendedBuffer}
+     */
+    setAllocSizeStart(size) {
+        size = parseInt(size) || 0;
+        this._allocSizeStart = size < 0 ? 0 : size;
+        return this;
+    }
+
+    /**
+     * @param {number} size
+     * @return {ExtendedBuffer}
+     */
+    setAllocSizeEnd(size) {
+        size = parseInt(size) || 0;
+        this._allocSizeEnd = size < 0 ? 0 : size;
+        return this;
+    }
+
+    /**
+     * @param {number} size
+     * @return {ExtendedBuffer}
+     */
+    setAllocSize(size) {
+        return this.setAllocSizeStart(size).setAllocSizeEnd(size);
+    }
+
+    /**
+     * @return {number}
+     */
+    getFreeSpaceStart() {
+        return this._pointerStart;
+    }
+
+    /**
+     * @return {number}
+     */
+    getFreeSpaceEnd() {
+        return this._nativeBuffer.length - this._pointerEnd;
+    }
+
+    /**
+     * @param {number} bytesCount
+     * @return {ExtendedBuffer}
+     */
+    allocStart(bytesCount) {
+        bytesCount = bytesCount < 0 ? 0 : bytesCount;
+
+        if (bytesCount > this.getFreeSpaceStart()) {
+            let allocSize = bytesCount + this._allocSizeStart;
+            this._nativeBuffer = Buffer.concat([Buffer.alloc(allocSize), this._nativeBuffer]);
+            this._pointerStart += allocSize;
+            this._pointerEnd += allocSize;
+            return this;
+        }
+
+        return this;
+    }
+
+    /**
+     * @param {number} bytesCount
+     * @return {ExtendedBuffer}
+     */
+    allocEnd(bytesCount) {
+        bytesCount = bytesCount < 0 ? 0 : bytesCount;
+
+        if (bytesCount > this.getFreeSpaceEnd()) {
+            this._nativeBuffer = Buffer.concat([
+                this._nativeBuffer,
+                Buffer.alloc(bytesCount + this._allocSizeEnd)
+            ]);
+            return this;
+        }
+
+        return this;
+    }
+
+    /**
+     * @param {Buffer} buffer
+     * @param {boolean} unshift
+     * @return {ExtendedBuffer}
+     * @private
+     */
+    _writeNativeBuffer(buffer, unshift) {
+        if (unshift) {
+            this.allocStart(buffer.length);
+            this._pointerStart -= buffer.length;
+            buffer.copy(this._nativeBuffer, this._pointerStart);
+        } else {
+            this.allocEnd(buffer.length);
+            buffer.copy(this._nativeBuffer, this._pointerEnd);
+            this._pointerEnd += buffer.length;
+        }
+
+        return this;
     }
 
     /**
@@ -80,411 +197,482 @@ class ExtendedBuffer {
      */
     gc() {
         if (this.pointer > 0) {
-            this.buffer = this.buffer.slice(this.pointer);
+            this._nativeBuffer = this._nativeBuffer.slice(this._pointerStart + this.pointer, this._pointerEnd);
             this.pointer = 0;
+            this._pointerStart = 0;
+            this._pointerEnd = this._nativeBuffer.length;
         }
+
         return this;
     }
 
     /**
-     * @param pointer
+     * @param {number} pointer
      * @returns {ExtendedBuffer}
      */
     setPointer(pointer) {
-        this.pointer = parseInt(pointer) || 0;
-        this.pointer = this.pointer < 0 ? this.buffer.length + this.pointer : pointer;
-        this.pointer = this.pointer < 0 ? 0 : this.pointer;
+        if (pointer >= 0 && pointer <= this.length) {
+            this.pointer = pointer;
+        } else {
+            this.pointer = pointer < 0 ? 0 : this.length;
+        }
+
         return this;
     }
 
     /**
      * @returns {number}
      */
-    getPointer(){
+    getPointer() {
         return this.pointer;
     }
 
     /**
-     * @param offset
+     * @param {number} offset
      * @returns {ExtendedBuffer}
      */
     offset(offset) {
-        this.pointer += parseInt(offset) || 0;
-        this.pointer = this.pointer < 0 ? 0 : this.pointer;
-        return this;
+        return this.setPointer(this.pointer + offset);
     }
 
     /**
-     * @param needBytes
+     * @param {number} bytesCount
      * @returns {boolean}
      */
-    isReadable(needBytes) {
-        needBytes = parseInt(needBytes) || 0;
-        needBytes = needBytes < 1 ? 1 : needBytes;
-        return (this.pointer + needBytes) <= this.buffer.length;
+    isReadable(bytesCount) {
+        bytesCount = bytesCount < 1 ? 1 : bytesCount;
+        return (this._pointerEnd - this._pointerStart - this.pointer) >= bytesCount;
     }
 
     /**
-     * @param encoding
-     * @param start
-     * @param end
+     * @param {string} encoding
+     * @param {number} start
+     * @param {number} end
      * @returns {string}
      */
     toString(encoding, start, end) {
-        return this.buffer.toString(encoding, start, end);
+        start = this._pointerStart + (parseInt(start, 10) || 0);
+        start = start < this._pointerStart ? this._pointerStart : start;
+        end = this._pointerStart + (parseInt(end, 10) || 0);
+        end = end > this._pointerEnd ? this._pointerEnd : end;
+        return this._nativeBuffer.toString(encoding, start, end);
     }
 
     /**
-     * @param value
-     * @param unshift
+     * @param {ExtendedBuffer|Buffer} value
+     * @param {boolean} unshift
      * @returns {ExtendedBuffer}
      */
     writeBuffer(value, unshift) {
-        if (value instanceof ExtendedBuffer && value.buffer instanceof Buffer) {
-            this.buffer = Buffer.concat(unshift ? [value.buffer, this.buffer] : [this.buffer, value.buffer]);
-        } else if (value instanceof Buffer) {
-            this.buffer = Buffer.concat(unshift ? [value, this.buffer] : [this.buffer, value]);
+        if (value instanceof Buffer) {
+            return this._writeNativeBuffer(value, unshift);
+        } else if (value instanceof ExtendedBuffer) {
+            return this._writeNativeBuffer(value.buffer, unshift);
         } else {
             throw new TypeError('"value" is incorrect buffer');
         }
+    }
+
+    /**
+     * @param {string} value
+     * @param {string} encoding
+     * @param {boolean} unshift
+     * @returns {ExtendedBuffer}
+     */
+    writeString(value, encoding, unshift) {
+        return this._writeNativeBuffer(Buffer.from(value, encoding), unshift);
+    }
+
+    /**
+     * @param {number} value
+     * @param {number} byteLength
+     * @param {boolean} unshift
+     * @param {boolean} noAssert
+     * @returns {ExtendedBuffer}
+     */
+    writeIntBE(value, byteLength, unshift, noAssert) {
+        if (unshift) {
+            this.allocStart(byteLength);
+            this._pointerStart -= byteLength;
+            this._nativeBuffer.writeIntBE(value, this._pointerStart, byteLength, noAssert);
+        } else {
+            this.allocEnd(byteLength);
+            this._nativeBuffer.writeIntBE(value, this._pointerEnd, byteLength, noAssert);
+            this._pointerEnd += byteLength;
+        }
+
         return this;
     }
 
     /**
-     * @param value
-     * @param encoding
-     * @param unshift
+     * @param {number} value
+     * @param {number} byteLength
+     * @param {boolean} unshift
+     * @param {boolean} noAssert
      * @returns {ExtendedBuffer}
      */
-    writeString(value, encoding, unshift) {
-        return this.writeBuffer(Buffer.from(value, encoding), unshift);
+    writeIntLE(value, byteLength, unshift, noAssert) {
+        if (unshift) {
+            this.allocStart(byteLength);
+            this._pointerStart -= byteLength;
+            this._nativeBuffer.writeIntLE(value, this._pointerStart, byteLength, noAssert);
+        } else {
+            this.allocEnd(byteLength);
+            this._nativeBuffer.writeIntLE(value, this._pointerEnd, byteLength, noAssert);
+            this._pointerEnd += byteLength;
+        }
+
+        return this;
     }
 
     /**
-     * @param value
-     * @param byteLength
-     * @param noAssert
-     * @param unshift
+     * @param {number} value
+     * @param {number} byteLength
+     * @param {boolean} unshift
+     * @param {boolean} noAssert
      * @returns {ExtendedBuffer}
      */
-    writeIntBE(value, byteLength, noAssert, unshift) {
-        let buffer = Buffer.alloc(byteLength);
-        buffer.writeIntBE(value, 0, byteLength, noAssert);
-        return this.writeBuffer(buffer, unshift);
+    writeUIntBE(value, byteLength, unshift, noAssert) {
+        if (unshift) {
+            this.allocStart(byteLength);
+            this._pointerStart -= byteLength;
+            this._nativeBuffer.writeUIntBE(value, this._pointerStart, byteLength, noAssert);
+        } else {
+            this.allocEnd(byteLength);
+            this._nativeBuffer.writeUIntBE(value, this._pointerEnd, byteLength, noAssert);
+            this._pointerEnd += byteLength;
+        }
+
+        return this;
     }
 
     /**
-     * @param value
-     * @param byteLength
-     * @param noAssert
-     * @param unshift
+     * @param {number} value
+     * @param {number} byteLength
+     * @param {boolean} unshift
+     * @param {boolean} noAssert
      * @returns {ExtendedBuffer}
      */
-    writeIntLE(value, byteLength, noAssert, unshift) {
-        let buffer = Buffer.alloc(byteLength);
-        buffer.writeIntLE(value, 0, byteLength, noAssert);
-        return this.writeBuffer(buffer, unshift);
+    writeUIntLE(value, byteLength, unshift, noAssert) {
+        if (unshift) {
+            this.allocStart(byteLength);
+            this._pointerStart -= byteLength;
+            this._nativeBuffer.writeUIntLE(value, this._pointerStart, byteLength, noAssert);
+        } else {
+            this.allocEnd(byteLength);
+            this._nativeBuffer.writeUIntLE(value, this._pointerEnd, byteLength, noAssert);
+            this._pointerEnd += byteLength;
+        }
+
+        return this;
     }
 
     /**
-     * @param value
-     * @param byteLength
-     * @param noAssert
-     * @param unshift
-     * @returns {ExtendedBuffer}
+     * @param {number} value
+     * @param {boolean} unshift
+     * @param {boolean} noAssert
+     * @return {ExtendedBuffer}
      */
-    writeUIntBE(value, byteLength, noAssert, unshift) {
-        let buffer = Buffer.alloc(byteLength);
-        buffer.writeUIntBE(value, 0, byteLength, noAssert);
-        return this.writeBuffer(buffer, unshift);
+    writeInt8(value, unshift, noAssert) {
+        return this.writeIntBE(value, 1, unshift, noAssert);
     }
 
     /**
-     * @param value
-     * @param byteLength
-     * @param noAssert
-     * @param unshift
-     * @returns {ExtendedBuffer}
+     * @param {number} value
+     * @param {boolean} unshift
+     * @param {boolean} noAssert
+     * @return {ExtendedBuffer}
      */
-    writeUIntLE(value, byteLength, noAssert, unshift) {
-        let buffer = Buffer.alloc(byteLength);
-        buffer.writeUIntLE(value, 0, byteLength, noAssert);
-        return this.writeBuffer(buffer, unshift);
+    writeUInt8(value, unshift, noAssert) {
+        return this.writeUIntBE(value, 1, unshift, noAssert);
     }
 
     /**
-     * @param value
-     * @param noAssert
-     * @param unshift
-     * @returns {ExtendedBuffer}
+     * @param {number} value
+     * @param {boolean} unshift
+     * @param {boolean} noAssert
+     * @return {ExtendedBuffer}
      */
-    writeInt8(value, noAssert, unshift) {
-        return this.writeIntBE(value, 1, noAssert, unshift);
+    writeInt16BE(value, unshift, noAssert) {
+        return this.writeIntBE(value, 2, unshift, noAssert);
     }
 
     /**
-     * @param value
-     * @param noAssert
-     * @param unshift
-     * @returns {ExtendedBuffer}
+     * @param {number} value
+     * @param {boolean} unshift
+     * @param {boolean} noAssert
+     * @return {ExtendedBuffer}
      */
-    writeUInt8(value, noAssert, unshift) {
-        return this.writeUIntBE(value, 1, noAssert, unshift);
+    writeInt16LE(value, unshift, noAssert) {
+        return this.writeIntLE(value, 2, unshift, noAssert);
     }
 
     /**
-     * @param value
-     * @param noAssert
-     * @param unshift
-     * @returns {ExtendedBuffer}
+     * @param {number} value
+     * @param {boolean} unshift
+     * @param {boolean} noAssert
+     * @return {ExtendedBuffer}
      */
-    writeInt16BE(value, noAssert, unshift) {
-        return this.writeIntBE(value, 2, noAssert, unshift);
+    writeUInt16BE(value, unshift, noAssert) {
+        return this.writeUIntBE(value, 2, unshift, noAssert);
     }
 
     /**
-     * @param value
-     * @param noAssert
-     * @param unshift
-     * @returns {ExtendedBuffer}
+     * @param {number} value
+     * @param {boolean} unshift
+     * @param {boolean} noAssert
+     * @return {ExtendedBuffer}
      */
-    writeInt16LE(value, noAssert, unshift) {
-        return this.writeIntLE(value, 2, noAssert, unshift);
+    writeUInt16LE(value, unshift, noAssert) {
+        return this.writeUIntLE(value, 2, unshift, noAssert);
     }
 
     /**
-     * @param value
-     * @param noAssert
-     * @param unshift
-     * @returns {ExtendedBuffer}
+     * @param {number} value
+     * @param {boolean} unshift
+     * @param {boolean} noAssert
+     * @return {ExtendedBuffer}
      */
-    writeUInt16BE(value, noAssert, unshift) {
-        return this.writeUIntBE(value, 2, noAssert, unshift);
+    writeInt32BE(value, unshift, noAssert) {
+        return this.writeIntBE(value, 4, unshift, noAssert);
     }
 
     /**
-     * @param value
-     * @param noAssert
-     * @param unshift
-     * @returns {ExtendedBuffer}
+     * @param {number} value
+     * @param {boolean} unshift
+     * @param {boolean} noAssert
+     * @return {ExtendedBuffer}
      */
-    writeUInt16LE(value, noAssert, unshift) {
-        return this.writeUIntLE(value, 2, noAssert, unshift);
+    writeInt32LE(value, unshift, noAssert) {
+        return this.writeIntLE(value, 4, unshift, noAssert);
     }
 
     /**
-     * @param value
-     * @param noAssert
-     * @param unshift
-     * @returns {ExtendedBuffer}
+     * @param {number} value
+     * @param {boolean} unshift
+     * @param {boolean} noAssert
+     * @return {ExtendedBuffer}
      */
-    writeInt32BE(value, noAssert, unshift) {
-        return this.writeIntBE(value, 4, noAssert, unshift);
+    writeUInt32BE(value, unshift, noAssert) {
+        return this.writeUIntBE(value, 4, unshift, noAssert);
     }
 
     /**
-     * @param value
-     * @param noAssert
-     * @param unshift
-     * @returns {ExtendedBuffer}
+     * @param {number} value
+     * @param {boolean} unshift
+     * @param {boolean} noAssert
+     * @return {ExtendedBuffer}
      */
-    writeInt32LE(value, noAssert, unshift) {
-        return this.writeIntLE(value, 4, noAssert, unshift);
+    writeUInt32LE(value, unshift, noAssert) {
+        return this.writeUIntLE(value, 4, unshift, noAssert);
     }
 
     /**
-     * @param value
-     * @param noAssert
-     * @param unshift
-     * @returns {ExtendedBuffer}
+     * @param {number} value
+     * @param {boolean} unshift
+     * @param {boolean} noAssert
+     * @return {ExtendedBuffer}
      */
-    writeUInt32BE(value, noAssert, unshift) {
-        return this.writeUIntBE(value, 4, noAssert, unshift);
+    writeInt64BE(value, unshift, noAssert) {
+        return this.writeIntBE(value, 8, unshift, noAssert);
     }
 
     /**
-     * @param value
-     * @param noAssert
-     * @param unshift
-     * @returns {ExtendedBuffer}
+     * @param {number} value
+     * @param {boolean} unshift
+     * @param {boolean} noAssert
+     * @return {ExtendedBuffer}
      */
-    writeUInt32LE(value, noAssert, unshift) {
-        return this.writeUIntLE(value, 4, noAssert, unshift);
+    writeInt64LE(value, unshift, noAssert) {
+        return this.writeIntLE(value, 8, unshift, noAssert);
     }
 
     /**
-     * @param value
-     * @param noAssert
-     * @param unshift
-     * @returns {ExtendedBuffer}
+     * @param {number} value
+     * @param {boolean} unshift
+     * @param {boolean} noAssert
+     * @return {ExtendedBuffer}
      */
-    writeInt64BE(value, noAssert, unshift) {
-        return this.writeIntBE(value, 8, noAssert, unshift);
+    writeUInt64BE(value, unshift, noAssert) {
+        return this.writeUIntBE(value, 8, unshift, noAssert);
     }
 
     /**
-     * @param value
-     * @param noAssert
-     * @param unshift
-     * @returns {ExtendedBuffer}
+     * @param {number} value
+     * @param {boolean} unshift
+     * @param {boolean} noAssert
+     * @return {ExtendedBuffer}
      */
-    writeInt64LE(value, noAssert, unshift) {
-        return this.writeIntLE(value, 8, noAssert, unshift);
+    writeUInt64LE(value, unshift, noAssert) {
+        return this.writeUIntLE(value, 8, unshift, noAssert);
     }
 
     /**
-     * @param value
-     * @param noAssert
-     * @param unshift
-     * @returns {ExtendedBuffer}
+     * @param {number} value
+     * @param {boolean} unshift
+     * @param {boolean} noAssert
+     * @return {ExtendedBuffer}
      */
-    writeUInt64BE(value, noAssert, unshift) {
-        return this.writeUIntBE(value, 8, noAssert, unshift);
+    writeFloatBE(value, unshift, noAssert) {
+        if (unshift) {
+            this.allocStart(4);
+            this._pointerStart -= 4;
+            this._nativeBuffer.writeFloatBE(value, this._pointerStart, noAssert);
+        } else {
+            this.allocEnd(4);
+            this._nativeBuffer.writeFloatBE(value, this._pointerEnd, noAssert);
+            this._pointerEnd += 4;
+        }
+
+        return this;
     }
 
     /**
-     * @param value
-     * @param noAssert
-     * @param unshift
-     * @returns {ExtendedBuffer}
+     * @param {number} value
+     * @param {boolean} unshift
+     * @param {boolean} noAssert
+     * @return {ExtendedBuffer}
      */
-    writeUInt64LE(value, noAssert, unshift) {
-        return this.writeUIntLE(value, 8, noAssert, unshift);
+    writeFloatLE(value, unshift, noAssert) {
+        if (unshift) {
+            this.allocStart(4);
+            this._pointerStart -= 4;
+            this._nativeBuffer.writeFloatLE(value, this._pointerStart, noAssert);
+        } else {
+            this.allocEnd(4);
+            this._nativeBuffer.writeFloatLE(value, this._pointerEnd, noAssert);
+            this._pointerEnd += 4;
+        }
+
+        return this;
     }
 
     /**
-     * @param value
-     * @param noAssert
-     * @param unshift
-     * @returns {ExtendedBuffer}
+     * @param {number} value
+     * @param {boolean} unshift
+     * @param {boolean} noAssert
+     * @return {ExtendedBuffer}
      */
-    writeFloatBE(value, noAssert, unshift) {
-        let buffer = Buffer.alloc(4);
-        buffer.writeFloatBE(value, 0, noAssert);
-        return this.writeBuffer(buffer, unshift);
+    writeDoubleBE(value, unshift, noAssert) {
+        if (unshift) {
+            this.allocStart(8);
+            this._pointerStart -= 8;
+            this._nativeBuffer.writeDoubleBE(value, this._pointerStart, noAssert);
+        } else {
+            this.allocEnd(8);
+            this._nativeBuffer.writeDoubleBE(value, this._pointerEnd, noAssert);
+            this._pointerEnd += 8;
+        }
+
+        return this;
     }
 
     /**
-     * @param value
-     * @param noAssert
-     * @param unshift
-     * @returns {ExtendedBuffer}
+     * @param {number} value
+     * @param {boolean} unshift
+     * @param {boolean} noAssert
+     * @return {ExtendedBuffer}
      */
-    writeFloatLE(value, noAssert, unshift) {
-        let buffer = Buffer.alloc(4);
-        buffer.writeFloatLE(value, 0, noAssert);
-        return this.writeBuffer(buffer, unshift);
-    }
+    writeDoubleLE(value, unshift, noAssert) {
+        if (unshift) {
+            this.allocStart(8);
+            this._pointerStart -= 8;
+            this._nativeBuffer.writeDoubleLE(value, this._pointerStart, 8, noAssert);
+        } else {
+            this.allocEnd(8);
+            this._nativeBuffer.writeDoubleLE(value, this._pointerEnd, 8, noAssert);
+            this._pointerEnd += 8;
+        }
 
-    /**
-     * @param value
-     * @param noAssert
-     * @param unshift
-     * @returns {ExtendedBuffer}
-     */
-    writeDoubleBE(value, noAssert, unshift) {
-        let buffer = Buffer.alloc(8);
-        buffer.writeDoubleBE(value, 0, noAssert);
-        return this.writeBuffer(buffer, unshift);
-    }
-
-    /**
-     * @param value
-     * @param noAssert
-     * @param unshift
-     * @returns {ExtendedBuffer}
-     */
-    writeDoubleLE(value, noAssert, unshift) {
-        let buffer = Buffer.alloc(8);
-        buffer.writeDoubleLE(value, 0, noAssert);
-        return this.writeBuffer(buffer, unshift);
+        return this;
     }
 
     /**
      * https://github.com/dcodeIO/bytebuffer.js/blob/f3f310b6786e5d44686d385a2cc60c6720a1069b/src/types/varints/varint32.js
-     * @param value
-     * @param unshift
+     * @param {number} value
+     * @param {boolean} unshift
      * @returns {ExtendedBuffer}
      */
     writeVarInt32(value, unshift) {
         value = parseInt(value) || 0;
         value >>>= 0;
         let b;
-        let buffer = new this.constructor;
+        let buffer = (new this.constructor).setAllocSizeEnd(4);
+
         while (value >= 0x80) {
             b = (value & 0x7f) | 0x80;
             buffer.writeUIntBE(b, 1);
             value >>>= 7;
         }
+
         buffer.writeUIntBE(value, 1);
-        return this.writeBuffer(buffer, unshift);
+        return this._writeNativeBuffer(buffer.buffer, unshift);
     }
 
     /**
-     * @param size
-     * @param asNative
+     * @param {number} size
+     * @param {boolean} asNative
      * @returns {ExtendedBuffer|Buffer}
      */
     readBuffer(size, asNative) {
+        size = size < 0 ? 0 : size;
+        let buffer = this._nativeBuffer.slice(this._pointerStart + this.pointer, this._pointerStart + this.pointer + size);
         this.pointer += size;
-        if (asNative) {
-            return Buffer.from(this.buffer.slice(this.pointer - size, this.pointer));
-        }
-        return new this.constructor(this.buffer.slice(this.pointer - size, this.pointer));
+        return asNative ? buffer : new this.constructor(buffer);
     }
 
     /**
-     * @param size
-     * @param encoding
+     * @param {number} size
+     * @param {string} encoding
      * @returns {string}
      */
     readString(size, encoding) {
         this.pointer += size;
-        return this.buffer.toString(encoding, this.pointer - size, this.pointer);
+        return this._nativeBuffer.toString(encoding, this._pointerStart + this.pointer - size, this._pointerStart + this.pointer);
     }
 
     /**
-     * @param byteLength
-     * @param noAssert
+     * @param {number} byteLength
+     * @param {boolean} noAssert
      * @returns {number}
      */
     readIntBE(byteLength, noAssert) {
         this.pointer += byteLength;
-        return this.buffer.readIntBE(this.pointer - byteLength, byteLength, noAssert);
+        return this._nativeBuffer.readIntBE(this._pointerStart + this.pointer - byteLength, byteLength, noAssert);
     }
 
     /**
-     * @param byteLength
-     * @param noAssert
+     * @param {number} byteLength
+     * @param {boolean} noAssert
      * @returns {number}
      */
     readIntLE(byteLength, noAssert) {
         this.pointer += byteLength;
-        return this.buffer.readIntLE(this.pointer - byteLength, byteLength, noAssert);
+        return this._nativeBuffer.readIntLE(this._pointerStart + this.pointer - byteLength, byteLength, noAssert);
     }
 
     /**
-     * @param byteLength
-     * @param noAssert
+     * @param {number} byteLength
+     * @param {boolean} noAssert
      * @returns {number}
      */
     readUIntBE(byteLength, noAssert) {
         this.pointer += byteLength;
-        return this.buffer.readUIntBE(this.pointer - byteLength, byteLength, noAssert);
+        return this._nativeBuffer.readUIntBE(this._pointerStart + this.pointer - byteLength, byteLength, noAssert);
     }
 
     /**
-     * @param byteLength
-     * @param noAssert
+     * @param {number} byteLength
+     * @param {boolean} noAssert
      * @returns {number}
      */
     readUIntLE(byteLength, noAssert) {
         this.pointer += byteLength;
-        return this.buffer.readUIntLE(this.pointer - byteLength, byteLength, noAssert);
+        return this._nativeBuffer.readUIntLE(this._pointerStart + this.pointer - byteLength, byteLength, noAssert);
     }
 
     /**
-     * @param noAssert
+     * @param {boolean} noAssert
      * @returns {number}
      */
     readInt8(noAssert) {
@@ -492,7 +680,7 @@ class ExtendedBuffer {
     }
 
     /**
-     * @param noAssert
+     * @param {boolean} noAssert
      * @returns {number}
      */
     readUInt8(noAssert) {
@@ -500,7 +688,7 @@ class ExtendedBuffer {
     }
 
     /**
-     * @param noAssert
+     * @param {boolean} noAssert
      * @returns {number}
      */
     readInt16BE(noAssert) {
@@ -508,7 +696,7 @@ class ExtendedBuffer {
     }
 
     /**
-     * @param noAssert
+     * @param {boolean} noAssert
      * @returns {number}
      */
     readInt16LE(noAssert) {
@@ -516,7 +704,7 @@ class ExtendedBuffer {
     }
 
     /**
-     * @param noAssert
+     * @param {boolean} noAssert
      * @returns {number}
      */
     readUInt16BE(noAssert) {
@@ -524,7 +712,7 @@ class ExtendedBuffer {
     }
 
     /**
-     * @param noAssert
+     * @param {boolean} noAssert
      * @returns {number}
      */
     readUInt16LE(noAssert) {
@@ -532,7 +720,7 @@ class ExtendedBuffer {
     }
 
     /**
-     * @param noAssert
+     * @param {boolean} noAssert
      * @returns {number}
      */
     readInt32BE(noAssert) {
@@ -540,7 +728,7 @@ class ExtendedBuffer {
     }
 
     /**
-     * @param noAssert
+     * @param {boolean} noAssert
      * @returns {number}
      */
     readInt32LE(noAssert) {
@@ -548,7 +736,7 @@ class ExtendedBuffer {
     }
 
     /**
-     * @param noAssert
+     * @param {boolean} noAssert
      * @returns {number}
      */
     readUInt32BE(noAssert) {
@@ -556,7 +744,7 @@ class ExtendedBuffer {
     }
 
     /**
-     * @param noAssert
+     * @param {boolean} noAssert
      * @returns {number}
      */
     readUInt32LE(noAssert) {
@@ -564,7 +752,7 @@ class ExtendedBuffer {
     }
 
     /**
-     * @param noAssert
+     * @param {boolean} noAssert
      * @returns {number}
      */
     readInt64BE(noAssert) {
@@ -572,7 +760,7 @@ class ExtendedBuffer {
     }
 
     /**
-     * @param noAssert
+     * @param {boolean} noAssert
      * @returns {number}
      */
     readInt64LE(noAssert) {
@@ -580,7 +768,7 @@ class ExtendedBuffer {
     }
 
     /**
-     * @param noAssert
+     * @param {boolean} noAssert
      * @returns {number}
      */
     readUInt64BE(noAssert) {
@@ -588,7 +776,7 @@ class ExtendedBuffer {
     }
 
     /**
-     * @param noAssert
+     * @param {boolean} noAssert
      * @returns {number}
      */
     readUInt64LE(noAssert) {
@@ -596,39 +784,39 @@ class ExtendedBuffer {
     }
 
     /**
-     * @param noAssert
+     * @param  {boolean}noAssert
      * @returns {number}
      */
     readFloatBE(noAssert) {
         this.pointer += 4;
-        return this.buffer.readFloatBE(this.pointer - 4, noAssert);
+        return this._nativeBuffer.readFloatBE(this._pointerStart + this.pointer - 4, noAssert);
     }
 
     /**
-     * @param noAssert
+     * @param {boolean} noAssert
      * @returns {number}
      */
     readFloatLE(noAssert) {
         this.pointer += 4;
-        return this.buffer.readFloatLE(this.pointer - 4, noAssert);
+        return this._nativeBuffer.readFloatLE(this._pointerStart + this.pointer - 4, noAssert);
     }
 
     /**
-     * @param noAssert
+     * @param {boolean} noAssert
      * @returns {number}
      */
     readDoubleBE(noAssert) {
         this.pointer += 8;
-        return this.buffer.readDoubleBE(this.pointer - 8, noAssert);
+        return this._nativeBuffer.readDoubleBE(this._pointerStart + this.pointer - 8, noAssert);
     }
 
     /**
-     * @param noAssert
+     * @param {boolean} noAssert
      * @returns {number}
      */
     readDoubleLE(noAssert) {
         this.pointer += 8;
-        return this.buffer.readDoubleLE(this.pointer - 8, noAssert);
+        return this._nativeBuffer.readDoubleLE(this._pointerStart + this.pointer - 8, noAssert);
     }
 
     /**
