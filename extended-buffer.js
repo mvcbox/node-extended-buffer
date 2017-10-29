@@ -594,7 +594,6 @@ class ExtendedBuffer
      * @returns {ExtendedBuffer}
      */
     writeVarInt32(value, unshift) {
-        value = parseInt(value) || 0;
         value >>>= 0;
         let b;
         let buffer = (new this.constructor).setAllocSizeEnd(4);
