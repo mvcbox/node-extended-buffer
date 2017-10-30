@@ -577,10 +577,10 @@ class ExtendedBuffer
         if (unshift) {
             this.allocStart(8);
             this._pointerStart -= 8;
-            this._nativeBuffer.writeDoubleLE(value, this._pointerStart, 8, noAssert);
+            this._nativeBuffer.writeDoubleLE(value, this._pointerStart, noAssert);
         } else {
             this.allocEnd(8);
-            this._nativeBuffer.writeDoubleLE(value, this._pointerEnd, 8, noAssert);
+            this._nativeBuffer.writeDoubleLE(value, this._pointerEnd, noAssert);
             this._pointerEnd += 8;
         }
 
