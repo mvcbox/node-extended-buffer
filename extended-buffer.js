@@ -136,14 +136,14 @@ class ExtendedBuffer
     }
 
     /**
-     * @param {number} bytesCount
+     * @param {number} byteLength
      * @return {ExtendedBuffer}
      */
-    allocStart(bytesCount) {
-        bytesCount = bytesCount < 0 ? 0 : bytesCount;
+    allocStart(byteLength) {
+        byteLength = byteLength < 0 ? 0 : byteLength;
 
-        if (bytesCount > this.getFreeSpaceStart()) {
-            let allocSize = bytesCount + this._allocSizeStart;
+        if (byteLength > this.getFreeSpaceStart()) {
+            let allocSize = byteLength + this._allocSizeStart;
             this._nativeBuffer = Buffer.concat([Buffer.alloc(allocSize), this._nativeBuffer]);
             this._pointerStart += allocSize;
             this._pointerEnd += allocSize;
@@ -154,16 +154,16 @@ class ExtendedBuffer
     }
 
     /**
-     * @param {number} bytesCount
+     * @param {number} byteLength
      * @return {ExtendedBuffer}
      */
-    allocEnd(bytesCount) {
-        bytesCount = bytesCount < 0 ? 0 : bytesCount;
+    allocEnd(byteLength) {
+        byteLength = byteLength < 0 ? 0 : byteLength;
 
-        if (bytesCount > this.getFreeSpaceEnd()) {
+        if (byteLength > this.getFreeSpaceEnd()) {
             this._nativeBuffer = Buffer.concat([
                 this._nativeBuffer,
-                Buffer.alloc(bytesCount + this._allocSizeEnd)
+                Buffer.alloc(byteLength + this._allocSizeEnd)
             ]);
             return this;
         }
@@ -236,12 +236,12 @@ class ExtendedBuffer
     }
 
     /**
-     * @param {number} bytesCount
+     * @param {number} byteLength
      * @returns {boolean}
      */
-    isReadable(bytesCount) {
-        bytesCount = bytesCount < 1 ? 1 : bytesCount;
-        return (this._pointerEnd - this._pointerStart - this.pointer) >= bytesCount;
+    isReadable(byteLength) {
+        byteLength = byteLength < 1 ? 1 : byteLength;
+        return (this._pointerEnd - this._pointerStart - this.pointer) >= byteLength;
     }
 
     /**
