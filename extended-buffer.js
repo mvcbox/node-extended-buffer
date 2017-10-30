@@ -610,16 +610,27 @@ class ExtendedBuffer
     writeVarInt32(value, unshift) {
         value >>>= 0;
         let b;
-        let buffer = (new this.constructor).setAllocSizeEnd(4);
+
+        if (unshift) {
+            let buffer = (new this.constructor).setAllocSizeEnd(4);
+
+            while (value >= 0x80) {
+                b = (value & 0x7f) | 0x80;
+                buffer.writeUIntBE(b, 1);
+                value >>>= 7;
+            }
+
+            buffer.writeUIntBE(value, 1);
+            return this._writeNativeBuffer(buffer.buffer, true);
+        }
 
         while (value >= 0x80) {
             b = (value & 0x7f) | 0x80;
-            buffer.writeUIntBE(b, 1);
+            this.writeUIntBE(b, 1);
             value >>>= 7;
         }
 
-        buffer.writeUIntBE(value, 1);
-        return this._writeNativeBuffer(buffer.buffer, unshift);
+        return this.writeUIntBE(value, 1);
     }
 
     /**
@@ -844,7 +855,7 @@ class ExtendedBuffer
         do {
             b = this.readUIntBE(1);
             if (c < 5) {
-                value |= (b & 0x7f) << (7*c);
+                value |= (b & 0x7f) << (7 * c);
             }
             ++c;
         } while ((b & 0x80) !== 0);
@@ -868,7 +879,7 @@ class ExtendedBuffer
             }
             b = this.readUIntBE(1);
             if (c < 5) {
-                value |= (b & 0x7f) << (7*c);
+                value |= (b & 0x7f) << (7 * c);
             }
             ++c;
         } while ((b & 0x80) !== 0);
