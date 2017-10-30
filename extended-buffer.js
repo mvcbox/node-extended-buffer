@@ -197,7 +197,7 @@ class ExtendedBuffer
      */
     gc() {
         if (this.pointer > 0) {
-            this._nativeBuffer = this._nativeBuffer.slice(this._pointerStart + this.pointer, this._pointerEnd);
+            this._nativeBuffer = Buffer.from(this._nativeBuffer.slice(this._pointerStart + this.pointer, this._pointerEnd));
             this.pointer = 0;
             this._pointerStart = 0;
             this._pointerEnd = this._nativeBuffer.length;
@@ -617,7 +617,7 @@ class ExtendedBuffer
         size = size < 0 ? 0 : size;
         let buffer = this._nativeBuffer.slice(this._pointerStart + this.pointer, this._pointerStart + this.pointer + size);
         this.pointer += size;
-        return asNative ? buffer : new this.constructor(buffer);
+        return asNative ? Buffer.from(buffer) : new this.constructor(buffer);
     }
 
     /**
