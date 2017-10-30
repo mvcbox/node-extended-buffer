@@ -837,9 +837,10 @@ class ExtendedBuffer
      * @returns {number}
      */
     readVarInt32() {
-        let c = 0,
-            value = 0 >>> 0,
-            b;
+        let c = 0;
+        let value = 0 >>> 0;
+        let b;
+
         do {
             b = this.readUIntBE(1);
             if (c < 5) {
@@ -847,7 +848,33 @@ class ExtendedBuffer
             }
             ++c;
         } while ((b & 0x80) !== 0);
+
         return value | 0;
+    }
+
+    /**
+     * @return {boolean}
+     */
+    isReadableVarInt32() {
+        let c = 0;
+        let value = 0 >>> 0;
+        let b;
+        let oldPointer = this.pointer;
+
+        do {
+            if (!this.isReadable(1)) {
+                this.pointer = oldPointer;
+                return false;
+            }
+            b = this.readUIntBE(1);
+            if (c < 5) {
+                value |= (b & 0x7f) << (7*c);
+            }
+            ++c;
+        } while ((b & 0x80) !== 0);
+
+        this.pointer = oldPointer;
+        return true;
     }
 }
 

@@ -89,6 +89,7 @@ npm install extended-buffer --save
 ###### buffer.readDoubleBE([noAssert])
 ###### buffer.readDoubleLE([noAssert])
 ###### buffer.readVarInt32()
+###### buffer.isReadableVarInt32()
 
 ### Example 1:
 ```js
