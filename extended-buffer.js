@@ -1,5 +1,7 @@
 'use strict';
 
+const MAX_BUFFER_LENGTH = require('buffer').kMaxLength;
+
 class ExtendedBuffer
 {
     /**
@@ -22,6 +24,13 @@ class ExtendedBuffer
         }
 
         this._nativeBuffer = Buffer.from.apply(Buffer, arguments);
+    }
+
+    /**
+     * @return {number}
+     */
+    static getMaxSize() {
+        return MAX_BUFFER_LENGTH;
     }
 
     /**
@@ -151,6 +160,11 @@ class ExtendedBuffer
 
         if (byteLength > this.getFreeSpaceStart()) {
             let allocSize = byteLength + this._allocSizeStart;
+
+            if ((allocSize + this._nativeBuffer.length) > MAX_BUFFER_LENGTH) {
+                allocSize = MAX_BUFFER_LENGTH - this._nativeBuffer.length;
+            }
+
             this._nativeBuffer = Buffer.concat([Buffer.alloc(allocSize), this._nativeBuffer]);
             this._pointerStart += allocSize;
             this._pointerEnd += allocSize;
@@ -168,10 +182,13 @@ class ExtendedBuffer
         byteLength = byteLength < 0 ? 0 : byteLength;
 
         if (byteLength > this.getFreeSpaceEnd()) {
-            this._nativeBuffer = Buffer.concat([
-                this._nativeBuffer,
-                Buffer.alloc(byteLength + this._allocSizeEnd)
-            ]);
+            let allocSize = byteLength + this._allocSizeEnd;
+
+            if ((allocSize + this._nativeBuffer.length) > MAX_BUFFER_LENGTH) {
+                allocSize = MAX_BUFFER_LENGTH - this._nativeBuffer.length;
+            }
+
+            this._nativeBuffer = Buffer.concat([this._nativeBuffer, Buffer.alloc(allocSize)]);
             return this;
         }
 
