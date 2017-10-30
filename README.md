@@ -31,7 +31,7 @@ npm install extended-buffer --save
 ###### buffer.allocStart(bytesCount)
 ###### buffer.allocEnd(bytesCount)
 ###### buffer._writeNativeBuffer(buffer[, unshift])
-###### buffer._gc()
+###### buffer.gc()
 ###### buffer.setPointer(value)
 ###### buffer.getPointer()
 ###### buffer.offset(value)
