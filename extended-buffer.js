@@ -53,7 +53,7 @@ class ExtendedBuffer
                 throw new TypeError('"list" have incorrect value');
             }
 
-            if (totalLength && result.length >= totalLength) {
+            if (undefined !== totalLength && result.length >= totalLength) {
                 break;
             }
         }
@@ -84,6 +84,13 @@ class ExtendedBuffer
      */
     get length() {
         return this._pointerEnd - this._pointerStart;
+    }
+
+    /**
+     * @returns {number}
+     */
+    get nativeLength() {
+        return this._nativeBuffer.length;
     }
 
     /**
@@ -242,6 +249,13 @@ class ExtendedBuffer
     isReadable(byteLength) {
         byteLength = byteLength < 1 ? 1 : byteLength;
         return (this._pointerEnd - this._pointerStart - this.pointer) >= byteLength;
+    }
+
+    /**
+     * @returns {number}
+     */
+    getReadableSize() {
+        return this._pointerEnd - this.pointer;
     }
 
     /**

@@ -18,8 +18,9 @@ npm install extended-buffer --save
 
 ### Instance properties:
 ###### buffer.buffer - Instance of Buffer class
-###### buffer.pointer - Current offset for buffer.buffer
-###### buffer.length - Buffer size (getter for buffer.buffer.length)
+###### buffer.pointer - Current offset for buffer
+###### buffer.length - Buffer size
+###### buffer.nativeLength - Native buffer size
 
 ### Instance methods:
 ###### buffer.setAllocSizeStart(size)
@@ -35,6 +36,7 @@ npm install extended-buffer --save
 ###### buffer.getPointer()
 ###### buffer.offset(value)
 ###### buffer.isReadable([byteLength])
+###### buffer.getReadableSize()
 ###### buffer.toString([encoding[, start[, end]]])
 ###### buffer.writeBuffer(value[, unshift])
 ###### buffer.writeString([value[, encoding[, unshift]]])
