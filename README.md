@@ -8,6 +8,7 @@ npm install extended-buffer --save
 ```
 
 ### Class methods:
+###### ExtendedBuffer.getMaxSize()
 ###### ExtendedBuffer.from(array)
 ###### ExtendedBuffer.from(arrayBuffer[, byteOffset[, length]])
 ###### ExtendedBuffer.from(buffer)
