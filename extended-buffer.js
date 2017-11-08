@@ -5,7 +5,7 @@ const MAX_BUFFER_LENGTH = require('buffer').kMaxLength;
 class ExtendedBuffer
 {
     /**
-     * 
+     * @param {Object} options
      */
     constructor (options) {
         options = options || {};
