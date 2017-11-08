@@ -659,12 +659,13 @@ class ExtendedBuffer
     /**
      * @param {number} size
      * @param {boolean} asNative
+     * @param {Object} bufferOptions
      * @returns {ExtendedBuffer|Buffer}
      */
-    readBuffer(size, asNative) {
+    readBuffer(size, asNative, bufferOptions) {
         let buffer = this._nativeBuffer.slice(this._pointerStart + this.pointer, this._pointerStart + this.pointer + size);
         this.pointer += size;
-        return asNative ? Buffer.from(buffer) : (new this.constructor)._writeNativeBuffer(buffer);
+        return asNative ? Buffer.from(buffer) : (new this.constructor(bufferOptions))._writeNativeBuffer(buffer, false);
     }
 
     /**
