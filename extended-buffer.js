@@ -7,16 +7,10 @@ class ExtendedBuffer
     /**
      * 
      */
-    constructor () {
+    constructor (options) {
+        options = options || {};
+        this._maxBufferLength = options.maxBufferLength || MAX_BUFFER_LENGTH;
         this._initEmptyBuffer();
-
-        if (arguments.length && arguments[0] instanceof Buffer) {
-            this._writeNativeBuffer(arguments[0], false);
-        } else if (arguments.length && arguments[0] instanceof ExtendedBuffer) {
-            this._writeNativeBuffer(arguments[0].buffer, false);
-        } else if (arguments.length) {
-            this._writeNativeBuffer(Buffer.from.apply(Buffer, arguments), false);
-        }
     }
 
     /**
@@ -24,13 +18,6 @@ class ExtendedBuffer
      */
     static getMaxSize() {
         return MAX_BUFFER_LENGTH;
-    }
-
-    /**
-     * @returns {ExtendedBuffer}
-     */
-    static from() {
-        return new this(Buffer.from.apply(Buffer, arguments));
     }
 
     /**
@@ -98,8 +85,8 @@ class ExtendedBuffer
      * @private
      */
     _initEmptyBuffer() {
-        let startPointer = parseInt(MAX_BUFFER_LENGTH / 2, 10);
-        this._nativeBuffer = Buffer.allocUnsafe(MAX_BUFFER_LENGTH);
+        let startPointer = parseInt(this._maxBufferLength / 2, 10);
+        this._nativeBuffer = Buffer.allocUnsafe(this._maxBufferLength);
         this._pointerStart = startPointer;
         this._pointerEnd = startPointer;
         this.pointer = 0;
@@ -204,7 +191,7 @@ class ExtendedBuffer
      */
     gc() {
         if (this.pointer > 0) {
-            let payload = Buffer.from(this._nativeBuffer.slice(this._pointerStart + this.pointer, this._pointerEnd));
+            let payload = this._nativeBuffer.slice(this._pointerStart + this.pointer, this._pointerEnd);
             return this._initEmptyBuffer()._writeNativeBuffer(payload, false);
         }
 
@@ -646,7 +633,9 @@ class ExtendedBuffer
         let b;
 
         if (unshift) {
-            let buffer = (new this.constructor).setAllocSizeEnd(4);
+            let buffer = new this.constructor({
+                maxBufferLength: 10
+            });
 
             while (value >= 0x80) {
                 b = (value & 0x7f) | 0x80;
@@ -675,7 +664,7 @@ class ExtendedBuffer
     readBuffer(size, asNative) {
         let buffer = this._nativeBuffer.slice(this._pointerStart + this.pointer, this._pointerStart + this.pointer + size);
         this.pointer += size;
-        return asNative ? Buffer.from(buffer) : new this.constructor(buffer);
+        return asNative ? Buffer.from(buffer) : (new this.constructor)._writeNativeBuffer(buffer);
     }
 
     /**

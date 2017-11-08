@@ -9,10 +9,6 @@ npm install extended-buffer --save
 
 ### Class methods:
 ###### ExtendedBuffer.getMaxSize()
-###### ExtendedBuffer.from(array)
-###### ExtendedBuffer.from(arrayBuffer[, byteOffset[, length]])
-###### ExtendedBuffer.from(buffer)
-###### ExtendedBuffer.from(string[, encoding])
 ###### ExtendedBuffer.concat(list[, totalLength])
 ###### ExtendedBuffer.zigZagEncode32(value)
 ###### ExtendedBuffer.zigZagDecode32(value)
@@ -25,6 +21,7 @@ npm install extended-buffer --save
 ###### buffer._nativeBuffer - Native buffer
 ###### buffer._pointerStart
 ###### buffer._pointerEnd
+###### buffer._maxBufferLength
 
 ### Instance methods:
 ###### buffer._initEmptyBuffer()
