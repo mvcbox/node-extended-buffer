@@ -8,22 +8,15 @@ class ExtendedBuffer
      * 
      */
     constructor () {
-        this.pointer = 0;
-        this._pointerEnd = 0;
-        this._pointerStart = 0;
-        this._allocSizeEnd = 8192;
-        this._allocSizeStart = 8192;
+        this._initEmptyBuffer();
 
-        if (!arguments.length) {
-            this._nativeBuffer = Buffer.from([]);
-            return;
+        if (arguments.length && arguments[0] instanceof Buffer) {
+            this._writeNativeBuffer(arguments[0], false);
+        } else if (arguments.length && arguments[0] instanceof ExtendedBuffer) {
+            this._writeNativeBuffer(arguments[0].buffer, false);
+        } else if (arguments.length) {
+            this._writeNativeBuffer(Buffer.from.apply(Buffer, arguments), false);
         }
-
-        if (arguments[0] instanceof ExtendedBuffer) {
-            arguments[0] = arguments[0].buffer;
-        }
-
-        this._nativeBuffer = Buffer.from.apply(Buffer, arguments);
     }
 
     /**
@@ -37,10 +30,6 @@ class ExtendedBuffer
      * @returns {ExtendedBuffer}
      */
     static from() {
-        if (arguments[0] instanceof ExtendedBuffer) {
-            arguments[0] = arguments[0].buffer;
-        }
-
         return new this(Buffer.from.apply(Buffer, arguments));
     }
 
@@ -50,24 +39,19 @@ class ExtendedBuffer
      * @returns {ExtendedBuffer}
      */
     static concat(list, totalLength) {
-        let result = Buffer.alloc(0);
+        let buffer = new this;
         let listLength = list.length;
 
         for (let i = 0; i < listLength; ++i) {
-            if (list[i] instanceof ExtendedBuffer) {
-                result = Buffer.concat([result, list[i].buffer]);
-            } else if (list[i] instanceof Buffer) {
-                result = Buffer.concat([result, list[i]]);
-            } else {
-                throw new TypeError('"list" have incorrect value');
-            }
+            buffer.writeBuffer(list[i], false);
 
-            if (undefined !== totalLength && result.length >= totalLength) {
+            if (undefined !== totalLength && buffer.length >= totalLength) {
+                buffer._pointerEnd = buffer._pointerStart + totalLength;
                 break;
             }
         }
 
-        return new this(result.slice(0, totalLength));
+        return buffer;
     }
 
     /**
@@ -110,31 +94,23 @@ class ExtendedBuffer
     }
 
     /**
-     * @param {number} size
      * @return {ExtendedBuffer}
+     * @private
      */
-    setAllocSizeStart(size) {
-        size = parseInt(size) || 0;
-        this._allocSizeStart = size < 0 ? 0 : size;
+    _initEmptyBuffer() {
+        let startPointer = parseInt(MAX_BUFFER_LENGTH / 2, 10);
+        this._nativeBuffer = Buffer.allocUnsafe(MAX_BUFFER_LENGTH);
+        this._pointerStart = startPointer;
+        this._pointerEnd = startPointer;
+        this.pointer = 0;
         return this;
     }
 
     /**
-     * @param {number} size
      * @return {ExtendedBuffer}
      */
-    setAllocSizeEnd(size) {
-        size = parseInt(size) || 0;
-        this._allocSizeEnd = size < 0 ? 0 : size;
-        return this;
-    }
-
-    /**
-     * @param {number} size
-     * @return {ExtendedBuffer}
-     */
-    setAllocSize(size) {
-        return this.setAllocSizeStart(size).setAllocSizeEnd(size);
+    clean() {
+        return this._initEmptyBuffer();
     }
 
     /**
@@ -152,6 +128,13 @@ class ExtendedBuffer
     }
 
     /**
+     * @return {number}
+     */
+    getFreeSpace() {
+        return this.getFreeSpaceStart() + this.getFreeSpaceEnd();
+    }
+
+    /**
      * @param {number} byteLength
      * @return {ExtendedBuffer}
      */
@@ -159,15 +142,14 @@ class ExtendedBuffer
         byteLength = byteLength < 0 ? 0 : byteLength;
 
         if (byteLength > this.getFreeSpaceStart()) {
-            let allocSize = byteLength + this._allocSizeStart;
-
-            if ((allocSize + this._nativeBuffer.length) > MAX_BUFFER_LENGTH) {
-                allocSize = MAX_BUFFER_LENGTH - this._nativeBuffer.length;
+            if (byteLength > this.getFreeSpace()) {
+                throw new RangeError('Not enough free space');
             }
 
-            this._nativeBuffer = Buffer.concat([Buffer.alloc(allocSize), this._nativeBuffer]);
-            this._pointerStart += allocSize;
-            this._pointerEnd += allocSize;
+            let offset = parseInt((this.getFreeSpace() - byteLength) / 2, 10) + byteLength - this._pointerStart;
+            this._nativeBuffer.copy(this._nativeBuffer, this._pointerStart + offset, this._pointerStart, this._pointerEnd);
+            this._pointerStart += offset;
+            this._pointerEnd += offset;
             return this;
         }
 
@@ -182,13 +164,14 @@ class ExtendedBuffer
         byteLength = byteLength < 0 ? 0 : byteLength;
 
         if (byteLength > this.getFreeSpaceEnd()) {
-            let allocSize = byteLength + this._allocSizeEnd;
-
-            if ((allocSize + this._nativeBuffer.length) > MAX_BUFFER_LENGTH) {
-                allocSize = MAX_BUFFER_LENGTH - this._nativeBuffer.length;
+            if (byteLength > this.getFreeSpace()) {
+                throw new RangeError('Not enough free space');
             }
 
-            this._nativeBuffer = Buffer.concat([this._nativeBuffer, Buffer.alloc(allocSize)]);
+            let offset = this._nativeBuffer.length - parseInt((this.getFreeSpace() - byteLength) / 2, 10) - byteLength - this._pointerEnd;
+            this._nativeBuffer.copy(this._nativeBuffer, this._pointerStart + offset, this._pointerStart, this._pointerEnd);
+            this._pointerStart += offset;
+            this._pointerEnd += offset;
             return this;
         }
 
@@ -221,10 +204,20 @@ class ExtendedBuffer
      */
     gc() {
         if (this.pointer > 0) {
-            this._nativeBuffer = Buffer.from(this._nativeBuffer.slice(this._pointerStart + this.pointer, this._pointerEnd));
-            this.pointer = 0;
-            this._pointerStart = 0;
-            this._pointerEnd = this._nativeBuffer.length;
+            let payload = Buffer.from(this._nativeBuffer.slice(this._pointerStart + this.pointer, this._pointerEnd));
+            return this._initEmptyBuffer()._writeNativeBuffer(payload, false);
+        }
+
+        return this;
+    }
+
+    /**
+     * Node.js Garbage Collector
+     * @return {ExtendedBuffer}
+     */
+    nodeGc() {
+        if (global.gc) {
+            global.gc();
         }
 
         return this;
@@ -265,14 +258,30 @@ class ExtendedBuffer
      */
     isReadable(byteLength) {
         byteLength = byteLength < 1 ? 1 : byteLength;
-        return (this._pointerEnd - this._pointerStart - this.pointer) >= byteLength;
+        return this.getReadableSize() >= byteLength;
+    }
+
+    /**
+     * @param {number} byteLength
+     * @return {boolean}
+     */
+    isWritable(byteLength) {
+        byteLength = byteLength < 1 ? 1 : byteLength;
+        return this.getFreeSpace() >= byteLength;
     }
 
     /**
      * @returns {number}
      */
     getReadableSize() {
-        return this._pointerEnd - this.pointer;
+        return this._pointerEnd - this._pointerStart - this.pointer;
+    }
+
+    /**
+     * @returns {number}
+     */
+    getWritableSize() {
+        return this.getFreeSpace();
     }
 
     /**
@@ -282,11 +291,7 @@ class ExtendedBuffer
      * @returns {string}
      */
     toString(encoding, start, end) {
-        start = this._pointerStart + (parseInt(start, 10) || 0);
-        start = start < this._pointerStart ? this._pointerStart : start;
-        end = this._pointerStart + (parseInt(end, 10) || 0);
-        end = end > this._pointerEnd ? this._pointerEnd : end;
-        return this._nativeBuffer.toString(encoding, start, end);
+        return this.buffer.toString(encoding, start, end);
     }
 
     /**
@@ -305,13 +310,25 @@ class ExtendedBuffer
     }
 
     /**
-     * @param {string} value
+     * @param {string} string
      * @param {string} encoding
      * @param {boolean} unshift
      * @returns {ExtendedBuffer}
      */
-    writeString(value, encoding, unshift) {
-        return this._writeNativeBuffer(Buffer.from(value, encoding), unshift);
+    writeString(string, encoding, unshift) {
+        let byteLength = Buffer.byteLength(string, encoding);
+
+        if (unshift) {
+            this.allocStart(byteLength);
+            this._pointerStart -= byteLength;
+            this._nativeBuffer.write(string, this._pointerStart, byteLength, encoding);
+        } else {
+            this.allocEnd(byteLength);
+            this._nativeBuffer.write(string, this._pointerEnd, byteLength, encoding);
+            this._pointerEnd += byteLength;
+        }
+
+        return this;
     }
 
     /**
@@ -656,7 +673,6 @@ class ExtendedBuffer
      * @returns {ExtendedBuffer|Buffer}
      */
     readBuffer(size, asNative) {
-        size = size < 0 ? 0 : size;
         let buffer = this._nativeBuffer.slice(this._pointerStart + this.pointer, this._pointerStart + this.pointer + size);
         this.pointer += size;
         return asNative ? Buffer.from(buffer) : new this.constructor(buffer);

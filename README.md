@@ -18,26 +18,32 @@ npm install extended-buffer --save
 ###### ExtendedBuffer.zigZagDecode32(value)
 
 ### Instance properties:
-###### buffer.buffer - Instance of Buffer class
-###### buffer.pointer - Current offset for buffer
 ###### buffer.length - Buffer size
 ###### buffer.nativeLength - Native buffer size
+###### buffer.buffer - Instance of Buffer class
+###### buffer.pointer - Current offset for buffer
+###### buffer._nativeBuffer - Native buffer
+###### buffer._pointerStart
+###### buffer._pointerEnd
 
 ### Instance methods:
-###### buffer.setAllocSizeStart(size)
-###### buffer.setAllocSizeEnd(size)
-###### buffer.setAllocSize(size)
+###### buffer._initEmptyBuffer()
+###### buffer.clean()
 ###### buffer.getFreeSpaceStart()
 ###### buffer.getFreeSpaceEnd()
-###### buffer.allocStart(bytesCount)
-###### buffer.allocEnd(bytesCount)
+###### buffer.getFreeSpace()
+###### buffer.allocStart(byteLength)
+###### buffer.allocEnd(byteLength)
 ###### buffer._writeNativeBuffer(buffer[, unshift])
 ###### buffer.gc()
+###### buffer.nodeGc()
 ###### buffer.setPointer(value)
 ###### buffer.getPointer()
 ###### buffer.offset(value)
 ###### buffer.isReadable([byteLength])
+###### buffer.isWritable([byteLength])
 ###### buffer.getReadableSize()
+###### buffer.getWritableSize()
 ###### buffer.toString([encoding[, start[, end]]])
 ###### buffer.writeBuffer(value[, unshift])
 ###### buffer.writeString([value[, encoding[, unshift]]])
