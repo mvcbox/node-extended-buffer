@@ -4,6 +4,7 @@ const ExtendedBuffer = require('../src/extended-buffer');
 describe('buffer.gc()', function () {
     it('Test #1', function() {
         let buffer = (new ExtendedBuffer).writeUInt32BE(1).writeUInt32BE(1);
+        buffer.gc();
         expect(buffer.length).to.equal(8);
     });
 

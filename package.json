@@ -8,7 +8,7 @@
   "description": "Node JS extended Buffer",
   "main": "src/extended-buffer.js",
   "scripts": {
-    "test": "./node_modules/.bin/mocha"
+    "test": "node ./node_modules/.bin/nyc --reporter=html --reporter=text ./node_modules/.bin/mocha"
   },
   "repository": {
     "type": "git",
@@ -26,6 +26,7 @@
   "homepage": "https://github.com/mvcbox/node-extended-buffer#readme",
   "devDependencies": {
     "chai": "^4.1.2",
-    "mocha": "^4.0.1"
+    "mocha": "^4.0.1",
+    "nyc": "^11.3.0"
   }
 }
