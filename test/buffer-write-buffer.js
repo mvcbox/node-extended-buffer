@@ -1,7 +1,7 @@
 const expect  = require('chai').expect;
 const ExtendedBuffer = require('../src/extended-buffer');
 
-describe('buffer.length', function () {
+describe('buffer.writeBuffer()', function () {
     it('Incorrect value', function() {
         let buffer = new ExtendedBuffer;
         expect(function () {
