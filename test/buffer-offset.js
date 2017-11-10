@@ -20,19 +20,19 @@ describe('buffer.offset()', function () {
         expect(buffer.pointer).to.equal(0);
     });
 
-    it('Test #5', function() {
+    it('Test #4', function() {
         let buffer = (new ExtendedBuffer).writeUInt32BE(1);
         buffer.offset(10);
         expect(buffer.pointer).to.equal(4);
     });
 
-    it('Test #6', function() {
+    it('Test #5', function() {
         let buffer = (new ExtendedBuffer).writeUInt32BE(1);
         buffer.offset(3);
         expect(buffer.pointer).to.equal(3);
     });
 
-    it('Test #7', function() {
+    it('Test #6', function() {
         let buffer = (new ExtendedBuffer).writeUInt32BE(1);
         buffer.offset(3).readUInt8();
         expect(buffer.pointer).to.equal(4);
