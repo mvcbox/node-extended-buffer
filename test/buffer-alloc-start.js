@@ -3,7 +3,7 @@ const ExtendedBuffer = require('../src/extended-buffer');
 
 describe('buffer.allocStart()', function () {
     it('Alloc 1 byte', function() {
-        let buffer  = new ExtendedBuffer({
+        let buffer = new ExtendedBuffer({
             maxBufferLength: 10
         });
         buffer.allocStart(1);
@@ -11,7 +11,7 @@ describe('buffer.allocStart()', function () {
     });
 
     it('Alloc 5 bytes', function() {
-        let buffer  = new ExtendedBuffer({
+        let buffer = new ExtendedBuffer({
             maxBufferLength: 10
         });
         buffer.allocStart(5);
@@ -19,7 +19,7 @@ describe('buffer.allocStart()', function () {
     });
 
     it('Alloc 10 bytes', function() {
-        let buffer  = new ExtendedBuffer({
+        let buffer = new ExtendedBuffer({
             maxBufferLength: 10
         });
         buffer.allocStart(10);
