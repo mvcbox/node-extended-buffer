@@ -1,20 +1,20 @@
 const expect  = require('chai').expect;
 const ExtendedBuffer = require('../src/extended-buffer');
 
-describe('buffer.writeInt8()', function () {
+describe('buffer.writeUInt8()', function () {
     it('Test #1', function() {
-        let buf1 = (new ExtendedBuffer).writeInt8(50).writeInt8(100);
+        let buf1 = (new ExtendedBuffer).writeUInt8(100).writeUInt8(200);
         let buf2 = Buffer.alloc(2);
-        buf2.writeIntBE(50, 0, 1);
-        buf2.writeIntBE(100, 1, 1);
+        buf2.writeUInt8(100, 0);
+        buf2.writeUInt8(200, 1);
         expect(Buffer.compare(buf1.buffer, buf2)).to.equal(0);
     });
 
     it('Test #2', function() {
-        let buf1 = (new ExtendedBuffer).writeInt8(50).writeInt8(100, true);
+        let buf1 = (new ExtendedBuffer).writeUInt8(100).writeUInt8(200, true);
         let buf2 = Buffer.alloc(2);
-        buf2.writeInt8(100, 0);
-        buf2.writeInt8(50, 1);
+        buf2.writeUInt8(200, 0);
+        buf2.writeUInt8(100, 1);
         expect(Buffer.compare(buf1.buffer, buf2)).to.equal(0);
     });
 });
