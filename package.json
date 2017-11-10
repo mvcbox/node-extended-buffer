@@ -8,7 +8,8 @@
   "description": "Node JS extended Buffer",
   "main": "src/extended-buffer.js",
   "scripts": {
-    "test": "node ./node_modules/.bin/nyc --reporter=html --reporter=text ./node_modules/.bin/mocha"
+    "test": "./node_modules/.bin/mocha",
+    "coverage": "node ./node_modules/.bin/nyc --reporter=html --reporter=text ./node_modules/.bin/mocha"
   },
   "repository": {
     "type": "git",
