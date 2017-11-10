@@ -13,7 +13,7 @@ describe('buffer.pointer', function () {
         expect(buffer.pointer).to.equal(1);
     });
 
-    it('Test #2', function() {
+    it('Test #3', function() {
         let buffer = (new ExtendedBuffer).writeBuffer(Buffer.from([1, 2, 3]));
         buffer.readUInt16BE();
         expect(buffer.pointer).to.equal(2);
