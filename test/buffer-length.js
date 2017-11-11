@@ -21,9 +21,4 @@ describe('buffer.length', function () {
         let buffer = (new ExtendedBuffer).writeUInt32BE(1);
         expect(buffer.length).to.equal(4);
     });
-
-    it('After writeUInt64BE()', function() {
-        let buffer = (new ExtendedBuffer).writeUInt64BE(1);
-        expect(buffer.length).to.equal(8);
-    });
 });

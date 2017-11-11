@@ -508,46 +508,6 @@ class ExtendedBuffer
      * @param {boolean} noAssert
      * @return {ExtendedBuffer}
      */
-    writeInt64BE(value, unshift, noAssert) {
-        return this.writeIntBE(value, 8, unshift, noAssert);
-    }
-
-    /**
-     * @param {number} value
-     * @param {boolean} unshift
-     * @param {boolean} noAssert
-     * @return {ExtendedBuffer}
-     */
-    writeInt64LE(value, unshift, noAssert) {
-        return this.writeIntLE(value, 8, unshift, noAssert);
-    }
-
-    /**
-     * @param {number} value
-     * @param {boolean} unshift
-     * @param {boolean} noAssert
-     * @return {ExtendedBuffer}
-     */
-    writeUInt64BE(value, unshift, noAssert) {
-        return this.writeUIntBE(value, 8, unshift, noAssert);
-    }
-
-    /**
-     * @param {number} value
-     * @param {boolean} unshift
-     * @param {boolean} noAssert
-     * @return {ExtendedBuffer}
-     */
-    writeUInt64LE(value, unshift, noAssert) {
-        return this.writeUIntLE(value, 8, unshift, noAssert);
-    }
-
-    /**
-     * @param {number} value
-     * @param {boolean} unshift
-     * @param {boolean} noAssert
-     * @return {ExtendedBuffer}
-     */
     writeFloatBE(value, unshift, noAssert) {
         if (unshift) {
             this.allocStart(4);
@@ -796,38 +756,6 @@ class ExtendedBuffer
      */
     readUInt32LE(noAssert) {
         return this.readUIntLE(4, noAssert);
-    }
-
-    /**
-     * @param {boolean} noAssert
-     * @returns {number}
-     */
-    readInt64BE(noAssert) {
-        return this.readIntBE(8, noAssert);
-    }
-
-    /**
-     * @param {boolean} noAssert
-     * @returns {number}
-     */
-    readInt64LE(noAssert) {
-        return this.readIntLE(8, noAssert);
-    }
-
-    /**
-     * @param {boolean} noAssert
-     * @returns {number}
-     */
-    readUInt64BE(noAssert) {
-        return this.readUIntBE(8, noAssert);
-    }
-
-    /**
-     * @param {boolean} noAssert
-     * @returns {number}
-     */
-    readUInt64LE(noAssert) {
-        return this.readUIntLE(8, noAssert);
     }
 
     /**
