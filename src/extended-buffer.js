@@ -663,6 +663,9 @@ class ExtendedBuffer
      * @returns {ExtendedBuffer|Buffer}
      */
     readBuffer(size, asNative, bufferOptions) {
+        if (!size) {
+            size = this.getReadableSize();
+        }
         let buffer = this._nativeBuffer.slice(this._pointerStart + this.pointer, this._pointerStart + this.pointer + size);
         this.pointer += size;
         return asNative ? Buffer.from(buffer) : (new this.constructor(bufferOptions))._writeNativeBuffer(buffer, false);
