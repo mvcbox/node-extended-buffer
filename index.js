@@ -2,7 +2,7 @@
 
 const MAX_BUFFER_LENGTH = require('buffer').kMaxLength;
 
-class ExtendedBuffer
+class Index
 {
     /**
      * @param {Object} options
@@ -23,7 +23,7 @@ class ExtendedBuffer
     /**
      * @param {Array} list
      * @param {number} totalLength
-     * @returns {ExtendedBuffer}
+     * @returns {Index}
      */
     static concat(list, totalLength) {
         let buffer = new this;
@@ -81,7 +81,7 @@ class ExtendedBuffer
     }
 
     /**
-     * @return {ExtendedBuffer}
+     * @return {Index}
      * @private
      */
     _initEmptyBuffer() {
@@ -94,7 +94,7 @@ class ExtendedBuffer
     }
 
     /**
-     * @return {ExtendedBuffer}
+     * @return {Index}
      */
     clean() {
         return this._initEmptyBuffer();
@@ -123,7 +123,7 @@ class ExtendedBuffer
 
     /**
      * @param {number} byteLength
-     * @return {ExtendedBuffer}
+     * @return {Index}
      */
     allocStart(byteLength) {
         byteLength = byteLength < 0 ? 0 : byteLength;
@@ -145,7 +145,7 @@ class ExtendedBuffer
 
     /**
      * @param {number} byteLength
-     * @return {ExtendedBuffer}
+     * @return {Index}
      */
     allocEnd(byteLength) {
         byteLength = byteLength < 0 ? 0 : byteLength;
@@ -168,7 +168,7 @@ class ExtendedBuffer
     /**
      * @param {Buffer} buffer
      * @param {boolean} unshift
-     * @return {ExtendedBuffer}
+     * @return {Index}
      * @private
      */
     _writeNativeBuffer(buffer, unshift) {
@@ -187,7 +187,7 @@ class ExtendedBuffer
 
     /**
      * Garbage Collector
-     * @return {ExtendedBuffer}
+     * @return {Index}
      */
     gc() {
         if (this.pointer > 0) {
@@ -200,7 +200,7 @@ class ExtendedBuffer
 
     /**
      * Node.js Garbage Collector
-     * @return {ExtendedBuffer}
+     * @return {Index}
      */
     nodeGc() {
         if (global.gc) {
@@ -212,7 +212,7 @@ class ExtendedBuffer
 
     /**
      * @param {number} pointer
-     * @returns {ExtendedBuffer}
+     * @returns {Index}
      */
     setPointer(pointer) {
         if (pointer >= 0 && pointer <= this.length) {
@@ -233,7 +233,7 @@ class ExtendedBuffer
 
     /**
      * @param {number} offset
-     * @returns {ExtendedBuffer}
+     * @returns {Index}
      */
     offset(offset) {
         return this.setPointer(this.pointer + offset);
@@ -282,14 +282,14 @@ class ExtendedBuffer
     }
 
     /**
-     * @param {ExtendedBuffer|Buffer} value
+     * @param {Index|Buffer} value
      * @param {boolean} unshift
-     * @returns {ExtendedBuffer}
+     * @returns {Index}
      */
     writeBuffer(value, unshift) {
         if (value instanceof Buffer) {
             return this._writeNativeBuffer(value, unshift);
-        } else if (value instanceof ExtendedBuffer) {
+        } else if (value instanceof Index) {
             return this._writeNativeBuffer(value.buffer, unshift);
         } else {
             throw new TypeError('"value" is incorrect buffer');
@@ -300,7 +300,7 @@ class ExtendedBuffer
      * @param {string} string
      * @param {string} encoding
      * @param {boolean} unshift
-     * @returns {ExtendedBuffer}
+     * @returns {Index}
      */
     writeString(string, encoding, unshift) {
         let byteLength = Buffer.byteLength(string, encoding);
@@ -323,7 +323,7 @@ class ExtendedBuffer
      * @param {number} byteLength
      * @param {boolean} unshift
      * @param {boolean} noAssert
-     * @returns {ExtendedBuffer}
+     * @returns {Index}
      */
     writeIntBE(value, byteLength, unshift, noAssert) {
         if (unshift) {
@@ -344,7 +344,7 @@ class ExtendedBuffer
      * @param {number} byteLength
      * @param {boolean} unshift
      * @param {boolean} noAssert
-     * @returns {ExtendedBuffer}
+     * @returns {Index}
      */
     writeIntLE(value, byteLength, unshift, noAssert) {
         if (unshift) {
@@ -365,7 +365,7 @@ class ExtendedBuffer
      * @param {number} byteLength
      * @param {boolean} unshift
      * @param {boolean} noAssert
-     * @returns {ExtendedBuffer}
+     * @returns {Index}
      */
     writeUIntBE(value, byteLength, unshift, noAssert) {
         if (unshift) {
@@ -386,7 +386,7 @@ class ExtendedBuffer
      * @param {number} byteLength
      * @param {boolean} unshift
      * @param {boolean} noAssert
-     * @returns {ExtendedBuffer}
+     * @returns {Index}
      */
     writeUIntLE(value, byteLength, unshift, noAssert) {
         if (unshift) {
@@ -406,7 +406,7 @@ class ExtendedBuffer
      * @param {number} value
      * @param {boolean} unshift
      * @param {boolean} noAssert
-     * @return {ExtendedBuffer}
+     * @return {Index}
      */
     writeInt8(value, unshift, noAssert) {
         return this.writeIntBE(value, 1, unshift, noAssert);
@@ -416,7 +416,7 @@ class ExtendedBuffer
      * @param {number} value
      * @param {boolean} unshift
      * @param {boolean} noAssert
-     * @return {ExtendedBuffer}
+     * @return {Index}
      */
     writeUInt8(value, unshift, noAssert) {
         return this.writeUIntBE(value, 1, unshift, noAssert);
@@ -426,7 +426,7 @@ class ExtendedBuffer
      * @param {number} value
      * @param {boolean} unshift
      * @param {boolean} noAssert
-     * @return {ExtendedBuffer}
+     * @return {Index}
      */
     writeInt16BE(value, unshift, noAssert) {
         return this.writeIntBE(value, 2, unshift, noAssert);
@@ -436,7 +436,7 @@ class ExtendedBuffer
      * @param {number} value
      * @param {boolean} unshift
      * @param {boolean} noAssert
-     * @return {ExtendedBuffer}
+     * @return {Index}
      */
     writeInt16LE(value, unshift, noAssert) {
         return this.writeIntLE(value, 2, unshift, noAssert);
@@ -446,7 +446,7 @@ class ExtendedBuffer
      * @param {number} value
      * @param {boolean} unshift
      * @param {boolean} noAssert
-     * @return {ExtendedBuffer}
+     * @return {Index}
      */
     writeUInt16BE(value, unshift, noAssert) {
         return this.writeUIntBE(value, 2, unshift, noAssert);
@@ -456,7 +456,7 @@ class ExtendedBuffer
      * @param {number} value
      * @param {boolean} unshift
      * @param {boolean} noAssert
-     * @return {ExtendedBuffer}
+     * @return {Index}
      */
     writeUInt16LE(value, unshift, noAssert) {
         return this.writeUIntLE(value, 2, unshift, noAssert);
@@ -466,7 +466,7 @@ class ExtendedBuffer
      * @param {number} value
      * @param {boolean} unshift
      * @param {boolean} noAssert
-     * @return {ExtendedBuffer}
+     * @return {Index}
      */
     writeInt32BE(value, unshift, noAssert) {
         return this.writeIntBE(value, 4, unshift, noAssert);
@@ -476,7 +476,7 @@ class ExtendedBuffer
      * @param {number} value
      * @param {boolean} unshift
      * @param {boolean} noAssert
-     * @return {ExtendedBuffer}
+     * @return {Index}
      */
     writeInt32LE(value, unshift, noAssert) {
         return this.writeIntLE(value, 4, unshift, noAssert);
@@ -486,7 +486,7 @@ class ExtendedBuffer
      * @param {number} value
      * @param {boolean} unshift
      * @param {boolean} noAssert
-     * @return {ExtendedBuffer}
+     * @return {Index}
      */
     writeUInt32BE(value, unshift, noAssert) {
         return this.writeUIntBE(value, 4, unshift, noAssert);
@@ -496,7 +496,7 @@ class ExtendedBuffer
      * @param {number} value
      * @param {boolean} unshift
      * @param {boolean} noAssert
-     * @return {ExtendedBuffer}
+     * @return {Index}
      */
     writeUInt32LE(value, unshift, noAssert) {
         return this.writeUIntLE(value, 4, unshift, noAssert);
@@ -506,7 +506,7 @@ class ExtendedBuffer
      * @param {number} value
      * @param {boolean} unshift
      * @param {boolean} noAssert
-     * @return {ExtendedBuffer}
+     * @return {Index}
      */
     writeFloatBE(value, unshift, noAssert) {
         if (unshift) {
@@ -526,7 +526,7 @@ class ExtendedBuffer
      * @param {number} value
      * @param {boolean} unshift
      * @param {boolean} noAssert
-     * @return {ExtendedBuffer}
+     * @return {Index}
      */
     writeFloatLE(value, unshift, noAssert) {
         if (unshift) {
@@ -546,7 +546,7 @@ class ExtendedBuffer
      * @param {number} value
      * @param {boolean} unshift
      * @param {boolean} noAssert
-     * @return {ExtendedBuffer}
+     * @return {Index}
      */
     writeDoubleBE(value, unshift, noAssert) {
         if (unshift) {
@@ -566,7 +566,7 @@ class ExtendedBuffer
      * @param {number} value
      * @param {boolean} unshift
      * @param {boolean} noAssert
-     * @return {ExtendedBuffer}
+     * @return {Index}
      */
     writeDoubleLE(value, unshift, noAssert) {
         if (unshift) {
@@ -586,7 +586,7 @@ class ExtendedBuffer
      * https://github.com/dcodeIO/bytebuffer.js/blob/f3f310b6786e5d44686d385a2cc60c6720a1069b/src/types/varints/varint32.js
      * @param {number} value
      * @param {boolean} unshift
-     * @returns {ExtendedBuffer}
+     * @returns {Index}
      */
     writeVarInt32(value, unshift) {
         value >>>= 0;
@@ -620,7 +620,7 @@ class ExtendedBuffer
      * @param {number} size
      * @param {boolean} asNative
      * @param {Object} bufferOptions
-     * @returns {ExtendedBuffer|Buffer}
+     * @returns {Index|Buffer}
      */
     readBuffer(size, asNative, bufferOptions) {
         let buffer = this._nativeBuffer.slice(this._pointerStart + this.pointer, this._pointerStart + this.pointer + size);
@@ -840,4 +840,4 @@ class ExtendedBuffer
     }
 }
 
-module.exports = ExtendedBuffer;
+module.exports = Index;
