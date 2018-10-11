@@ -17,6 +17,6 @@ describe('buffer.gc()', function () {
     it('Test #3', function() {
         let buffer = (new ExtendedBuffer).writeUInt32BE(1).writeUInt32BE(1);
         buffer.offset(5).gc();
-        expect(buffer.pointer).to.equal(0);
+        expect(buffer._pointer).to.equal(0);
     });
 });

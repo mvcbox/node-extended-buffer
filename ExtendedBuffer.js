@@ -89,7 +89,7 @@ class ExtendedBuffer
         this._nativeBuffer = Buffer.allocUnsafe(this._maxBufferLength);
         this._pointerStart = startPointer;
         this._pointerEnd = startPointer;
-        this.pointer = 0;
+        this._pointer = 0;
         return this;
     }
 
@@ -190,8 +190,8 @@ class ExtendedBuffer
      * @return {ExtendedBuffer}
      */
     gc() {
-        if (this.pointer > 0) {
-            let payload = this._nativeBuffer.slice(this._pointerStart + this.pointer, this._pointerEnd);
+        if (this._pointer > 0) {
+            let payload = this._nativeBuffer.slice(this._pointerStart + this._pointer, this._pointerEnd);
             return this._initEmptyBuffer()._writeNativeBuffer(payload, false);
         }
 
@@ -203,10 +203,7 @@ class ExtendedBuffer
      * @return {ExtendedBuffer}
      */
     nodeGc() {
-        if (global.gc) {
-            global.gc();
-        }
-
+        global.gc && global.gc();
         return this;
     }
 
@@ -216,9 +213,9 @@ class ExtendedBuffer
      */
     setPointer(pointer) {
         if (pointer >= 0 && pointer <= this.length) {
-            this.pointer = pointer;
+            this._pointer = pointer;
         } else {
-            this.pointer = pointer < 0 ? 0 : this.length;
+            this._pointer = pointer < 0 ? 0 : this.length;
         }
 
         return this;
@@ -228,7 +225,7 @@ class ExtendedBuffer
      * @returns {number}
      */
     getPointer() {
-        return this.pointer;
+        return this._pointer;
     }
 
     /**
@@ -236,7 +233,7 @@ class ExtendedBuffer
      * @returns {ExtendedBuffer}
      */
     offset(offset) {
-        return this.setPointer(this.pointer + offset);
+        return this.setPointer(this._pointer + offset);
     }
 
     /**
@@ -261,7 +258,7 @@ class ExtendedBuffer
      * @returns {number}
      */
     getReadableSize() {
-        return this._pointerEnd - this._pointerStart - this.pointer;
+        return this._pointerEnd - this._pointerStart - this._pointer;
     }
 
     /**
@@ -623,8 +620,8 @@ class ExtendedBuffer
      * @returns {ExtendedBuffer|Buffer}
      */
     readBuffer(size, asNative, bufferOptions) {
-        let buffer = this._nativeBuffer.slice(this._pointerStart + this.pointer, this._pointerStart + this.pointer + size);
-        this.pointer += size;
+        let buffer = this._nativeBuffer.slice(this._pointerStart + this._pointer, this._pointerStart + this._pointer + size);
+        this._pointer += size;
         return asNative ? Buffer.from(buffer) : (new this.constructor(bufferOptions))._writeNativeBuffer(buffer, false);
     }
 
@@ -634,8 +631,8 @@ class ExtendedBuffer
      * @returns {string}
      */
     readString(size, encoding) {
-        this.pointer += size;
-        return this._nativeBuffer.toString(encoding, this._pointerStart + this.pointer - size, this._pointerStart + this.pointer);
+        this._pointer += size;
+        return this._nativeBuffer.toString(encoding, this._pointerStart + this._pointer - size, this._pointerStart + this._pointer);
     }
 
     /**
@@ -644,8 +641,8 @@ class ExtendedBuffer
      * @returns {number}
      */
     readIntBE(byteLength, noAssert) {
-        this.pointer += byteLength;
-        return this._nativeBuffer.readIntBE(this._pointerStart + this.pointer - byteLength, byteLength, noAssert);
+        this._pointer += byteLength;
+        return this._nativeBuffer.readIntBE(this._pointerStart + this._pointer - byteLength, byteLength, noAssert);
     }
 
     /**
@@ -654,8 +651,8 @@ class ExtendedBuffer
      * @returns {number}
      */
     readIntLE(byteLength, noAssert) {
-        this.pointer += byteLength;
-        return this._nativeBuffer.readIntLE(this._pointerStart + this.pointer - byteLength, byteLength, noAssert);
+        this._pointer += byteLength;
+        return this._nativeBuffer.readIntLE(this._pointerStart + this._pointer - byteLength, byteLength, noAssert);
     }
 
     /**
@@ -664,8 +661,8 @@ class ExtendedBuffer
      * @returns {number}
      */
     readUIntBE(byteLength, noAssert) {
-        this.pointer += byteLength;
-        return this._nativeBuffer.readUIntBE(this._pointerStart + this.pointer - byteLength, byteLength, noAssert);
+        this._pointer += byteLength;
+        return this._nativeBuffer.readUIntBE(this._pointerStart + this._pointer - byteLength, byteLength, noAssert);
     }
 
     /**
@@ -674,8 +671,8 @@ class ExtendedBuffer
      * @returns {number}
      */
     readUIntLE(byteLength, noAssert) {
-        this.pointer += byteLength;
-        return this._nativeBuffer.readUIntLE(this._pointerStart + this.pointer - byteLength, byteLength, noAssert);
+        this._pointer += byteLength;
+        return this._nativeBuffer.readUIntLE(this._pointerStart + this._pointer - byteLength, byteLength, noAssert);
     }
 
     /**
@@ -763,8 +760,8 @@ class ExtendedBuffer
      * @returns {number}
      */
     readFloatBE(noAssert) {
-        this.pointer += 4;
-        return this._nativeBuffer.readFloatBE(this._pointerStart + this.pointer - 4, noAssert);
+        this._pointer += 4;
+        return this._nativeBuffer.readFloatBE(this._pointerStart + this._pointer - 4, noAssert);
     }
 
     /**
@@ -772,8 +769,8 @@ class ExtendedBuffer
      * @returns {number}
      */
     readFloatLE(noAssert) {
-        this.pointer += 4;
-        return this._nativeBuffer.readFloatLE(this._pointerStart + this.pointer - 4, noAssert);
+        this._pointer += 4;
+        return this._nativeBuffer.readFloatLE(this._pointerStart + this._pointer - 4, noAssert);
     }
 
     /**
@@ -781,8 +778,8 @@ class ExtendedBuffer
      * @returns {number}
      */
     readDoubleBE(noAssert) {
-        this.pointer += 8;
-        return this._nativeBuffer.readDoubleBE(this._pointerStart + this.pointer - 8, noAssert);
+        this._pointer += 8;
+        return this._nativeBuffer.readDoubleBE(this._pointerStart + this._pointer - 8, noAssert);
     }
 
     /**
@@ -790,8 +787,8 @@ class ExtendedBuffer
      * @returns {number}
      */
     readDoubleLE(noAssert) {
-        this.pointer += 8;
-        return this._nativeBuffer.readDoubleLE(this._pointerStart + this.pointer - 8, noAssert);
+        this._pointer += 8;
+        return this._nativeBuffer.readDoubleLE(this._pointerStart + this._pointer - 8, noAssert);
     }
 
     /**
@@ -821,11 +818,11 @@ class ExtendedBuffer
         let c = 0;
         let value = 0 >>> 0;
         let b;
-        let oldPointer = this.pointer;
+        let oldPointer = this._pointer;
 
         do {
             if (!this.isReadable(1)) {
-                this.pointer = oldPointer;
+                this._pointer = oldPointer;
                 return false;
             }
             b = this.readUIntBE(1);
@@ -835,7 +832,7 @@ class ExtendedBuffer
             ++c;
         } while ((b & 0x80) !== 0);
 
-        this.pointer = oldPointer;
+        this._pointer = oldPointer;
         return true;
     }
 }
