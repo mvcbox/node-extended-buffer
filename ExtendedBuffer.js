@@ -1,6 +1,6 @@
 'use strict';
 
-const MAX_BUFFER_LENGTH = require('buffer').kMaxLength;
+const { kMaxLength } = require('buffer');
 
 class ExtendedBuffer
 {
@@ -9,15 +9,15 @@ class ExtendedBuffer
      */
     constructor (options) {
         options = options || {};
-        this._maxBufferLength = options.maxBufferLength || MAX_BUFFER_LENGTH;
+        this._maxBufferLength = options.maxBufferLength || kMaxLength;
         this._initEmptyBuffer();
     }
 
     /**
      * @return {number}
      */
-    static getMaxSize() {
-        return MAX_BUFFER_LENGTH;
+    static get maxSize() {
+        return kMaxLength;
     }
 
     /**
@@ -126,8 +126,6 @@ class ExtendedBuffer
      * @return {ExtendedBuffer}
      */
     allocStart(byteLength) {
-        byteLength = byteLength < 0 ? 0 : byteLength;
-
         if (byteLength > this.getFreeSpaceStart()) {
             if (byteLength > this.getFreeSpace()) {
                 throw new RangeError('Not enough free space');
@@ -137,7 +135,6 @@ class ExtendedBuffer
             this._nativeBuffer.copy(this._nativeBuffer, this._pointerStart + offset, this._pointerStart, this._pointerEnd);
             this._pointerStart += offset;
             this._pointerEnd += offset;
-            return this;
         }
 
         return this;
@@ -148,8 +145,6 @@ class ExtendedBuffer
      * @return {ExtendedBuffer}
      */
     allocEnd(byteLength) {
-        byteLength = byteLength < 0 ? 0 : byteLength;
-
         if (byteLength > this.getFreeSpaceEnd()) {
             if (byteLength > this.getFreeSpace()) {
                 throw new RangeError('Not enough free space');
@@ -159,7 +154,6 @@ class ExtendedBuffer
             this._nativeBuffer.copy(this._nativeBuffer, this._pointerStart + offset, this._pointerStart, this._pointerEnd);
             this._pointerStart += offset;
             this._pointerEnd += offset;
-            return this;
         }
 
         return this;

@@ -4,7 +4,7 @@ const ExtendedBuffer = require('../index');
 describe('buffer.nativeLength', function () {
     it('Test #1', function() {
         let buffer = new ExtendedBuffer;
-        expect(buffer.nativeLength).to.equal(ExtendedBuffer.getMaxSize());
+        expect(buffer.nativeLength).to.equal(ExtendedBuffer.maxSize);
     });
 
     it('Test #2', function() {
