@@ -1,6 +1,6 @@
 {
   "name": "extended-buffer",
-  "version": "5.0.1",
+  "version": "5.0.2",
   "engines": {
     "node": ">=5.10.0"
   },

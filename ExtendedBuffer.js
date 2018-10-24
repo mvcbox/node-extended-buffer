@@ -85,10 +85,8 @@ class ExtendedBuffer
      * @private
      */
     _initEmptyBuffer() {
-        let startPointer = parseInt(this._maxBufferLength / 2, 10);
+        this._pointerStart = this._pointerEnd = Math.floor(this._maxBufferLength / 2);
         this._nativeBuffer = Buffer.allocUnsafe(this._maxBufferLength);
-        this._pointerStart = startPointer;
-        this._pointerEnd = startPointer;
         this._pointer = 0;
         return this;
     }
@@ -131,7 +129,7 @@ class ExtendedBuffer
                 throw new RangeError('Not enough free space');
             }
 
-            let offset = parseInt((this.getFreeSpace() - byteLength) / 2, 10) + byteLength - this._pointerStart;
+            let offset = Math.floor((this.getFreeSpace() - byteLength) / 2) + byteLength - this._pointerStart;
             this._nativeBuffer.copy(this._nativeBuffer, this._pointerStart + offset, this._pointerStart, this._pointerEnd);
             this._pointerStart += offset;
             this._pointerEnd += offset;
@@ -150,7 +148,7 @@ class ExtendedBuffer
                 throw new RangeError('Not enough free space');
             }
 
-            let offset = this._nativeBuffer.length - parseInt((this.getFreeSpace() - byteLength) / 2, 10) - byteLength - this._pointerEnd;
+            let offset = this._nativeBuffer.length - Math.floor((this.getFreeSpace() - byteLength) / 2) - byteLength - this._pointerEnd;
             this._nativeBuffer.copy(this._nativeBuffer, this._pointerStart + offset, this._pointerStart, this._pointerEnd);
             this._pointerStart += offset;
             this._pointerEnd += offset;
