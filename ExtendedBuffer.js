@@ -8,7 +8,7 @@ class ExtendedBuffer
      * @param {Object} options
      */
     constructor (options) {
-        options = options || {};
+        options |= {};
         this._maxBufferLength = options.maxBufferLength || kMaxLength;
         this._initEmptyBuffer();
     }
