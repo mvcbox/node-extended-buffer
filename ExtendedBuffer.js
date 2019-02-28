@@ -1,14 +1,14 @@
 'use strict';
 
-const { kMaxLength } = require('buffer');
+const kMaxLength = require('buffer').kMaxLength;
 
 class ExtendedBuffer
 {
     /**
      * @param {Object} options
      */
-    constructor (options) {
-        options |= {};
+    constructor (options = {}) {
+        options = options || {};
         this._maxBufferLength = options.maxBufferLength || kMaxLength;
         this._initEmptyBuffer();
     }
@@ -86,7 +86,7 @@ class ExtendedBuffer
      */
     _initEmptyBuffer() {
         this._pointerStart = this._pointerEnd = Math.floor(this._maxBufferLength / 2);
-        this._nativeBuffer = Buffer.allocUnsafe(this._maxBufferLength);
+        this._nativeBuffer = Buffer.allocUnsafe ? Buffer.allocUnsafe(this._maxBufferLength) : new Buffer(this._maxBufferLength);
         this._pointer = 0;
         return this;
     }
@@ -614,7 +614,9 @@ class ExtendedBuffer
     readBuffer(size, asNative, bufferOptions) {
         let buffer = this._nativeBuffer.slice(this._pointerStart + this._pointer, this._pointerStart + this._pointer + size);
         this._pointer += size;
-        return asNative ? Buffer.from(buffer) : (new this.constructor(bufferOptions))._writeNativeBuffer(buffer, false);
+        return asNative
+            ? (Buffer.from ? Buffer.from(buffer) : new Buffer(buffer))
+            : (new this.constructor(bufferOptions))._writeNativeBuffer(buffer, false);
     }
 
     /**
