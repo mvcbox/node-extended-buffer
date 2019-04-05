@@ -1,12 +1,14 @@
 {
   "name": "extended-buffer",
-  "version": "5.0.5",
+  "version": "6.0.0",
   "engineStrict": true,
   "description": "Node JS extended Buffer",
-  "main": "index.js",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "scripts": {
     "test": "./node_modules/.bin/mocha",
-    "coverage": "node ./node_modules/.bin/nyc --reporter=html --reporter=text ./node_modules/.bin/mocha"
+    "coverage": "node ./node_modules/.bin/nyc --reporter=html --reporter=text ./node_modules/.bin/mocha",
+    "build": "node ./node_modules/.bin/tsc"
   },
   "repository": {
     "type": "git",
@@ -23,8 +25,10 @@
   },
   "homepage": "https://github.com/mvcbox/node-extended-buffer#readme",
   "devDependencies": {
+    "@types/node": "^4.9.3",
     "chai": "^4.1.2",
     "mocha": "^4.0.1",
-    "nyc": "^11.3.0"
+    "nyc": "^11.3.0",
+    "typescript": "^3.3.4000"
   }
 }

@@ -1,5 +1,5 @@
 const expect  = require('chai').expect;
-const ExtendedBuffer = require('../index');
+const ExtendedBuffer = require('..').ExtendedBuffer;
 
 describe('buffer.writeUInt8()', function () {
     it('Test #1', function() {

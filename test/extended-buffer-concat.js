@@ -1,5 +1,5 @@
 const expect  = require('chai').expect;
-const ExtendedBuffer = require('../index');
+const ExtendedBuffer = require('..').ExtendedBuffer;
 
 describe('ExtendedBuffer.concat()', function () {
     it('Empty list', function() {
@@ -7,7 +7,7 @@ describe('ExtendedBuffer.concat()', function () {
         let buf2 = Buffer.from([]);
         expect(Buffer.compare(buf1.buffer, buf2)).to.equal(0);
     });
-    
+
     it('Native buffers list', function () {
         let buf1 = ExtendedBuffer.concat([
             Buffer.from('abc'),

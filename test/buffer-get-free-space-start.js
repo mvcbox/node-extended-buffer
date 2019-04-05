@@ -1,5 +1,5 @@
 const expect  = require('chai').expect;
-const ExtendedBuffer = require('../index');
+const ExtendedBuffer = require('..').ExtendedBuffer;
 
 describe('buffer.getFreeSpaceStart()', function () {
     it('Empty buffer', function() {
