@@ -32,8 +32,8 @@ export class ExtendedBuffer {
         return kMaxLength;
     }
 
-    public static concat<T extends ExtendedBuffer>(this: new () => T, list: ExtendedBuffer[], totalLength?: number): T {
-        let buffer = new this();
+    public static concat<T extends ExtendedBuffer>(this: new(options?: ExtendedBufferOptions) => T, list: ExtendedBuffer[], totalLength?: number): T {
+        let buffer = new this;
         let listLength = list.length;
 
         for (let i = 0; i < listLength; ++i) {
@@ -401,10 +401,13 @@ export class ExtendedBuffer {
     public readBuffer(size: number, asNative: boolean = false, bufferOptions: ExtendedBufferOptions = {}): this | Buffer {
         let buffer = this._nativeBuffer.slice(this._pointerStart + this._pointer, this._pointerStart + this._pointer + size);
         this._pointer += size;
-        const ThisClass = <new(options: ExtendedBufferOptions) => this>this.constructor;
-        return asNative
-            ? (Buffer.from ? Buffer.from(buffer) : new Buffer(buffer))
-            : (new ThisClass(bufferOptions))._writeNativeBuffer(buffer, false);
+        const ThisClass = <new(options?: ExtendedBufferOptions) => this>this.constructor;
+
+        if (asNative) {
+            return Buffer.from ? Buffer.from(buffer) : new Buffer(buffer);
+        }
+
+        return (new ThisClass(bufferOptions))._writeNativeBuffer(buffer, false);
     }
 
     public readString(size: number, encoding?: string): string {
