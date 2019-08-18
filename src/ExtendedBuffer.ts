@@ -1,17 +1,6 @@
-declare module 'buffer' {
-    export const kMaxLength: number;
-}
-
 import { Buffer, kMaxLength } from 'buffer';
+import { ExtendedBufferOptions } from  './ExtendedBufferOptions';
 
-export interface ExtendedBufferOptions {
-    maxBufferLength?: number
-}
-
-/**
- * The utility fields and methods are intentionally declared public, as when working with a library,
- * a situation may arise when it is necessary to refer to these fields or methods.
- */
 export class ExtendedBuffer {
     public _maxBufferLength: number;
     public _pointer: number;
@@ -21,11 +10,7 @@ export class ExtendedBuffer {
 
     public constructor(options: ExtendedBufferOptions = {}) {
         this._maxBufferLength = options.maxBufferLength || kMaxLength;
-
-        // Duplicate this._initEmptyBuffer();
-        this._pointerStart = this._pointerEnd = Math.floor(this._maxBufferLength / 2);
-        this._nativeBuffer = Buffer.allocUnsafe ? Buffer.allocUnsafe(this._maxBufferLength) : new Buffer(this._maxBufferLength);
-        this._pointer = 0;
+        this._initEmptyBuffer();
     }
 
     public static get maxSize(): number {
