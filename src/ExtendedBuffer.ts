@@ -114,7 +114,7 @@ export class ExtendedBuffer {
         return this.getFreeSpace();
     }
 
-    public _writeNativeBuffer(buffer: Buffer, unshift: boolean = false): this {
+    public _writeNativeBuffer(buffer: Buffer, unshift?: boolean): this {
         if (unshift) {
             this.allocStart(buffer.length);
             this._pointerStart -= buffer.length;
@@ -174,7 +174,7 @@ export class ExtendedBuffer {
         return this.buffer.toString(encoding, start, end);
     }
 
-    public writeBuffer(value: Buffer | ExtendedBuffer, unshift: boolean = false): this {
+    public writeBuffer(value: Buffer | ExtendedBuffer, unshift?: boolean): this {
         if (value instanceof Buffer) {
             return this._writeNativeBuffer(value, unshift);
         } else if (value instanceof ExtendedBuffer) {
@@ -184,7 +184,7 @@ export class ExtendedBuffer {
         }
     }
 
-    public writeString(string: string, encoding?: string, unshift: boolean = false): this {
+    public writeString(string: string, encoding?: string, unshift?: boolean): this {
         let byteLength = Buffer.byteLength(string, encoding);
 
         if (unshift) {
@@ -200,7 +200,7 @@ export class ExtendedBuffer {
         return this;
     }
 
-    public writeIntBE(value: number, byteLength: number, unshift: boolean = false, noAssert: boolean = false): this {
+    public writeIntBE(value: number, byteLength: number, unshift?: boolean, noAssert?: boolean): this {
         if (unshift) {
             this.allocStart(byteLength);
             this._pointerStart -= byteLength;
@@ -214,7 +214,7 @@ export class ExtendedBuffer {
         return this;
     }
 
-    public writeIntLE(value: number, byteLength: number, unshift: boolean = false, noAssert: boolean = false): this {
+    public writeIntLE(value: number, byteLength: number, unshift?: boolean, noAssert?: boolean): this {
         if (unshift) {
             this.allocStart(byteLength);
             this._pointerStart -= byteLength;
@@ -228,7 +228,7 @@ export class ExtendedBuffer {
         return this;
     }
 
-    public writeUIntBE(value: number, byteLength: number, unshift: boolean = false, noAssert: boolean = false): this {
+    public writeUIntBE(value: number, byteLength: number, unshift?: boolean, noAssert?: boolean): this {
         if (unshift) {
             this.allocStart(byteLength);
             this._pointerStart -= byteLength;
@@ -242,7 +242,7 @@ export class ExtendedBuffer {
         return this;
     }
 
-    public writeUIntLE(value: number, byteLength: number, unshift: boolean = false, noAssert: boolean = false): this {
+    public writeUIntLE(value: number, byteLength: number, unshift?: boolean, noAssert?: boolean): this {
         if (unshift) {
             this.allocStart(byteLength);
             this._pointerStart -= byteLength;
@@ -256,47 +256,47 @@ export class ExtendedBuffer {
         return this;
     }
 
-    public writeInt8(value: number, unshift: boolean = false, noAssert: boolean = false): this {
+    public writeInt8(value: number, unshift?: boolean, noAssert?: boolean): this {
         return this.writeIntBE(value, 1, unshift, noAssert);
     }
 
-    public writeUInt8(value: number, unshift: boolean = false, noAssert: boolean = false): this {
+    public writeUInt8(value: number, unshift?: boolean, noAssert?: boolean): this {
         return this.writeUIntBE(value, 1, unshift, noAssert);
     }
 
-    public writeInt16BE(value: number, unshift: boolean = false, noAssert: boolean = false): this {
+    public writeInt16BE(value: number, unshift?: boolean, noAssert?: boolean): this {
         return this.writeIntBE(value, 2, unshift, noAssert);
     }
 
-    public writeInt16LE(value: number, unshift: boolean = false, noAssert: boolean = false): this {
+    public writeInt16LE(value: number, unshift?: boolean, noAssert?: boolean): this {
         return this.writeIntLE(value, 2, unshift, noAssert);
     }
 
-    public writeUInt16BE(value: number, unshift: boolean = false, noAssert: boolean = false): this {
+    public writeUInt16BE(value: number, unshift?: boolean, noAssert?: boolean): this {
         return this.writeUIntBE(value, 2, unshift, noAssert);
     }
 
-    public writeUInt16LE(value: number, unshift: boolean = false, noAssert: boolean = false): this {
+    public writeUInt16LE(value: number, unshift?: boolean, noAssert?: boolean): this {
         return this.writeUIntLE(value, 2, unshift, noAssert);
     }
 
-    public writeInt32BE(value: number, unshift: boolean = false, noAssert: boolean = false): this {
+    public writeInt32BE(value: number, unshift?: boolean, noAssert?: boolean): this {
         return this.writeIntBE(value, 4, unshift, noAssert);
     }
 
-    public writeInt32LE(value: number, unshift: boolean = false, noAssert: boolean = false): this {
+    public writeInt32LE(value: number, unshift?: boolean, noAssert?: boolean): this {
         return this.writeIntLE(value, 4, unshift, noAssert);
     }
 
-    public writeUInt32BE(value: number, unshift: boolean = false, noAssert: boolean = false): this {
+    public writeUInt32BE(value: number, unshift?: boolean, noAssert?: boolean): this {
         return this.writeUIntBE(value, 4, unshift, noAssert);
     }
 
-    public writeUInt32LE(value: number, unshift: boolean = false, noAssert: boolean = false): this {
+    public writeUInt32LE(value: number, unshift?: boolean, noAssert?: boolean): this {
         return this.writeUIntLE(value, 4, unshift, noAssert);
     }
 
-    public writeFloatBE(value: number, unshift: boolean = false, noAssert: boolean = false): this {
+    public writeFloatBE(value: number, unshift?: boolean, noAssert?: boolean): this {
         if (unshift) {
             this.allocStart(4);
             this._pointerStart -= 4;
@@ -310,7 +310,7 @@ export class ExtendedBuffer {
         return this;
     }
 
-    public writeFloatLE(value: number, unshift: boolean = false, noAssert: boolean = false): this {
+    public writeFloatLE(value: number, unshift?: boolean, noAssert?: boolean): this {
         if (unshift) {
             this.allocStart(4);
             this._pointerStart -= 4;
@@ -324,7 +324,7 @@ export class ExtendedBuffer {
         return this;
     }
 
-    public writeDoubleBE(value: number, unshift: boolean = false, noAssert: boolean = false): this {
+    public writeDoubleBE(value: number, unshift?: boolean, noAssert?: boolean): this {
         if (unshift) {
             this.allocStart(8);
             this._pointerStart -= 8;
@@ -338,7 +338,7 @@ export class ExtendedBuffer {
         return this;
     }
 
-    public writeDoubleLE(value: number, unshift: boolean = false, noAssert: boolean = false): this {
+    public writeDoubleLE(value: number, unshift?: boolean, noAssert?: boolean): this {
         if (unshift) {
             this.allocStart(8);
             this._pointerStart -= 8;
@@ -355,7 +355,7 @@ export class ExtendedBuffer {
     /**
      * https://github.com/dcodeIO/bytebuffer.js/blob/f3f310b6786e5d44686d385a2cc60c6720a1069b/src/types/varints/varint32.js
      */
-    public writeVarInt32(value: number, unshift: boolean = false): this {
+    public writeVarInt32(value: number, unshift?: boolean): this {
         value >>>= 0;
         let b;
 
@@ -383,7 +383,10 @@ export class ExtendedBuffer {
         return this.writeUIntBE(value, 1);
     }
 
-    public readBuffer(size: number, asNative: boolean = false, bufferOptions: ExtendedBufferOptions = {}): this | Buffer {
+    public readBuffer(size: number): this;
+    public readBuffer(size: number, asNative: false, bufferOptions?: ExtendedBufferOptions): this;
+    public readBuffer(size: number, asNative: true, bufferOptions?: ExtendedBufferOptions): Buffer;
+    public readBuffer(size: number, asNative?: boolean, bufferOptions?: ExtendedBufferOptions): this | Buffer {
         let buffer = this._nativeBuffer.slice(this._pointerStart + this._pointer, this._pointerStart + this._pointer + size);
         this._pointer += size;
         const ThisClass = <new(options?: ExtendedBufferOptions) => this>this.constructor;
@@ -400,82 +403,82 @@ export class ExtendedBuffer {
         return this._nativeBuffer.toString(encoding, this._pointerStart + this._pointer - size, this._pointerStart + this._pointer);
     }
 
-    public readIntBE(byteLength: number, noAssert: boolean = false): number {
+    public readIntBE(byteLength: number, noAssert?: boolean): number {
         this._pointer += byteLength;
         return this._nativeBuffer.readIntBE(this._pointerStart + this._pointer - byteLength, byteLength, noAssert);
     }
 
-    public readIntLE(byteLength: number, noAssert: boolean = false): number {
+    public readIntLE(byteLength: number, noAssert?: boolean): number {
         this._pointer += byteLength;
         return this._nativeBuffer.readIntLE(this._pointerStart + this._pointer - byteLength, byteLength, noAssert);
     }
 
-    public readUIntBE(byteLength: number, noAssert: boolean = false): number {
+    public readUIntBE(byteLength: number, noAssert?: boolean): number {
         this._pointer += byteLength;
         return this._nativeBuffer.readUIntBE(this._pointerStart + this._pointer - byteLength, byteLength, noAssert);
     }
 
-    public readUIntLE(byteLength: number, noAssert: boolean = false): number {
+    public readUIntLE(byteLength: number, noAssert?: boolean): number {
         this._pointer += byteLength;
         return this._nativeBuffer.readUIntLE(this._pointerStart + this._pointer - byteLength, byteLength, noAssert);
     }
 
-    public readInt8(noAssert: boolean = false): number {
+    public readInt8(noAssert?: boolean): number {
         return this.readIntBE(1, noAssert);
     }
 
-    public readUInt8(noAssert: boolean = false): number {
+    public readUInt8(noAssert?: boolean): number {
         return this.readUIntBE(1, noAssert);
     }
 
-    public readInt16BE(noAssert: boolean = false): number {
+    public readInt16BE(noAssert?: boolean): number {
         return this.readIntBE(2, noAssert);
     }
 
-    public readInt16LE(noAssert: boolean = false): number {
+    public readInt16LE(noAssert?: boolean): number {
         return this.readIntLE(2, noAssert);
     }
 
-    public readUInt16BE(noAssert: boolean = false): number {
+    public readUInt16BE(noAssert?: boolean): number {
         return this.readUIntBE(2, noAssert);
     }
 
-    public readUInt16LE(noAssert: boolean = false): number {
+    public readUInt16LE(noAssert?: boolean): number {
         return this.readUIntLE(2, noAssert);
     }
 
-    public readInt32BE(noAssert: boolean = false): number {
+    public readInt32BE(noAssert?: boolean): number {
         return this.readIntBE(4, noAssert);
     }
 
-    public readInt32LE(noAssert: boolean = false): number {
+    public readInt32LE(noAssert?: boolean): number {
         return this.readIntLE(4, noAssert);
     }
 
-    public readUInt32BE(noAssert: boolean = false): number {
+    public readUInt32BE(noAssert?: boolean): number {
         return this.readUIntBE(4, noAssert);
     }
 
-    public readUInt32LE(noAssert: boolean = false): number {
+    public readUInt32LE(noAssert?: boolean): number {
         return this.readUIntLE(4, noAssert);
     }
 
-    public readFloatBE(noAssert: boolean = false): number {
+    public readFloatBE(noAssert?: boolean): number {
         this._pointer += 4;
         return this._nativeBuffer.readFloatBE(this._pointerStart + this._pointer - 4, noAssert);
     }
 
-    public readFloatLE(noAssert: boolean = false): number {
+    public readFloatLE(noAssert?: boolean): number {
         this._pointer += 4;
         return this._nativeBuffer.readFloatLE(this._pointerStart + this._pointer - 4, noAssert);
     }
 
-    public readDoubleBE(noAssert: boolean = false): number {
+    public readDoubleBE(noAssert?: boolean): number {
         this._pointer += 8;
         return this._nativeBuffer.readDoubleBE(this._pointerStart + this._pointer - 8, noAssert);
     }
 
-    public readDoubleLE(noAssert: boolean = false): number {
+    public readDoubleLE(noAssert?: boolean): number {
         this._pointer += 8;
         return this._nativeBuffer.readDoubleLE(this._pointerStart + this._pointer - 8, noAssert);
     }

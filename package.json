@@ -1,6 +1,6 @@
 {
   "name": "extended-buffer",
-  "version": "6.0.2",
+  "version": "6.0.3",
   "engineStrict": true,
   "description": "Node JS extended Buffer",
   "main": "./dist/index.js",
@@ -29,6 +29,6 @@
     "chai": "^4.1.2",
     "mocha": "^4.0.1",
     "nyc": "^11.3.0",
-    "typescript": "^3.3.4000"
+    "typescript": "^3.6.2"
   }
 }
