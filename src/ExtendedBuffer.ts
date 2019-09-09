@@ -386,6 +386,7 @@ export class ExtendedBuffer {
     public readBuffer(size: number): this;
     public readBuffer(size: number, asNative: false, bufferOptions?: ExtendedBufferOptions): this;
     public readBuffer(size: number, asNative: true, bufferOptions?: ExtendedBufferOptions): Buffer;
+    public readBuffer(size: number, asNative?: boolean, bufferOptions?: ExtendedBufferOptions): this | Buffer;
     public readBuffer(size: number, asNative?: boolean, bufferOptions?: ExtendedBufferOptions): this | Buffer {
         let buffer = this._nativeBuffer.slice(this._pointerStart + this._pointer, this._pointerStart + this._pointer + size);
         this._pointer += size;
