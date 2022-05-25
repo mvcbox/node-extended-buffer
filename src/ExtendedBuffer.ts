@@ -147,12 +147,11 @@ export class ExtendedBuffer {
   }
 
   public setPointer(pointer: number): this {
-    if (pointer >= 0 && pointer <= this.length) {
-      this._pointer = pointer;
-    } else {
-      this._pointer = pointer < 0 ? 0 : this.length;
+    if (pointer < 0 || pointer > this.length) {
+      throw new RangeError('Pointer out of range');
     }
 
+    this._pointer = pointer;
     return this;
   }
 
