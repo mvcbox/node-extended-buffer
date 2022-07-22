@@ -163,8 +163,8 @@ export class ExtendedBuffer {
     return this.setPointer(this._pointer + offset);
   }
 
-  public isReadable(byteLength: number = 1): boolean {
-    byteLength = byteLength < 1 ? 1 : byteLength;
+  public isReadable(byteLength: number): boolean {
+    byteLength = byteLength < 0 ? 0 : byteLength;
     return this.getReadableSize() >= byteLength;
   }
 
