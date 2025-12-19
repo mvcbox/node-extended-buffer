@@ -1,4 +1,5 @@
-src
-test
-types
-tsconfig.json
+/src
+/test
+/types
+/tsconfig.json
+/package-lock.json
