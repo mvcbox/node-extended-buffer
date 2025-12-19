@@ -1,14 +1,38 @@
 {
   "name": "extended-buffer",
-  "version": "6.1.0",
-  "engineStrict": true,
+  "version": "7.0.0",
   "description": "Node JS extended Buffer",
+  "type": "commonjs",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "require": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
   "scripts": {
+    "build": "npm run clean && node ./node_modules/.bin/tsc",
     "test": "./node_modules/.bin/mocha",
     "coverage": "node ./node_modules/.bin/nyc --reporter=html --reporter=text ./node_modules/.bin/mocha",
-    "build": "node ./node_modules/.bin/tsc"
+    "clean": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\"",
+    "prepack": "npm run build"
+  },
+  "engines": {
+    "node": ">=6.0.0"
+  },
+  "devEngines": {
+    "runtime": {
+      "name": "node",
+      "version": ">=18.0.0",
+      "onFail": "error"
+    },
+    "packageManager": {
+      "name": "npm",
+      "version": ">=8.6.0",
+      "onFail": "error"
+    }
   },
   "repository": {
     "type": "git",
@@ -24,8 +48,13 @@
     "url": "https://github.com/mvcbox/node-extended-buffer/issues"
   },
   "homepage": "https://github.com/mvcbox/node-extended-buffer#readme",
+  "files": [
+    "dist",
+    "LICENSE",
+    "README.md"
+  ],
   "devDependencies": {
-    "@types/node": "^4.9.3",
+    "@types/node": "^6.14.13",
     "chai": "^4.1.2",
     "mocha": "^4.0.1",
     "nyc": "^11.3.0",

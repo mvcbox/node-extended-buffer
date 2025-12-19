@@ -3,3 +3,7 @@
 /types
 /tsconfig.json
 /package-lock.json
+/.idea
+/.nyc_output
+/coverage
+/npm-debug.log
