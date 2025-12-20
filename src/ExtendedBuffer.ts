@@ -29,7 +29,7 @@ export class ExtendedBuffer {
   }
 
   public get nativeBuffer(): Buffer {
-    return this._nativeBuffer.slice(this._pointerStart, this._pointerEnd);
+    return this._nativeBuffer.subarray(this._pointerStart, this._pointerEnd) as Buffer;
   }
 
   public initExtendedBuffer(): this {
@@ -43,7 +43,7 @@ export class ExtendedBuffer {
 
     this._pointer = 0;
     this._pointerStart = this._pointerEnd = Math.floor(this._nativeBufferLength / 2);
-    this._nativeBuffer = (typeof Buffer.allocUnsafe === 'function') ? Buffer.allocUnsafe(this._nativeBufferLength) : new Buffer(this._nativeBufferLength);
+    this._nativeBuffer = Buffer.allocUnsafe(this._nativeBufferLength);
     return this;
   }
 
@@ -63,36 +63,36 @@ export class ExtendedBuffer {
     return this.getWritableSizeStart() + this.getWritableSizeEnd();
   }
 
-  public allocStart(byteLength: number): this {
-    utils.assertUnsignedInteger(byteLength);
+  public allocStart(size: number): this {
+    utils.assertUnsignedInteger(size);
 
-    if (this.getWritableSizeStart() >= byteLength) {
+    if (this.getWritableSizeStart() >= size) {
       return this;
     }
 
-    if (this.getWritableSize() < byteLength) {
+    if (this.getWritableSize() < size) {
       throw new RangeError('Not enough free space');
     }
 
-    const offset = Math.floor((this.getWritableSize() - byteLength) / 2) + byteLength - this._pointerStart;
+    const offset = Math.floor((this.getWritableSize() - size) / 2) + size - this._pointerStart;
     this._nativeBuffer.copy(this._nativeBuffer, this._pointerStart + offset, this._pointerStart, this._pointerEnd);
     this._pointerStart += offset;
     this._pointerEnd += offset;
     return this;
   }
 
-  public allocEnd(byteLength: number): this {
-    utils.assertUnsignedInteger(byteLength);
+  public allocEnd(size: number): this {
+    utils.assertUnsignedInteger(size);
 
-    if (this.getWritableSizeEnd() >= byteLength) {
+    if (this.getWritableSizeEnd() >= size) {
       return this;
     }
 
-    if (this.getWritableSize() < byteLength) {
+    if (this.getWritableSize() < size) {
       throw new RangeError('Not enough free space');
     }
 
-    const offset = this._nativeBuffer.length - Math.floor((this.getWritableSize() - byteLength) / 2) - byteLength - this._pointerEnd;
+    const offset = this._nativeBuffer.length - Math.floor((this.getWritableSize() - size) / 2) - size - this._pointerEnd;
     this._nativeBuffer.copy(this._nativeBuffer, this._pointerStart + offset, this._pointerStart, this._pointerEnd);
     this._pointerStart += offset;
     this._pointerEnd += offset;
@@ -119,7 +119,7 @@ export class ExtendedBuffer {
 
   public gc(): this {
     if (this._pointer > 0) {
-      const payload = this._nativeBuffer.slice(this._pointerStart + this._pointer, this._pointerEnd);
+      const payload = this._nativeBuffer.subarray(this._pointerStart + this._pointer, this._pointerEnd) as Buffer;
       return this.initExtendedBuffer().writeNativeBuffer(payload, false);
     }
 
@@ -154,14 +154,14 @@ export class ExtendedBuffer {
     return this.setPointer(this._pointer + offset);
   }
 
-  public isReadable(byteLength: number): boolean {
-    utils.assertUnsignedInteger(byteLength);
-    return this.getReadableSize() >= byteLength;
+  public isReadable(size: number): boolean {
+    utils.assertUnsignedInteger(size);
+    return this.getReadableSize() >= size;
   }
 
-  public isWritable(byteLength: number): boolean {
-    utils.assertUnsignedInteger(byteLength);
-    return this.getWritableSize() >= byteLength;
+  public isWritable(size: number): boolean {
+    utils.assertUnsignedInteger(size);
+    return this.getWritableSize() >= size;
   }
 
   public writeBuffer(value: Buffer | ExtendedBuffer, unshift?: boolean): this {
@@ -177,84 +177,84 @@ export class ExtendedBuffer {
   }
 
   public writeString(string: string, encoding?: string, unshift?: boolean): this {
-    const byteLength = Buffer.byteLength(string, encoding);
+    const size = Buffer.byteLength(string, encoding);
 
     if (unshift) {
-      this.allocStart(byteLength);
-      this._nativeBuffer.write(string, this._pointerStart - byteLength, byteLength, encoding);
-      this._pointerStart -= byteLength;
+      this.allocStart(size);
+      this._nativeBuffer.write(string, this._pointerStart - size, size, encoding);
+      this._pointerStart -= size;
     } else {
-      this.allocEnd(byteLength);
-      this._nativeBuffer.write(string, this._pointerEnd, byteLength, encoding);
-      this._pointerEnd += byteLength;
+      this.allocEnd(size);
+      this._nativeBuffer.write(string, this._pointerEnd, size, encoding);
+      this._pointerEnd += size;
     }
 
     return this;
   }
 
-  public writeIntBE(value: number, byteLength: number, unshift?: boolean): this {
+  public writeIntBE(value: number, size: number, unshift?: boolean): this {
     utils.assertInteger(value);
-    utils.assertUnsignedInteger(byteLength);
+    utils.assertUnsignedInteger(size);
 
     if (unshift) {
-      this.allocStart(byteLength);
-      this._nativeBuffer.writeIntBE(value, this._pointerStart - byteLength, byteLength);
-      this._pointerStart -= byteLength;
+      this.allocStart(size);
+      this._nativeBuffer.writeIntBE(value, this._pointerStart - size, size);
+      this._pointerStart -= size;
     } else {
-      this.allocEnd(byteLength);
-      this._nativeBuffer.writeIntBE(value, this._pointerEnd, byteLength);
-      this._pointerEnd += byteLength;
+      this.allocEnd(size);
+      this._nativeBuffer.writeIntBE(value, this._pointerEnd, size);
+      this._pointerEnd += size;
     }
 
     return this;
   }
 
-  public writeIntLE(value: number, byteLength: number, unshift?: boolean): this {
+  public writeIntLE(value: number, size: number, unshift?: boolean): this {
     utils.assertInteger(value);
-    utils.assertUnsignedInteger(byteLength);
+    utils.assertUnsignedInteger(size);
 
     if (unshift) {
-      this.allocStart(byteLength);
-      this._nativeBuffer.writeIntLE(value, this._pointerStart - byteLength, byteLength);
-      this._pointerStart -= byteLength;
+      this.allocStart(size);
+      this._nativeBuffer.writeIntLE(value, this._pointerStart - size, size);
+      this._pointerStart -= size;
     } else {
-      this.allocEnd(byteLength);
-      this._nativeBuffer.writeIntLE(value, this._pointerEnd, byteLength);
-      this._pointerEnd += byteLength;
+      this.allocEnd(size);
+      this._nativeBuffer.writeIntLE(value, this._pointerEnd, size);
+      this._pointerEnd += size;
     }
 
     return this;
   }
 
-  public writeUIntBE(value: number, byteLength: number, unshift?: boolean): this {
+  public writeUIntBE(value: number, size: number, unshift?: boolean): this {
     utils.assertUnsignedInteger(value);
-    utils.assertUnsignedInteger(byteLength);
+    utils.assertUnsignedInteger(size);
 
     if (unshift) {
-      this.allocStart(byteLength);
-      this._nativeBuffer.writeUIntBE(value, this._pointerStart - byteLength, byteLength);
-      this._pointerStart -= byteLength;
+      this.allocStart(size);
+      this._nativeBuffer.writeUIntBE(value, this._pointerStart - size, size);
+      this._pointerStart -= size;
     } else {
-      this.allocEnd(byteLength);
-      this._nativeBuffer.writeUIntBE(value, this._pointerEnd, byteLength);
-      this._pointerEnd += byteLength;
+      this.allocEnd(size);
+      this._nativeBuffer.writeUIntBE(value, this._pointerEnd, size);
+      this._pointerEnd += size;
     }
 
     return this;
   }
 
-  public writeUIntLE(value: number, byteLength: number, unshift?: boolean): this {
+  public writeUIntLE(value: number, size: number, unshift?: boolean): this {
     utils.assertUnsignedInteger(value);
-    utils.assertUnsignedInteger(byteLength);
+    utils.assertUnsignedInteger(size);
 
     if (unshift) {
-      this.allocStart(byteLength);
-      this._nativeBuffer.writeUIntLE(value, this._pointerStart - byteLength, byteLength);
-      this._pointerStart -= byteLength;
+      this.allocStart(size);
+      this._nativeBuffer.writeUIntLE(value, this._pointerStart - size, size);
+      this._pointerStart -= size;
     } else {
-      this.allocEnd(byteLength);
-      this._nativeBuffer.writeUIntLE(value, this._pointerEnd, byteLength);
-      this._pointerEnd += byteLength;
+      this.allocEnd(size);
+      this._nativeBuffer.writeUIntLE(value, this._pointerEnd, size);
+      this._pointerEnd += size;
     }
 
     return this;
@@ -362,12 +362,17 @@ export class ExtendedBuffer {
   public readBuffer(size: number, asNative?: boolean, bufferOptions?: ExtendedBufferOptions): this | Buffer;
   public readBuffer(size: number, asNative?: boolean, bufferOptions?: ExtendedBufferOptions): this | Buffer {
     utils.assertUnsignedInteger(size);
-    const buffer = this._nativeBuffer.slice(this._pointerStart + this._pointer, this._pointerStart + this._pointer + size);
+
+    if (!this.isReadable(size)) {
+      throw new RangeError('"size" out of range');
+    }
+
+    const buffer = this._nativeBuffer.subarray(this._pointerStart + this._pointer, this._pointerStart + this._pointer + size) as Buffer;
     this.offset(size);
     const ThisClass = <new(options?: ExtendedBufferOptions) => this>this.constructor;
 
     if (asNative) {
-      return (typeof Buffer.from === 'function') ? Buffer.from(buffer) : new Buffer(buffer);
+      return Buffer.from(buffer);
     }
 
     return (new ThisClass(bufferOptions)).writeNativeBuffer(buffer, false);
@@ -375,36 +380,61 @@ export class ExtendedBuffer {
 
   public readString(size: number, encoding?: string): string {
     utils.assertUnsignedInteger(size);
+
+    if (!this.isReadable(size)) {
+      throw new RangeError('"size" out of range');
+    }
+    
     const result = this._nativeBuffer.toString(encoding, this._pointerStart + this._pointer, this._pointerStart + this._pointer + size);
     this.offset(size);
     return result;
   }
 
-  public readIntBE(byteLength: number): number {
-    utils.assertUnsignedInteger(byteLength);
-    const result = this._nativeBuffer.readIntBE(this._pointerStart + this._pointer, byteLength);
-    this.offset(byteLength);
+  public readIntBE(size: number): number {
+    utils.assertUnsignedInteger(size);
+
+    if (!this.isReadable(size)) {
+      throw new RangeError('"size" out of range');
+    }
+
+    const result = this._nativeBuffer.readIntBE(this._pointerStart + this._pointer, size);
+    this.offset(size);
     return result;
   }
 
-  public readIntLE(byteLength: number): number {
-    utils.assertUnsignedInteger(byteLength);
-    const result = this._nativeBuffer.readIntLE(this._pointerStart + this._pointer, byteLength);
-    this.offset(byteLength);
+  public readIntLE(size: number): number {
+    utils.assertUnsignedInteger(size);
+
+    if (!this.isReadable(size)) {
+      throw new RangeError('"size" out of range');
+    }
+
+    const result = this._nativeBuffer.readIntLE(this._pointerStart + this._pointer, size);
+    this.offset(size);
     return result;
   }
 
-  public readUIntBE(byteLength: number): number {
-    utils.assertUnsignedInteger(byteLength);
-    const result = this._nativeBuffer.readUIntBE(this._pointerStart + this._pointer, byteLength);
-    this.offset(byteLength);
+  public readUIntBE(size: number): number {
+    utils.assertUnsignedInteger(size);
+
+    if (!this.isReadable(size)) {
+      throw new RangeError('"size" out of range');
+    }
+
+    const result = this._nativeBuffer.readUIntBE(this._pointerStart + this._pointer, size);
+    this.offset(size);
     return result;
   }
 
-  public readUIntLE(byteLength: number): number {
-    utils.assertUnsignedInteger(byteLength);
-    const result = this._nativeBuffer.readUIntLE(this._pointerStart + this._pointer, byteLength);
-    this.offset(byteLength);
+  public readUIntLE(size: number): number {
+    utils.assertUnsignedInteger(size);
+
+    if (!this.isReadable(size)) {
+      throw new RangeError('"size" out of range');
+    }
+
+    const result = this._nativeBuffer.readUIntLE(this._pointerStart + this._pointer, size);
+    this.offset(size);
     return result;
   }
 
@@ -449,26 +479,50 @@ export class ExtendedBuffer {
   }
 
   public readFloatBE(): number {
+    const size = 4;
+
+    if (!this.isReadable(size)) {
+      throw new RangeError('"size" out of range');
+    }
+
     const result = this._nativeBuffer.readFloatBE(this._pointerStart + this._pointer);
-    this.offset(4);
+    this.offset(size);
     return result;
   }
 
   public readFloatLE(): number {
+    const size = 4;
+
+    if (!this.isReadable(size)) {
+      throw new RangeError('"size" out of range');
+    }
+
     const result = this._nativeBuffer.readFloatLE(this._pointerStart + this._pointer);
-    this.offset(4);
+    this.offset(size);
     return result;
   }
 
   public readDoubleBE(): number {
+    const size = 8;
+
+    if (!this.isReadable(size)) {
+      throw new RangeError('"size" out of range');
+    }
+
     const result = this._nativeBuffer.readDoubleBE(this._pointerStart + this._pointer);
-    this.offset(8);
+    this.offset(size);
     return result;
   }
 
   public readDoubleLE(): number {
+    const size = 8;
+
+    if (!this.isReadable(size)) {
+      throw new RangeError('"size" out of range');
+    }
+
     const result = this._nativeBuffer.readDoubleLE(this._pointerStart + this._pointer);
-    this.offset(8);
+    this.offset(size);
     return result;
   }
 }

@@ -17,7 +17,7 @@ describe('buffer.allocStart()', function () {
             maxBufferLength: 10
         });
         buffer.allocStart(-1);
-        expect(buffer.getFreeSpaceStart()).to.equal(5);
+        expect(buffer.getWritableSizeStart()).to.equal(5);
     });
 
     it('Alloc 1 byte', function() {
@@ -25,7 +25,7 @@ describe('buffer.allocStart()', function () {
             maxBufferLength: 10
         });
         buffer.allocStart(1);
-        expect(buffer.getFreeSpaceStart()).to.equal(5);
+        expect(buffer.getWritableSizeStart()).to.equal(5);
     });
 
     it('Alloc 5 bytes', function() {
@@ -33,7 +33,7 @@ describe('buffer.allocStart()', function () {
             maxBufferLength: 10
         });
         buffer.allocStart(5);
-        expect(buffer.getFreeSpaceStart()).to.equal(5);
+        expect(buffer.getWritableSizeStart()).to.equal(5);
     });
 
     it('Alloc 10 bytes', function() {
@@ -41,6 +41,6 @@ describe('buffer.allocStart()', function () {
             maxBufferLength: 10
         });
         buffer.allocStart(10);
-        expect(buffer.getFreeSpaceStart()).to.equal(10);
+        expect(buffer.getWritableSizeStart()).to.equal(10);
     });
 });

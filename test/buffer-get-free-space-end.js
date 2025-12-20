@@ -2,12 +2,12 @@
 const expect  = require('chai').expect;
 const ExtendedBuffer = require('..').ExtendedBuffer;
 
-describe('buffer.getFreeSpaceEnd()', function () {
+describe('buffer.getWritableSizeEnd()', function () {
     it('Empty buffer', function() {
         let buffer = new ExtendedBuffer({
             maxBufferLength: 10
         });
-        expect(buffer.getFreeSpaceEnd()).to.equal(5);
+        expect(buffer.getWritableSizeEnd()).to.equal(5);
     });
 
     it('Write 1 byte to end', function() {
@@ -15,7 +15,7 @@ describe('buffer.getFreeSpaceEnd()', function () {
             maxBufferLength: 10
         });
         buffer.writeUInt8(1);
-        expect(buffer.getFreeSpaceEnd()).to.equal(4);
+        expect(buffer.getWritableSizeEnd()).to.equal(4);
     });
 
     it('Write 5 bytes to end', function() {
@@ -23,7 +23,7 @@ describe('buffer.getFreeSpaceEnd()', function () {
             maxBufferLength: 10
         });
         buffer.writeUInt8(1).writeUInt32BE(1);
-        expect(buffer.getFreeSpaceEnd()).to.equal(0);
+        expect(buffer.getWritableSizeEnd()).to.equal(0);
     });
 
     it('Write 1 byte to start', function() {
@@ -31,6 +31,6 @@ describe('buffer.getFreeSpaceEnd()', function () {
             maxBufferLength: 10
         });
         buffer.writeUInt8(1, true);
-        expect(buffer.getFreeSpaceEnd()).to.equal(5);
+        expect(buffer.getWritableSizeEnd()).to.equal(5);
     });
 });
