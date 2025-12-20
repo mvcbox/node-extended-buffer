@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
-    "target": "es5",
-    "lib": ["es5"],
+    "target": "es6",
+    "lib": ["es5", "es6"],
     "rootDir": "src",
     "outDir": "dist",
     "module": "commonjs",
@@ -12,7 +12,7 @@
     "sourceMap": false,
     "inlineSources": false,
     "allowJs": false,
-    "strictPropertyInitialization": false,
+    "strictPropertyInitialization": true,
     "typeRoots": ["types", "node_modules/@types"]
   }
 }

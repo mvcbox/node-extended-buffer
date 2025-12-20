@@ -5,14 +5,13 @@ const ExtendedBuffer = require('..').ExtendedBuffer;
 describe('buffer.setPointer()', function () {
     it('Test #1', function() {
         let buffer = new ExtendedBuffer;
-        buffer.setPointer(-1);
-        expect(buffer._pointer).to.equal(0);
+        expect(buffer.setPointer(-1)).to.throw(new RangeError('Pointer out of range'));
     });
 
     it('Test #2', function() {
         let buffer = new ExtendedBuffer;
         buffer.setPointer(1);
-        expect(buffer._pointer).to.equal(0);
+        expect(buffer._pointer).to.equal(1);
     });
 
     it('Test #3', function() {

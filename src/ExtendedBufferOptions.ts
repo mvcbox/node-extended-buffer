@@ -1,3 +1,3 @@
 export interface ExtendedBufferOptions {
-    maxBufferLength?: number
+    nativeBufferLength?: number
 }
