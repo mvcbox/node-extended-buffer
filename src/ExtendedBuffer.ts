@@ -1,6 +1,6 @@
 import * as utils from './utils';
 import { Buffer, kMaxLength } from 'buffer';
-import { ExtendedBufferOptions } from  './ExtendedBufferOptions';
+import type { ExtendedBufferOptions } from  './ExtendedBufferOptions';
 
 const defaultNativeBufferSize: number = 1024 * 1024;
 
@@ -12,7 +12,9 @@ export class ExtendedBuffer {
   public readonly _nativeBufferLength: number;
 
   public constructor(options?: ExtendedBufferOptions) {
-    this._nativeBufferLength = options?.nativeBufferLength ?? defaultNativeBufferSize;
+    const nativeBufferLength = options?.nativeBufferLength ?? defaultNativeBufferSize;
+    utils.assertUnsignedInteger(nativeBufferLength);
+    this._nativeBufferLength = nativeBufferLength;
     this.initExtendedBuffer();
   }
 
@@ -33,8 +35,6 @@ export class ExtendedBuffer {
   }
 
   public initExtendedBuffer(): this {
-    utils.assertUnsignedInteger(this._nativeBufferLength);
-
     if (this._nativeBufferLength < 1) {
       throw new RangeError(`"_nativeBufferLength" cannot be less than 1 byte`);
     }
@@ -359,9 +359,9 @@ export class ExtendedBuffer {
   }
 
   public readBuffer(size: number): this;
+  public readBuffer(size: number, asNative: true): Buffer;
   public readBuffer(size: number, asNative: false, bufferOptions?: ExtendedBufferOptions): this;
-  public readBuffer(size: number, asNative: true, bufferOptions?: ExtendedBufferOptions): Buffer;
-  public readBuffer(size: number, asNative?: boolean, bufferOptions?: ExtendedBufferOptions): this | Buffer;
+  //public readBuffer(size: number, asNative?: boolean, bufferOptions?: ExtendedBufferOptions): this | Buffer;
   public readBuffer(size: number, asNative?: boolean, bufferOptions?: ExtendedBufferOptions): this | Buffer {
     utils.assertUnsignedInteger(size);
 
@@ -369,23 +369,26 @@ export class ExtendedBuffer {
       throw new RangeError('"size" out of range');
     }
 
+    let result: typeof this | Buffer;
     const buffer = this._nativeBuffer.subarray(this._pointerStart + this._pointer, this._pointerStart + this._pointer + size) as Buffer;
-    this.offset(size);
-    const ThisClass = <new(options?: ExtendedBufferOptions) => this>this.constructor;
 
     if (asNative) {
-      return Buffer.from(buffer);
+      result = Buffer.from(buffer);
+    } else {
+      bufferOptions = Object.assign<ExtendedBufferOptions, ExtendedBufferOptions>({
+        nativeBufferLength: Math.max(size, 1)
+      }, bufferOptions ?? {});
+
+      if (typeof bufferOptions.nativeBufferLength !== 'number' || bufferOptions.nativeBufferLength < size) {
+        throw new Error('Insufficient size of new buffer');
+      }
+
+      const ThisClass = <new(options?: ExtendedBufferOptions) => this>this.constructor;
+      result = (new ThisClass(bufferOptions)).writeNativeBuffer(buffer, false);
     }
 
-    bufferOptions = Object.assign<ExtendedBufferOptions, ExtendedBufferOptions>({
-      nativeBufferLength: Math.max(size, 1)
-    }, bufferOptions ?? {});
-
-    if (typeof bufferOptions.nativeBufferLength !== 'number' || bufferOptions.nativeBufferLength < size) {
-      throw new Error('Insufficient size of new buffer');
-    }
-
-    return (new ThisClass(bufferOptions)).writeNativeBuffer(buffer, false);
+    this.offset(size);
+    return result;
   }
 
   public readString(size: number, encoding?: string): string {

@@ -1,3 +1,3 @@
-export interface ExtendedBufferOptions {
+export type ExtendedBufferOptions = {
     nativeBufferLength?: number
-}
+};
