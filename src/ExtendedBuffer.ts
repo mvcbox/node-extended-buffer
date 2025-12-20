@@ -18,6 +18,11 @@ export class ExtendedBuffer {
     this.initExtendedBuffer();
   }
 
+  protected createInstance(options?: ExtendedBufferOptions): this {
+    const ThisClass = this.constructor as unknown as new (opts?: ExtendedBufferOptions) => this;
+    return new ThisClass(options);
+  }
+
   public static get maxNativeBufferLength(): number {
     return kMaxLength;
   }
@@ -122,7 +127,7 @@ export class ExtendedBuffer {
   public gc(): this {
     if (this._pointer > 0) {
       const payload = this._nativeBuffer.subarray(this._pointerStart + this._pointer, this._pointerEnd) as Buffer;
-      return this.initExtendedBuffer().writeNativeBuffer(payload, false);
+      return this.initExtendedBuffer().writeNativeBuffer(payload);
     }
 
     return this;
@@ -383,8 +388,7 @@ export class ExtendedBuffer {
         throw new Error('Insufficient size of new buffer');
       }
 
-      const ThisClass = <new(options?: ExtendedBufferOptions) => this>this.constructor;
-      result = (new ThisClass(bufferOptions)).writeNativeBuffer(buffer, false);
+      result = this.createInstance(bufferOptions).writeNativeBuffer(buffer);
     }
 
     this.offset(size);
