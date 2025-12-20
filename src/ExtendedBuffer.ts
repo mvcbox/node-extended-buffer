@@ -28,11 +28,13 @@ export class ExtendedBuffer {
     return this._nativeBuffer.length;
   }
 
-  public get nativeBuffer(): Buffer {
+  public get nativeBufferView(): Buffer {
     return this._nativeBuffer.subarray(this._pointerStart, this._pointerEnd) as Buffer;
   }
 
   public initExtendedBuffer(): this {
+    utils.assertUnsignedInteger(this._nativeBufferLength);
+
     if (this._nativeBufferLength < 1) {
       throw new RangeError(`"_nativeBufferLength" cannot be less than 1 byte`);
     }
@@ -170,7 +172,7 @@ export class ExtendedBuffer {
     }
 
     if (value instanceof ExtendedBuffer) {
-      return this.writeNativeBuffer(value.nativeBuffer, unshift);
+      return this.writeNativeBuffer(value.nativeBufferView, unshift);
     }
 
     throw new TypeError('"value" has an invalid type');
@@ -373,6 +375,14 @@ export class ExtendedBuffer {
 
     if (asNative) {
       return Buffer.from(buffer);
+    }
+
+    bufferOptions = Object.assign<ExtendedBufferOptions, ExtendedBufferOptions>({
+      nativeBufferLength: Math.max(size, 1)
+    }, bufferOptions ?? {});
+
+    if (typeof bufferOptions.nativeBufferLength !== 'number' || bufferOptions.nativeBufferLength < size) {
+      throw new Error('Insufficient size of new buffer');
     }
 
     return (new ThisClass(bufferOptions)).writeNativeBuffer(buffer, false);

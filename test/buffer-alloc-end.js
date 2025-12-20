@@ -5,7 +5,7 @@ const ExtendedBuffer = require('..').ExtendedBuffer;
 describe('buffer.allocEnd()', function () {
     it('Not enough free space', function() {
         let buffer = new ExtendedBuffer({
-            maxBufferLength: 10
+            nativeBufferLength: 10
         });
         expect(function () {
             buffer.allocEnd(11);
@@ -14,15 +14,17 @@ describe('buffer.allocEnd()', function () {
 
     it('Alloc -1 byte', function() {
         let buffer = new ExtendedBuffer({
-            maxBufferLength: 10
+            nativeBufferLength: 10
         });
-        buffer.allocEnd(-1);
-        expect(buffer.getWritableSizeEnd()).to.equal(5);
+
+        expect(function () {
+            buffer.allocEnd(-1);
+        }).to.throw('Value must be an unsigned integer');
     });
 
     it('Alloc 1 byte', function() {
         let buffer = new ExtendedBuffer({
-            maxBufferLength: 10
+            nativeBufferLength: 10
         });
         buffer.allocEnd(1);
         expect(buffer.getWritableSizeEnd()).to.equal(5);
@@ -30,7 +32,7 @@ describe('buffer.allocEnd()', function () {
 
     it('Alloc 5 bytes', function() {
         let buffer = new ExtendedBuffer({
-            maxBufferLength: 10
+            nativeBufferLength: 10
         });
         buffer.allocEnd(5);
         expect(buffer.getWritableSizeEnd()).to.equal(5);
@@ -38,7 +40,7 @@ describe('buffer.allocEnd()', function () {
 
     it('Alloc 10 bytes', function() {
         let buffer = new ExtendedBuffer({
-            maxBufferLength: 10
+            nativeBufferLength: 10
         });
         buffer.allocEnd(10);
         expect(buffer.getWritableSizeEnd()).to.equal(10);
