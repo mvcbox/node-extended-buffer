@@ -215,4 +215,28 @@ describe('Check invalid input', function () {
       buffer.readDoubleBE();
     }).to.throw('SIZE_OUT_OF_RANGE').instanceOf(ExtendedBufferRangeError);
   });
+
+  it('Read from empty buffer readString()', function() {
+    const buffer = new ExtendedBuffer();
+
+    expect(function() {
+      buffer.readString(10, 'utf8');
+    }).to.throw('SIZE_OUT_OF_RANGE').instanceOf(ExtendedBufferRangeError);
+  });
+
+  it('Read from empty buffer readBuffer()', function() {
+    const buffer = new ExtendedBuffer();
+
+    expect(function() {
+      buffer.readBuffer(10);
+    }).to.throw('SIZE_OUT_OF_RANGE').instanceOf(ExtendedBufferRangeError);
+  });
+
+  it('Set invalid pointer', function() {
+    const buffer = new ExtendedBuffer();
+
+    expect(function() {
+      buffer.setPointer(10);
+    }).to.throw('POINTER_OUT_OF_RANGE').instanceOf(ExtendedBufferRangeError);
+  });
 });

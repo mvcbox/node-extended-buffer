@@ -4,12 +4,16 @@ const expect  = require('chai').expect;
 const Buffer  = require('buffer').Buffer;
 const ExtendedBuffer = require('..').ExtendedBuffer;
 
-describe('Create default instance', function () {
-  it('Create default instance', function() {
+describe('Discard read data', function () {
+  it('Discard read data', function() {
     const buffer = new ExtendedBuffer();
+    buffer.writeUInt8(123);
+
+    expect(buffer.length).to.equal(1);
+
+    buffer.readUInt8();
+    buffer.discardReadData();
+
     expect(buffer.length).to.equal(0);
-    expect(buffer.capacity).to.equal(512 * 1024);
-    expect(buffer.pointer).to.equal(0);
-    expect(buffer.nativeBufferView.length).to.equal(0);
   });
 });

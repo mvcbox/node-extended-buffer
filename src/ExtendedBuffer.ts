@@ -303,7 +303,7 @@ export class ExtendedBuffer {
   }
 
   public writeUInt8(value: number, unshift?: boolean): this {
-    return this.writeUIntBE(value, 1, unshift);
+    return this.writeUIntLE(value, 1, unshift);
   }
 
   public writeInt16BE(value: number, unshift?: boolean): this {
@@ -429,7 +429,7 @@ export class ExtendedBuffer {
     if (!this.isReadable(size)) {
       throw new ExtendedBufferRangeError('SIZE_OUT_OF_RANGE');
     }
-    
+
     const result = this._nativeBuffer.toString(encoding, this.nativePointer(), this.nativePointer() + size);
     this.offset(size);
     return result;
@@ -492,7 +492,7 @@ export class ExtendedBuffer {
   }
 
   public readUInt8(): number {
-    return this.readUIntBE(1);
+    return this.readUIntLE(1);
   }
 
   public readInt16BE(): number {
