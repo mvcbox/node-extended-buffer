@@ -14,7 +14,7 @@
   },
   "scripts": {
     "build": "npm run clean && node ./node_modules/.bin/tsc",
-    "test": "./node_modules/.bin/mocha",
+    "test": "npm run build && node ./node_modules/.bin/mocha",
     "coverage": "node ./node_modules/.bin/nyc --reporter=html --reporter=text ./node_modules/.bin/mocha",
     "clean": "node -e \"['./dist', './coverage', './.nyc_output'].forEach(item => require('fs').rmSync(item, {recursive:true,force:true}));\"",
     "prepack": "npm run build"
