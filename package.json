@@ -16,7 +16,7 @@
     "build": "npm run clean && node ./node_modules/.bin/tsc",
     "test": "./node_modules/.bin/mocha",
     "coverage": "node ./node_modules/.bin/nyc --reporter=html --reporter=text ./node_modules/.bin/mocha",
-    "clean": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\"",
+    "clean": "node -e \"['./dist', './coverage', './.nyc_output'].forEach(item => require('fs').rmSync(item, {recursive:true,force:true}));\"",
     "prepack": "npm run build"
   },
   "engines": {

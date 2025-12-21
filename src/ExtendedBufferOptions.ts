@@ -1,3 +1,4 @@
 export type ExtendedBufferOptions = {
-    nativeBufferLength?: number
+    capacity?: number
+    capacityStep?: number
 };
