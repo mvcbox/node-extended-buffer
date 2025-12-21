@@ -392,7 +392,6 @@ export class ExtendedBuffer {
   public readBuffer(size: number): this;
   public readBuffer(size: number, asNative: true): Buffer;
   public readBuffer(size: number, asNative: false, bufferOptions?: ExtendedBufferOptions): this;
-  //public readBuffer(size: number, asNative?: boolean, bufferOptions?: ExtendedBufferOptions): this | Buffer;
   public readBuffer(size: number, asNative?: boolean, bufferOptions?: ExtendedBufferOptions): this | Buffer {
     utils.assertUnsignedInteger(size);
 
