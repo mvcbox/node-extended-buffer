@@ -184,9 +184,9 @@ export class ExtendedBuffer {
   }
 
   public setPointer(pointer: number): this {
-    utils.assertUnsignedInteger(pointer);
+    utils.assertInteger(pointer);
 
-    if (pointer > this.length) {
+    if (pointer < 0 || pointer > this.length) {
       throw new ExtendedBufferRangeError('POINTER_OUT_OF_RANGE');
     }
 

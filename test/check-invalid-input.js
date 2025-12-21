@@ -239,4 +239,36 @@ describe('Check invalid input', function () {
       buffer.setPointer(10);
     }).to.throw('POINTER_OUT_OF_RANGE').instanceOf(ExtendedBufferRangeError);
   });
+
+  it('Set invalid pointer', function() {
+    const buffer = new ExtendedBuffer();
+
+    expect(function() {
+      buffer.setPointer(-1);
+    }).to.throw('POINTER_OUT_OF_RANGE').instanceOf(ExtendedBufferRangeError);
+  });
+
+  it('Write invalid unsigned integer', function() {
+    const buffer = new ExtendedBuffer();
+
+    expect(function() {
+      buffer.writeUInt8(-1);
+    }).to.throw('VALUE_MUST_BE_AN_UNSIGNED_INTEGER').instanceOf(ExtendedBufferTypeError);
+  });
+
+  it('Write invalid unsigned integer', function() {
+    const buffer = new ExtendedBuffer();
+
+    expect(function() {
+      buffer.writeUInt8(1.1);
+    }).to.throw('VALUE_MUST_BE_AN_UNSIGNED_INTEGER').instanceOf(ExtendedBufferTypeError);
+  });
+
+  it('Write invalid signed integer', function() {
+    const buffer = new ExtendedBuffer();
+
+    expect(function() {
+      buffer.writeInt8(1.1);
+    }).to.throw('VALUE_MUST_BE_AN_INTEGER').instanceOf(ExtendedBufferTypeError);
+  });
 });
