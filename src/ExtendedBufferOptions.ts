@@ -1,3 +1,4 @@
-export interface ExtendedBufferOptions {
-    maxBufferLength?: number
-}
+export type ExtendedBufferOptions = {
+    capacity?: number
+    capacityStep?: number
+};

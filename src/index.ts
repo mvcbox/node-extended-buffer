@@ -1,2 +1,4 @@
+export * from './utils';
+export * from './errors';
 export { ExtendedBuffer } from './ExtendedBuffer';
-export { ExtendedBufferOptions } from './ExtendedBufferOptions';
+export type { ExtendedBufferOptions } from './ExtendedBufferOptions';
