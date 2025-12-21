@@ -208,11 +208,6 @@ export class ExtendedBuffer {
     return this.getReadableSize() >= size;
   }
 
-  public isWritable(size: number): boolean {
-    utils.assertUnsignedInteger(size);
-    return this.getWritableSize() >= size;
-  }
-
   public writeBuffer(value: Buffer | ExtendedBuffer, unshift?: boolean): this {
     if (value instanceof Buffer) {
       return this.writeNativeBuffer(value, unshift);
