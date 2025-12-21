@@ -40,7 +40,7 @@ export class ExtendedBuffer {
   }
 
   public get nativeBufferView(): Buffer {
-    return this._nativeBuffer.subarray(this._pointerStart, this._pointerEnd) as Buffer;
+    return utils.nativeBufferSubarray(this._nativeBuffer, this._pointerStart, this._pointerEnd);
   }
 
   public initExtendedBuffer(): this {
@@ -400,7 +400,7 @@ export class ExtendedBuffer {
     }
 
     let result: typeof this | Buffer;
-    const buffer = this._nativeBuffer.subarray(this.nativePointer(), this.nativePointer() + size) as Buffer;
+    const buffer = utils.nativeBufferSubarray(this._nativeBuffer, this.nativePointer(), this.nativePointer() + size);
 
     if (asNative) {
       result = Buffer.from(buffer);
