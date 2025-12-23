@@ -14,7 +14,7 @@
   },
   "scripts": {
     "build": "npm run clean && node ./node_modules/.bin/tsc",
-    "test": "npm run build && node ./node_modules/.bin/mocha",
+    "test": "node ./node_modules/.bin/mocha",
     "coverage": "node ./node_modules/.bin/nyc --reporter=html --reporter=text ./node_modules/.bin/mocha",
     "clean": "node -e \"['./dist', './coverage', './.nyc_output'].forEach(item => require('fs').rmSync(item, {recursive:true,force:true}));\"",
     "prepack": "npm run build"
@@ -55,9 +55,9 @@
   ],
   "devDependencies": {
     "@types/node": "^6.14.13",
-    "chai": "^4.1.2",
-    "mocha": "^4.0.1",
-    "nyc": "^11.3.0",
+    "chai": "^4.5.0",
+    "mocha": "^6.2.3",
+    "nyc": "^11.9.0",
     "typescript": "^4.7.2"
   }
 }
