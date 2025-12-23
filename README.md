@@ -63,7 +63,7 @@ type ExtendedBufferOptions = {
 
 Defaults (from source):
 
-- `capacity`: `512 * 1024` bytes (512 KiB)
+- `capacity`: `16 * 1024` bytes (16 KiB)
 - `capacityStep`: same as `capacity`
 
 Example:
