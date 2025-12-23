@@ -1,4 +1,4 @@
-[![npm version](https://badge.fury.io/js/extended-buffer.svg)](https://badge.fury.io/js/extended-buffer)
+[![npm version](https://badge.fury.io/js/extended-buffer.svg?kill_cache=1)](https://badge.fury.io/js/extended-buffer)
 
 # ExtendedBuffer
 
