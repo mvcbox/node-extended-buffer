@@ -3,7 +3,7 @@ import * as utils from './utils';
 import type { ExtendedBufferOptions } from  './ExtendedBufferOptions';
 import { ExtendedBufferError, ExtendedBufferRangeError } from './errors';
 
-const defaultCapacity = 512 * 1024;
+const defaultCapacity = 16 * 1024;
 const defaultCapacityStep = defaultCapacity;
 
 export class ExtendedBuffer {
