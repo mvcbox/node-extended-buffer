@@ -235,7 +235,7 @@ Common error codes you may see:
 - `SIZE_OUT_OF_RANGE` (reading more bytes than available)
 - `POINTER_OUT_OF_RANGE` (setting pointer outside `0…length`)
 - `INVALID_INTEGER_SIZE_VALUE_RANGE` (integer size not in `1…6`)
-- `EXCEEDING_MAXIMUM_BUFFER_SIZE` (allocation exceeds Node’s `kMaxLength`)
+- `EXCEEDING_MAXIMUM_BUFFER_SIZE` (allocation exceeds Node’s `kMaxLength` or `os.totalmem()`)
 - `INVALID_INSTANCE_STATE` (internal invariant check failed)
 
 ---
