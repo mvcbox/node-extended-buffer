@@ -32,4 +32,31 @@ describe('Write/Read buffer', function () {
       dataBuffer.nativeBufferView
     )).to.equal(0);
   });
+
+  it('writeBuffer/readBuffer with options [ExtendedBuffer]', function() {
+    const buffer = new ExtendedBuffer({
+      capacity: 1024,
+      capacityStep: 1024
+    });
+
+    buffer.writeUInt8(1);
+    buffer.writeUInt8(2);
+    buffer.writeUInt8(3);
+
+    expect(buffer.length).to.equal(3);
+    expect(buffer.capacity).to.equal(1024);
+    expect(buffer.pointer).to.equal(0);
+
+    const buffer2 = buffer.readBuffer(buffer.length, false, {
+      capacity: 0,
+      capacityStep: 0,
+      nativeAllocSlow: true,
+      nativeReallocSlow: true
+    });
+
+    expect(buffer.pointer).to.equal(3);
+    expect(buffer2.pointer).to.equal(0);
+    expect(buffer2.length).to.equal(3);
+    expect(buffer2.capacity).to.equal(3);
+  });
 });

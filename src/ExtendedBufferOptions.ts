@@ -1,4 +1,6 @@
 export type ExtendedBufferOptions = {
-    capacity?: number
-    capacityStep?: number
+  capacity?: number;
+  capacityStep?: number;
+  nativeAllocSlow?: boolean;
+  nativeReallocSlow?: boolean;
 };

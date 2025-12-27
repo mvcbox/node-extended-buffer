@@ -109,4 +109,21 @@ describe('Other common checks', function () {
       allocNativeBuffer(Number.MAX_SAFE_INTEGER);
     }).to.throw('EXCEEDING_MAXIMUM_BUFFER_SIZE').instanceOf(ExtendedBufferRangeError);
   });
+
+  it('nativeAllocSlow/nativeReallocSlow', function() {
+    const buffer = new ExtendedBuffer({
+      capacity: 0,
+      capacityStep: 0,
+      nativeAllocSlow: true,
+      nativeReallocSlow: true
+    });
+
+    buffer.writeUInt8(1);
+    buffer.writeUInt8(2);
+    buffer.writeUInt8(3);
+
+    expect(buffer.length).to.equal(3);
+    expect(buffer.capacity).to.equal(3);
+    expect(buffer.pointer).to.equal(0);
+  });
 });

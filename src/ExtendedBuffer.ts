@@ -1,6 +1,6 @@
 import { Buffer } from 'buffer';
 import * as utils from './utils';
-import type { ExtendedBufferOptions } from  './ExtendedBufferOptions';
+import type { ExtendedBufferOptions } from './ExtendedBufferOptions';
 import { ExtendedBufferError, ExtendedBufferRangeError } from './errors';
 
 const defaultCapacity = 16 * 1024;
@@ -13,8 +13,12 @@ export class ExtendedBuffer {
   protected _nativeBuffer!: Buffer;
   protected readonly _capacity: number;
   protected readonly _capacityStep: number;
+  protected readonly _nativeAllocSlow?: boolean;
+  protected readonly _nativeReallocSlow?: boolean;
 
   public constructor(options?: ExtendedBufferOptions) {
+    this._nativeAllocSlow = options?.nativeAllocSlow;
+    this._nativeReallocSlow = options?.nativeReallocSlow;
     this._capacity = options?.capacity ?? defaultCapacity;
     this._capacityStep = options?.capacityStep ?? defaultCapacityStep;
     utils.assertUnsignedInteger(this._capacity);
@@ -45,7 +49,7 @@ export class ExtendedBuffer {
 
   public initExtendedBuffer(): this {
     this._pointer = 0;
-    this._nativeBuffer = utils.allocNativeBuffer(this._capacity);
+    this._nativeBuffer = utils.allocNativeBuffer(this._capacity, this._nativeAllocSlow);
     this._pointerStart = this._pointerEnd = Math.floor(this._capacity / 2);
     this.assertInstanceState();
     return this;
@@ -103,7 +107,7 @@ export class ExtendedBuffer {
 
     if (this.getWritableSize() < size) {
       const newSize = this._nativeBuffer.length + (size - this.getWritableSize()) + this._capacityStep;
-      this._nativeBuffer = utils.reallocNativeBuffer(this._nativeBuffer, newSize);
+      this._nativeBuffer = utils.reallocNativeBuffer(this._nativeBuffer, newSize, this._nativeReallocSlow);
     }
 
     const offset = Math.floor((this.getWritableSize() - size) / 2) + size - this._pointerStart;
@@ -123,7 +127,7 @@ export class ExtendedBuffer {
 
     if (this.getWritableSize() < size) {
       const newSize = this._nativeBuffer.length + (size - this.getWritableSize()) + this._capacityStep;
-      this._nativeBuffer = utils.reallocNativeBuffer(this._nativeBuffer, newSize);
+      this._nativeBuffer = utils.reallocNativeBuffer(this._nativeBuffer, newSize, this._nativeReallocSlow);
     }
 
     const offset = this._nativeBuffer.length - Math.floor((this.getWritableSize() - size) / 2) - size - this._pointerEnd;
@@ -160,7 +164,7 @@ export class ExtendedBuffer {
       const reduceSize = freeSize - this._capacityStep;
       const newNativeSize = this._nativeBuffer.length - reduceSize;
       this.allocEnd(reduceSize);
-      this._nativeBuffer = utils.reallocNativeBuffer(this._nativeBuffer, newNativeSize);
+      this._nativeBuffer = utils.reallocNativeBuffer(this._nativeBuffer, newNativeSize, this._nativeReallocSlow);
     }
 
     return this;
@@ -407,7 +411,9 @@ export class ExtendedBuffer {
     } else {
       bufferOptions = Object.assign<ExtendedBufferOptions, ExtendedBufferOptions>({
         capacity: this._capacity,
-        capacityStep: this._capacityStep
+        capacityStep: this._capacityStep,
+        nativeAllocSlow: this._nativeAllocSlow,
+        nativeReallocSlow: this._nativeReallocSlow
       }, bufferOptions ?? {});
 
       result = this.createInstance(bufferOptions).writeNativeBuffer(buffer);
