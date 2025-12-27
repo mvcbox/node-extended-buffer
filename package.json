@@ -1,6 +1,6 @@
 {
   "name": "extended-buffer",
-  "version": "7.0.2",
+  "version": "7.1.0",
   "description": "Node JS extended Buffer",
   "type": "commonjs",
   "main": "./dist/index.js",
@@ -9,6 +9,7 @@
     ".": {
       "types": "./dist/index.d.ts",
       "require": "./dist/index.js",
+      "import": "./dist/index.js",
       "default": "./dist/index.js"
     }
   },

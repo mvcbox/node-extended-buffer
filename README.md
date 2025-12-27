@@ -1,4 +1,4 @@
-[![npm version](https://badge.fury.io/js/extended-buffer.svg?flush_cache=v7_0_2)](https://badge.fury.io/js/extended-buffer)
+[![npm version](https://badge.fury.io/js/extended-buffer.svg?flush_cache=v7_1_0)](https://badge.fury.io/js/extended-buffer)
 
 # ExtendedBuffer
 
@@ -56,20 +56,29 @@ const unread = b.nativeBufferView.subarray(b.pointer);
 
 ```ts
 type ExtendedBufferOptions = {
-  capacity?: number;      // initial native buffer size (bytes)
-  capacityStep?: number;  // how much to grow when resizing
+  capacity?: number;            // initial native buffer size (bytes)
+  capacityStep?: number;        // how much to grow when resizing
+  nativeAllocSlow?: boolean;    // using Buffer.allocUnsafeSlow() when initializing ExtendedBuffer
+  nativeReallocSlow?: boolean;  // using Buffer.allocUnsafeSlow() for further reallocations
 };
 ```
 
-Defaults (from source):
+Default values:
 
 - `capacity`: `16 * 1024` bytes (16 KiB)
 - `capacityStep`: same as `capacity`
+- `nativeAllocSlow`: `false`
+- `nativeReallocSlow`: `false`
 
 Example:
 
 ```ts
-const b = new ExtendedBuffer({ capacity: 64 * 1024, capacityStep: 16 * 1024 });
+const b = new ExtendedBuffer({
+  capacity: 1024 * 1024,
+  capacityStep: 1024 * 1024,
+  nativeAllocSlow: true,
+  nativeReallocSlow: true
+});
 ```
 
 ---
@@ -137,7 +146,7 @@ if (b.isReadable(4)) {
 // Copy out as a native Buffer
 const chunk: Buffer = b.readBuffer(10, true);
 
-// Copy out as a new ExtendedBuffer (same capacity/capacityStep by default)
+// Copy out as a new ExtendedBuffer (same capacity/capacityStep/nativeAllocSlow/nativeReallocSlow by default)
 const eb: ExtendedBuffer = b.readBuffer(10);
 ```
 
@@ -232,11 +241,14 @@ The library defines these error classes:
 
 Common error codes you may see:
 
-- `SIZE_OUT_OF_RANGE` (reading more bytes than available)
-- `POINTER_OUT_OF_RANGE` (setting pointer outside `0…length`)
-- `INVALID_INTEGER_SIZE_VALUE_RANGE` (integer size not in `1…6`)
-- `EXCEEDING_MAXIMUM_BUFFER_SIZE` (allocation exceeds Node’s `kMaxLength` or `os.totalmem()`)
-- `INVALID_INSTANCE_STATE` (internal invariant check failed)
+- `SIZE_OUT_OF_RANGE`: reading more bytes than available
+- `POINTER_OUT_OF_RANGE`: setting pointer outside `0…length`
+- `INVALID_INTEGER_SIZE_VALUE_TYPE`: size is not a safe integer
+- `INVALID_INTEGER_SIZE_VALUE_RANGE`: integer size not in `1…6`
+- `INVALID_INSTANCE_STATE`: internal invariant check failed
+- `VALUE_MUST_BE_AN_INTEGER`: value not a safe integer
+- `VALUE_MUST_BE_AN_UNSIGNED_INTEGER`: value is not a safe integer or less than 0
+- `EXCEEDING_MAXIMUM_BUFFER_SIZE`: allocation exceeds Node’s `kMaxLength` or `os.totalmem()`
 
 ---
 

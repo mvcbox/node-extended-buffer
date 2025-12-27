@@ -6,12 +6,12 @@ import { assertUnsignedInteger } from './assert-unsigned-integer';
 const maxBufferSize = Math.min(kMaxLength, os.totalmem());
 assertUnsignedInteger(maxBufferSize);
 
-export function allocNativeBuffer(size: number): Buffer {
+export function allocNativeBuffer(size: number, allocSlow?: boolean): Buffer {
   assertUnsignedInteger(size);
 
   if (size > maxBufferSize) {
     throw new ExtendedBufferRangeError('EXCEEDING_MAXIMUM_BUFFER_SIZE');
   }
 
-  return Buffer.allocUnsafe(size);
+  return allocSlow ? Buffer.allocUnsafeSlow(size) : Buffer.allocUnsafe(size);
 }
