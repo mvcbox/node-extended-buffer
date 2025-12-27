@@ -227,7 +227,6 @@ export class ExtendedBuffer {
 
   public writeIntBE(value: number, size: number, unshift?: boolean): this {
     utils.assertInteger(value);
-    utils.assertUnsignedInteger(size);
     utils.assertIntegerSize(size);
 
     if (unshift) {
@@ -245,7 +244,6 @@ export class ExtendedBuffer {
 
   public writeIntLE(value: number, size: number, unshift?: boolean): this {
     utils.assertInteger(value);
-    utils.assertUnsignedInteger(size);
     utils.assertIntegerSize(size);
 
     if (unshift) {
@@ -263,7 +261,6 @@ export class ExtendedBuffer {
 
   public writeUIntBE(value: number, size: number, unshift?: boolean): this {
     utils.assertUnsignedInteger(value);
-    utils.assertUnsignedInteger(size);
     utils.assertIntegerSize(size);
 
     if (unshift) {
@@ -281,7 +278,6 @@ export class ExtendedBuffer {
 
   public writeUIntLE(value: number, size: number, unshift?: boolean): this {
     utils.assertUnsignedInteger(value);
-    utils.assertUnsignedInteger(size);
     utils.assertIntegerSize(size);
 
     if (unshift) {
@@ -436,7 +432,6 @@ export class ExtendedBuffer {
   }
 
   public readIntBE(size: number): number {
-    utils.assertUnsignedInteger(size);
     utils.assertIntegerSize(size);
 
     if (!this.isReadable(size)) {
@@ -449,7 +444,6 @@ export class ExtendedBuffer {
   }
 
   public readIntLE(size: number): number {
-    utils.assertUnsignedInteger(size);
     utils.assertIntegerSize(size);
 
     if (!this.isReadable(size)) {
@@ -462,7 +456,6 @@ export class ExtendedBuffer {
   }
 
   public readUIntBE(size: number): number {
-    utils.assertUnsignedInteger(size);
     utils.assertIntegerSize(size);
 
     if (!this.isReadable(size)) {
@@ -475,7 +468,6 @@ export class ExtendedBuffer {
   }
 
   public readUIntLE(size: number): number {
-    utils.assertUnsignedInteger(size);
     utils.assertIntegerSize(size);
 
     if (!this.isReadable(size)) {
