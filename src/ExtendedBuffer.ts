@@ -2,6 +2,7 @@ import { Buffer } from 'buffer';
 import * as utils from './utils';
 import type { ExtendedBufferOptions } from './ExtendedBufferOptions';
 import { ExtendedBufferError, ExtendedBufferRangeError } from './errors';
+import type { ExtendedBufferTransaction } from './ExtendedBufferTransaction';
 
 const DEFAULT_CAPACITY = 16 * 1024;
 const DEFAULT_CAPACITY_STEP = DEFAULT_CAPACITY;
@@ -15,6 +16,7 @@ export class ExtendedBuffer<EBO extends ExtendedBufferOptions = ExtendedBufferOp
   protected readonly _capacityStep: number;
   protected readonly _nativeAllocSlow?: boolean;
   protected readonly _nativeReallocSlow?: boolean;
+  protected _transaction?: ExtendedBufferTransaction;
 
   public constructor(options?: ExtendedBufferOptions) {
     this._nativeAllocSlow = options?.nativeAllocSlow;
@@ -105,6 +107,37 @@ export class ExtendedBuffer<EBO extends ExtendedBufferOptions = ExtendedBufferOp
 
   public getWritableSize(): number {
     return this.getWritableSizeStart() + this.getWritableSizeEnd();
+  }
+
+  public transaction<T>(callback: () => T): T {
+    if (this._transaction) {
+      return callback();
+    }
+
+    this.assertInstanceState();
+
+    this._transaction = {
+      pointer: this._pointer,
+      pointerEnd: this._pointerEnd,
+      pointerStart: this._pointerStart,
+      nativeBuffer: this._nativeBuffer,
+      nativeBufferLength: this._nativeBuffer.length,
+      nativePayload: Buffer.from(utils.nativeBufferSubarray(this._nativeBuffer, this._pointerStart, this._pointerEnd))
+    };
+
+    try {
+      return callback();
+    } catch (e) {
+      this._transaction.nativePayload.copy(this._transaction.nativeBuffer, this._transaction.pointerStart);
+      this._nativeBuffer = this._transaction.nativeBuffer;
+      this._pointer = this._transaction.pointer;
+      this._pointerEnd = this._transaction.pointerEnd;
+      this._pointerStart = this._transaction.pointerStart;
+      this.assertInstanceState();
+      throw e;
+    } finally {
+      this._transaction = undefined;
+    }
   }
 
   public allocStart(size: number): this {
