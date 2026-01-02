@@ -202,6 +202,85 @@ If you try to set the pointer outside `[0, length]`, it throws
 
 ---
 
+## Transactions (atomic changes)
+
+Sometimes you want to perform a **multi-step read/write** and either:
+
+- **commit** everything if it succeeds, or
+- **rollback** the buffer to the exact previous state if something fails.
+
+`ExtendedBuffer.transaction()` wraps your code in a transaction:
+
+```ts
+const result = b.transaction(() => {
+  // any reads/writes/offsets/etc.
+  return 123;
+});
+```
+
+Rules:
+
+- If the callback **returns normally**, changes are kept (committed).
+- If the callback **throws**, the buffer is restored (rolled back) and the error is re-thrown.
+- Transactions are **re-entrant**: nested `transaction()` calls do not create extra snapshots.
+
+What gets rolled back:
+
+- stored payload bytes
+- `pointer` (read pointer)
+- internal start/end offsets and the original native `Buffer` (even if the buffer was reallocated during the callback)
+
+### Example: "try parse" without consuming bytes
+
+This is useful for protocols where you might receive partial data and want to retry later.
+
+```ts
+import { ExtendedBuffer } from 'extended-buffer';
+
+function tryReadFrame(b: ExtendedBuffer): Buffer | null {
+  try {
+    return b.transaction(() => {
+      // (1) read header
+      const len = b.readUInt16BE();
+
+      // (2) not enough bytes yet -> rollback and let the caller wait for more data
+      if (!b.isReadable(len)) {
+        throw new Error('INCOMPLETE_FRAME');
+      }
+
+      // (3) success -> commit
+      return b.readBuffer(len, true);
+    });
+  } catch {
+    return null;
+  }
+}
+```
+
+### Example: rollback on validation error
+
+```ts
+b.transaction(() => {
+  const magic = b.readUInt32BE();
+  if (magic !== 0xdeadbeef) {
+    throw new Error('BAD_MAGIC');
+  }
+
+  const version = b.readUInt8();
+  if (version !== 1) {
+    throw new Error('UNSUPPORTED_VERSION');
+  }
+});
+```
+
+### Performance note
+
+`transaction()` snapshots the **current payload** (it copies the stored bytes) before running the callback.
+That makes rollbacks safe, but can be expensive for very large buffers. Use it for small/medium payloads,
+or when the safety/ergonomics is worth the extra copy.
+
+---
+
 ## Memory management
 
 ### Discard already-read data
@@ -281,6 +360,7 @@ Properties:
 Core:
 - `initExtendedBuffer()`, `assertInstanceState()`, `clean()`
 - `nativePointer()`, `getWritableSizeStart()`, `getWritableSizeEnd()`, `getWritableSize()`, `getReadableSize()`
+- `transaction(callback)`
 - `allocStart(size)`, `allocEnd(size)`
 - `writeNativeBuffer(buf, unshift?)`, `writeBuffer(bufOrEB, unshift?)`, `writeString(str, enc?, unshift?)`
 - Pointer: `setPointer(p)`, `getPointer()`, `offset(n)`, `isReadable(size)`
