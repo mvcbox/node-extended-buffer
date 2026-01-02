@@ -3,10 +3,10 @@ import * as utils from './utils';
 import type { ExtendedBufferOptions } from './ExtendedBufferOptions';
 import { ExtendedBufferError, ExtendedBufferRangeError } from './errors';
 
-const defaultCapacity = 16 * 1024;
-const defaultCapacityStep = defaultCapacity;
+const DEFAULT_CAPACITY = 16 * 1024;
+const DEFAULT_CAPACITY_STEP = DEFAULT_CAPACITY;
 
-export class ExtendedBuffer {
+export class ExtendedBuffer<EBO extends ExtendedBufferOptions = ExtendedBufferOptions> {
   protected _pointer!: number;
   protected _pointerEnd!: number;
   protected _pointerStart!: number;
@@ -19,26 +19,25 @@ export class ExtendedBuffer {
   public constructor(options?: ExtendedBufferOptions) {
     this._nativeAllocSlow = options?.nativeAllocSlow;
     this._nativeReallocSlow = options?.nativeReallocSlow;
-    this._capacity = options?.capacity ?? defaultCapacity;
-    this._capacityStep = options?.capacityStep ?? defaultCapacityStep;
+    this._capacity = options?.capacity ?? DEFAULT_CAPACITY;
+    this._capacityStep = options?.capacityStep ?? DEFAULT_CAPACITY_STEP;
     utils.assertUnsignedInteger(this._capacity);
     utils.assertUnsignedInteger(this._capacityStep);
     this.initExtendedBuffer();
   }
 
-  /**
-   * This method must be overridden in derived classes if you extend the behavior of the base class
-   */
-  protected createInstance(options?: ExtendedBufferOptions): this {
-    options = Object.assign<ExtendedBufferOptions, ExtendedBufferOptions>({
+  protected createInstanceOptions(options?: EBO): ExtendedBufferOptions {
+    return Object.assign<ExtendedBufferOptions, ExtendedBufferOptions>({
       capacity: this._capacity,
       capacityStep: this._capacityStep,
       nativeAllocSlow: this._nativeAllocSlow,
       nativeReallocSlow: this._nativeReallocSlow
     }, options ?? {});
+  }
 
+  protected createInstance(options?: EBO): this {
     const ThisClass = this.constructor as unknown as new (opts?: ExtendedBufferOptions) => this;
-    return new ThisClass(options);
+    return new ThisClass(this.createInstanceOptions(options));
   }
 
   public get length(): number {
@@ -222,12 +221,12 @@ export class ExtendedBuffer {
     return this.getReadableSize() >= size;
   }
 
-  public writeBuffer(value: Buffer | ExtendedBuffer, unshift?: boolean): this {
-    if (value instanceof Buffer) {
-      return this.writeNativeBuffer(value, unshift);
+  public writeBuffer(value: Buffer | ExtendedBuffer<ExtendedBufferOptions>, unshift?: boolean): this {
+    if (value instanceof ExtendedBuffer) {
+      return this.writeNativeBuffer(value.nativeBufferView, unshift);
     }
 
-    return this.writeNativeBuffer(value.nativeBufferView, unshift);
+    return this.writeNativeBuffer(value, unshift);
   }
 
   public writeString(string: string, encoding?: BufferEncoding, unshift?: boolean): this {
@@ -401,8 +400,8 @@ export class ExtendedBuffer {
 
   public readBuffer(size: number): this;
   public readBuffer(size: number, asNative: true): Buffer;
-  public readBuffer(size: number, asNative: false, bufferOptions?: ExtendedBufferOptions): this;
-  public readBuffer(size: number, asNative?: boolean, bufferOptions?: ExtendedBufferOptions): this | Buffer {
+  public readBuffer(size: number, asNative: false, bufferOptions?: EBO): this;
+  public readBuffer(size: number, asNative?: boolean, bufferOptions?: EBO): this | Buffer {
     utils.assertUnsignedInteger(size);
 
     if (!this.isReadable(size)) {
