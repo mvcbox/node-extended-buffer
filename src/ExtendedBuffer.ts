@@ -26,7 +26,17 @@ export class ExtendedBuffer {
     this.initExtendedBuffer();
   }
 
+  /**
+   * This method must be overridden in derived classes if you extend the behavior of the base class
+   */
   protected createInstance(options?: ExtendedBufferOptions): this {
+    options = Object.assign<ExtendedBufferOptions, ExtendedBufferOptions>({
+      capacity: this._capacity,
+      capacityStep: this._capacityStep,
+      nativeAllocSlow: this._nativeAllocSlow,
+      nativeReallocSlow: this._nativeReallocSlow
+    }, options ?? {});
+
     const ThisClass = this.constructor as unknown as new (opts?: ExtendedBufferOptions) => this;
     return new ThisClass(options);
   }
@@ -399,22 +409,8 @@ export class ExtendedBuffer {
       throw new ExtendedBufferRangeError('SIZE_OUT_OF_RANGE');
     }
 
-    let result: typeof this | Buffer;
-    const buffer = utils.nativeBufferSubarray(this._nativeBuffer, this.nativePointer(), this.nativePointer() + size);
-
-    if (asNative) {
-      result = Buffer.from(buffer);
-    } else {
-      bufferOptions = Object.assign<ExtendedBufferOptions, ExtendedBufferOptions>({
-        capacity: this._capacity,
-        capacityStep: this._capacityStep,
-        nativeAllocSlow: this._nativeAllocSlow,
-        nativeReallocSlow: this._nativeReallocSlow
-      }, bufferOptions ?? {});
-
-      result = this.createInstance(bufferOptions).writeNativeBuffer(buffer);
-    }
-
+    const nativeBuffer = utils.nativeBufferSubarray(this._nativeBuffer, this.nativePointer(), this.nativePointer() + size);
+    const result = asNative ? Buffer.from(nativeBuffer) : this.createInstance(bufferOptions).writeNativeBuffer(nativeBuffer);
     this.offset(size);
     return result;
   }
