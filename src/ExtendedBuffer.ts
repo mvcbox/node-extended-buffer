@@ -26,7 +26,7 @@ export class ExtendedBuffer<EBO extends ExtendedBufferOptions = ExtendedBufferOp
     this.initExtendedBuffer();
   }
 
-  protected createInstanceOptions(options?: EBO): ExtendedBufferOptions {
+  protected createInstanceOptions(options?: ExtendedBufferOptions): ExtendedBufferOptions {
     return Object.assign<ExtendedBufferOptions, ExtendedBufferOptions>({
       capacity: this._capacity,
       capacityStep: this._capacityStep,
