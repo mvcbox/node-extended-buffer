@@ -120,6 +120,28 @@ Fixed-width helpers:
 - `writeInt16BE`, `writeInt16LE`, `writeUInt16BE`, `writeUInt16LE`
 - `writeInt32BE`, `writeInt32LE`, `writeUInt32BE`, `writeUInt32LE`
 
+### BigInt (64-bit integers)
+
+If your runtime supports `BigInt` and Node's `Buffer.readBig*` / `Buffer.writeBig*` APIs, you can read/write 64-bit integers as `bigint` values (always **8 bytes**):
+
+- `writeBigInt64BE`, `writeBigInt64LE` — signed 64-bit
+- `writeBigUInt64BE`, `writeBigUInt64LE` — unsigned 64-bit
+
+```ts
+import { ExtendedBuffer } from 'extended-buffer';
+
+const b = new ExtendedBuffer();
+
+b.writeBigUInt64BE(2n ** 63n); // 9223372036854775808n
+b.writeBigInt64LE(-42n);
+
+b.setPointer(0);
+console.log(b.readBigUInt64BE()); // 9223372036854775808n
+console.log(b.readBigInt64LE());  // -42n
+```
+
+If `BigInt` is not supported, these methods throw `ExtendedBufferUnsupportedError('EXECUTION_ENVIRONMENT_NOT_SUPPORT_BIG_INT')`.
+
 ### Floating point
 
 - `writeFloatBE`, `writeFloatLE` (4 bytes)
@@ -170,6 +192,24 @@ Fixed-width helpers:
 - `readInt8`, `readUInt8`
 - `readInt16BE`, `readInt16LE`, `readUInt16BE`, `readUInt16LE`
 - `readInt32BE`, `readInt32LE`, `readUInt32BE`, `readUInt32LE`
+
+### BigInt (64-bit integers)
+
+- `readBigInt64BE`, `readBigInt64LE` — signed 64-bit
+- `readBigUInt64BE`, `readBigUInt64LE` — unsigned 64-bit
+
+```ts
+const b = new ExtendedBuffer();
+
+b.writeBigInt64BE(-1n);
+b.writeBigUInt64BE(18446744073709551615n); // 2^64 - 1
+
+b.setPointer(0);
+console.log(b.readBigInt64BE());  // -1n
+console.log(b.readBigUInt64BE()); // 18446744073709551615n
+```
+
+Note: Node's `Buffer` will throw a native `RangeError` if the value doesn't fit into signed/unsigned 64-bit range.
 
 ### Floating point
 
@@ -327,6 +367,9 @@ Common error codes you may see:
 - `INVALID_INSTANCE_STATE`: internal invariant check failed
 - `VALUE_MUST_BE_AN_INTEGER`: value not a safe integer
 - `VALUE_MUST_BE_AN_UNSIGNED_INTEGER`: value is not a safe integer or less than 0
+- `VALUE_MUST_BE_AN_BIG_INTEGER`: value is not a `bigint`
+- `VALUE_MUST_BE_AN_UNSIGNED_BIG_INTEGER`: value is not a `bigint` or less than 0
+- `EXECUTION_ENVIRONMENT_NOT_SUPPORT_BIG_INT`: BigInt methods are not supported in the current runtime
 - `EXCEEDING_MAXIMUM_BUFFER_SIZE`: allocation exceeds Node’s `kMaxLength` or `os.totalmem()`
 
 ---
@@ -369,8 +412,10 @@ Core:
 Numbers:
 - Write: `writeIntBE/LE`, `writeUIntBE/LE`, `writeInt8`, `writeUInt8`,
   `writeInt16BE/LE`, `writeUInt16BE/LE`, `writeInt32BE/LE`, `writeUInt32BE/LE`,
+  `writeBigInt64BE/LE`, `writeBigUInt64BE/LE`,
   `writeFloatBE/LE`, `writeDoubleBE/LE`
 - Read: `readBuffer`, `readString`,
   `readIntBE/LE`, `readUIntBE/LE`, `readInt8`, `readUInt8`,
   `readInt16BE/LE`, `readUInt16BE/LE`, `readInt32BE/LE`, `readUInt32BE/LE`,
+  `readBigInt64BE/LE`, `readBigUInt64BE/LE`,
   `readFloatBE/LE`, `readDoubleBE/LE`

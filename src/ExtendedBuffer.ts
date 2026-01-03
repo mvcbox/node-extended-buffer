@@ -1,8 +1,12 @@
 import { Buffer } from 'buffer';
 import * as utils from './utils';
 import type { ExtendedBufferOptions } from './ExtendedBufferOptions';
-import { ExtendedBufferError, ExtendedBufferRangeError } from './errors';
 import type { ExtendedBufferTransaction } from './ExtendedBufferTransaction';
+import {
+  ExtendedBufferError,
+  ExtendedBufferRangeError,
+  ExtendedBufferUnsupportedError
+} from './errors';
 
 const DEFAULT_CAPACITY = 16 * 1024;
 const DEFAULT_CAPACITY_STEP = DEFAULT_CAPACITY;
@@ -267,76 +271,49 @@ export class ExtendedBuffer<EBO extends ExtendedBufferOptions = ExtendedBufferOp
     return this.writeNativeBuffer(bytes, unshift);
   }
 
-  public writeIntBE(value: number, size: number, unshift?: boolean): this {
-    utils.assertInteger(value);
+  protected writeIntCommon(
+    method: 'writeIntBE' | 'writeIntLE' | 'writeUIntBE' | 'writeUIntLE',
+    value: number, size: number, unsigned: boolean, unshift?: boolean
+  ): this {
+    if (unsigned) {
+      utils.assertUnsignedInteger(value);
+    } else {
+      utils.assertInteger(value);
+    }
+
     utils.assertIntegerSize(size);
 
     if (unshift) {
       this.allocStart(size);
-      this._nativeBuffer.writeIntBE(value, this._pointerStart - size, size);
+      this._nativeBuffer[method](value, this._pointerStart - size, size);
       this._pointerStart -= size;
     } else {
       this.allocEnd(size);
-      this._nativeBuffer.writeIntBE(value, this._pointerEnd, size);
+      this._nativeBuffer[method](value, this._pointerEnd, size);
       this._pointerEnd += size;
     }
 
     return this;
+  }
+
+  public writeIntBE(value: number, size: number, unshift?: boolean): this {
+    return this.writeIntCommon('writeIntBE', value, size, false, unshift);
   }
 
   public writeIntLE(value: number, size: number, unshift?: boolean): this {
-    utils.assertInteger(value);
-    utils.assertIntegerSize(size);
-
-    if (unshift) {
-      this.allocStart(size);
-      this._nativeBuffer.writeIntLE(value, this._pointerStart - size, size);
-      this._pointerStart -= size;
-    } else {
-      this.allocEnd(size);
-      this._nativeBuffer.writeIntLE(value, this._pointerEnd, size);
-      this._pointerEnd += size;
-    }
-
-    return this;
+    return this.writeIntCommon('writeIntLE', value, size, false, unshift);
   }
 
   public writeUIntBE(value: number, size: number, unshift?: boolean): this {
-    utils.assertUnsignedInteger(value);
-    utils.assertIntegerSize(size);
-
-    if (unshift) {
-      this.allocStart(size);
-      this._nativeBuffer.writeUIntBE(value, this._pointerStart - size, size);
-      this._pointerStart -= size;
-    } else {
-      this.allocEnd(size);
-      this._nativeBuffer.writeUIntBE(value, this._pointerEnd, size);
-      this._pointerEnd += size;
-    }
-
-    return this;
+    return this.writeIntCommon('writeUIntBE', value, size, true, unshift);
   }
 
   public writeUIntLE(value: number, size: number, unshift?: boolean): this {
-    utils.assertUnsignedInteger(value);
-    utils.assertIntegerSize(size);
-
-    if (unshift) {
-      this.allocStart(size);
-      this._nativeBuffer.writeUIntLE(value, this._pointerStart - size, size);
-      this._pointerStart -= size;
-    } else {
-      this.allocEnd(size);
-      this._nativeBuffer.writeUIntLE(value, this._pointerEnd, size);
-      this._pointerEnd += size;
-    }
-
-    return this;
+    return this.writeIntCommon('writeUIntLE', value, size, true, unshift);
   }
 
   public writeInt8(value: number, unshift?: boolean): this {
-    return this.writeIntBE(value, 1, unshift);
+    return this.writeIntLE(value, 1, unshift);
   }
 
   public writeUInt8(value: number, unshift?: boolean): this {
@@ -375,60 +352,80 @@ export class ExtendedBuffer<EBO extends ExtendedBufferOptions = ExtendedBufferOp
     return this.writeUIntLE(value, 4, unshift);
   }
 
-  public writeFloatBE(value: number, unshift?: boolean): this {
-    if (unshift) {
-      this.allocStart(4);
-      this._nativeBuffer.writeFloatBE(value, this._pointerStart - 4);
-      this._pointerStart -= 4;
+  protected writeBigInt64Common(
+    method: 'writeBigInt64BE' | 'writeBigInt64LE' | 'writeBigUInt64BE' | 'writeBigUInt64LE',
+    value: bigint, unsigned: boolean, unshift?: boolean
+  ): this {
+    utils.assertSupportBigInteger();
+
+    if (unsigned) {
+      utils.assertUnsignedBigInteger(value);
     } else {
-      this.allocEnd(4);
-      this._nativeBuffer.writeFloatBE(value, this._pointerEnd);
-      this._pointerEnd += 4;
+      utils.assertBigInteger(value);
+    }
+
+    const size = 8;
+
+    if (unshift) {
+      this.allocStart(size);
+      this._nativeBuffer[method](value, this._pointerStart - size);
+      this._pointerStart -= size;
+    } else {
+      this.allocEnd(size);
+      this._nativeBuffer[method](value, this._pointerEnd);
+      this._pointerEnd += size;
     }
 
     return this;
+  }
+
+  public writeBigInt64BE(value: bigint, unshift?: boolean): this {
+    return this.writeBigInt64Common('writeBigInt64BE', value, false, unshift);
+  }
+
+  public writeBigInt64LE(value: bigint, unshift?: boolean): this {
+    return this.writeBigInt64Common('writeBigInt64LE', value, false, unshift);
+  }
+
+  public writeBigUInt64BE(value: bigint, unshift?: boolean): this {
+    return this.writeBigInt64Common('writeBigUInt64BE', value, true, unshift);
+  }
+
+  public writeBigUInt64LE(value: bigint, unshift?: boolean): this {
+    return this.writeBigInt64Common('writeBigUInt64LE', value, true, unshift);
+  }
+
+  protected writeFloatingPointCommon(
+    method: 'writeFloatBE' | 'writeFloatLE' | 'writeDoubleBE' | 'writeDoubleLE',
+    value: number, size: 4 | 8, unshift?: boolean
+  ): this {
+    if (unshift) {
+      this.allocStart(size);
+      this._nativeBuffer[method](value, this._pointerStart - size);
+      this._pointerStart -= size;
+    } else {
+      this.allocEnd(size);
+      this._nativeBuffer[method](value, this._pointerEnd);
+      this._pointerEnd += size;
+    }
+
+    return this;
+  }
+
+  public writeFloatBE(value: number, unshift?: boolean): this {
+    return this.writeFloatingPointCommon('writeFloatBE', value, 4, unshift);
   }
 
   public writeFloatLE(value: number, unshift?: boolean): this {
-    if (unshift) {
-      this.allocStart(4);
-      this._nativeBuffer.writeFloatLE(value, this._pointerStart - 4);
-      this._pointerStart -= 4;
-    } else {
-      this.allocEnd(4);
-      this._nativeBuffer.writeFloatLE(value, this._pointerEnd);
-      this._pointerEnd += 4;
-    }
-
-    return this;
+    return this.writeFloatingPointCommon('writeFloatLE', value, 4, unshift);
   }
 
   public writeDoubleBE(value: number, unshift?: boolean): this {
-    if (unshift) {
-      this.allocStart(8);
-      this._nativeBuffer.writeDoubleBE(value, this._pointerStart - 8);
-      this._pointerStart -= 8;
-    } else {
-      this.allocEnd(8);
-      this._nativeBuffer.writeDoubleBE(value, this._pointerEnd);
-      this._pointerEnd += 8;
-    }
-
-    return this;
+    return this.writeFloatingPointCommon('writeDoubleBE', value, 8, unshift);
   }
 
   public writeDoubleLE(value: number, unshift?: boolean): this {
-    if (unshift) {
-      this.allocStart(8);
-      this._nativeBuffer.writeDoubleLE(value, this._pointerStart - 8);
-      this._pointerStart -= 8;
-    } else {
-      this.allocEnd(8);
-      this._nativeBuffer.writeDoubleLE(value, this._pointerEnd);
-      this._pointerEnd += 8;
-    }
-
-    return this;
+    return this.writeFloatingPointCommon('writeDoubleLE', value, 8, unshift);
   }
 
   public readBuffer(size: number): this;
@@ -459,56 +456,36 @@ export class ExtendedBuffer<EBO extends ExtendedBufferOptions = ExtendedBufferOp
     return result;
   }
 
-  public readIntBE(size: number): number {
+  protected readIntCommon(method: 'readIntBE' | 'readIntLE' | 'readUIntBE' | 'readUIntLE', size: number): number {
     utils.assertIntegerSize(size);
 
     if (!this.isReadable(size)) {
       throw new ExtendedBufferRangeError('SIZE_OUT_OF_RANGE');
     }
 
-    const result = this._nativeBuffer.readIntBE(this.nativePointer(), size);
+    const result = this._nativeBuffer[method](this.nativePointer(), size);
     this.offset(size);
     return result;
+  }
+
+  public readIntBE(size: number): number {
+    return this.readIntCommon('readIntBE', size);
   }
 
   public readIntLE(size: number): number {
-    utils.assertIntegerSize(size);
-
-    if (!this.isReadable(size)) {
-      throw new ExtendedBufferRangeError('SIZE_OUT_OF_RANGE');
-    }
-
-    const result = this._nativeBuffer.readIntLE(this.nativePointer(), size);
-    this.offset(size);
-    return result;
+    return this.readIntCommon('readIntLE', size);
   }
 
   public readUIntBE(size: number): number {
-    utils.assertIntegerSize(size);
-
-    if (!this.isReadable(size)) {
-      throw new ExtendedBufferRangeError('SIZE_OUT_OF_RANGE');
-    }
-
-    const result = this._nativeBuffer.readUIntBE(this.nativePointer(), size);
-    this.offset(size);
-    return result;
+    return this.readIntCommon('readUIntBE', size);
   }
 
   public readUIntLE(size: number): number {
-    utils.assertIntegerSize(size);
-
-    if (!this.isReadable(size)) {
-      throw new ExtendedBufferRangeError('SIZE_OUT_OF_RANGE');
-    }
-
-    const result = this._nativeBuffer.readUIntLE(this.nativePointer(), size);
-    this.offset(size);
-    return result;
+    return this.readIntCommon('readUIntLE', size);
   }
 
   public readInt8(): number {
-    return this.readIntBE(1);
+    return this.readIntLE(1);
   }
 
   public readUInt8(): number {
@@ -547,51 +524,62 @@ export class ExtendedBuffer<EBO extends ExtendedBufferOptions = ExtendedBufferOp
     return this.readUIntLE(4);
   }
 
-  public readFloatBE(): number {
-    const size = 4;
+  protected readBigInt64Common(method: 'readBigInt64BE' | 'readBigInt64LE' | 'readBigUInt64BE' | 'readBigUInt64LE'): bigint {
+    utils.assertSupportBigInteger();
+    const size = 8;
 
     if (!this.isReadable(size)) {
       throw new ExtendedBufferRangeError('SIZE_OUT_OF_RANGE');
     }
 
-    const result = this._nativeBuffer.readFloatBE(this.nativePointer());
+    const result = this._nativeBuffer[method](this.nativePointer());
     this.offset(size);
     return result;
+  }
+
+  public readBigInt64BE(): bigint {
+    return this.readBigInt64Common('readBigInt64BE');
+  }
+
+  public readBigInt64LE(): bigint {
+    return this.readBigInt64Common('readBigInt64LE');
+  }
+
+  public readBigUInt64BE(): bigint {
+    return this.readBigInt64Common('readBigUInt64BE');
+  }
+
+  public readBigUInt64LE(): bigint {
+    return this.readBigInt64Common('readBigUInt64LE');
+  }
+
+  protected readFloatingPointCommon(
+    method: 'readFloatBE' | 'readFloatLE' | 'readDoubleBE' | 'readDoubleLE', size: 4 | 8
+  ): number {
+    utils.assertUnsignedInteger(size);
+
+    if (!this.isReadable(size)) {
+      throw new ExtendedBufferRangeError('SIZE_OUT_OF_RANGE');
+    }
+
+    const result = this._nativeBuffer[method](this.nativePointer());
+    this.offset(size);
+    return result;
+  }
+
+  public readFloatBE(): number {
+    return this.readFloatingPointCommon('readFloatBE', 4);
   }
 
   public readFloatLE(): number {
-    const size = 4;
-
-    if (!this.isReadable(size)) {
-      throw new ExtendedBufferRangeError('SIZE_OUT_OF_RANGE');
-    }
-
-    const result = this._nativeBuffer.readFloatLE(this.nativePointer());
-    this.offset(size);
-    return result;
+    return this.readFloatingPointCommon('readFloatLE', 4);
   }
 
   public readDoubleBE(): number {
-    const size = 8;
-
-    if (!this.isReadable(size)) {
-      throw new ExtendedBufferRangeError('SIZE_OUT_OF_RANGE');
-    }
-
-    const result = this._nativeBuffer.readDoubleBE(this.nativePointer());
-    this.offset(size);
-    return result;
+    return this.readFloatingPointCommon('readDoubleBE', 8);
   }
 
   public readDoubleLE(): number {
-    const size = 8;
-
-    if (!this.isReadable(size)) {
-      throw new ExtendedBufferRangeError('SIZE_OUT_OF_RANGE');
-    }
-
-    const result = this._nativeBuffer.readDoubleLE(this.nativePointer());
-    this.offset(size);
-    return result;
+    return this.readFloatingPointCommon('readDoubleLE', 8);
   }
 }
