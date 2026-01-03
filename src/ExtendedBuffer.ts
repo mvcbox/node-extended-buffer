@@ -271,76 +271,49 @@ export class ExtendedBuffer<EBO extends ExtendedBufferOptions = ExtendedBufferOp
     return this.writeNativeBuffer(bytes, unshift);
   }
 
-  public writeIntBE(value: number, size: number, unshift?: boolean): this {
-    utils.assertInteger(value);
+  protected writeIntCommon(
+    method: 'writeIntBE' | 'writeIntLE' | 'writeUIntBE' | 'writeUIntLE',
+    value: number, size: number, unsigned: boolean, unshift?: boolean
+  ): this {
+    if (unsigned) {
+      utils.assertUnsignedInteger(value);
+    } else {
+      utils.assertInteger(value);
+    }
+
     utils.assertIntegerSize(size);
 
     if (unshift) {
       this.allocStart(size);
-      this._nativeBuffer.writeIntBE(value, this._pointerStart - size, size);
+      this._nativeBuffer[method](value, this._pointerStart - size, size);
       this._pointerStart -= size;
     } else {
       this.allocEnd(size);
-      this._nativeBuffer.writeIntBE(value, this._pointerEnd, size);
+      this._nativeBuffer[method](value, this._pointerEnd, size);
       this._pointerEnd += size;
     }
 
     return this;
+  }
+
+  public writeIntBE(value: number, size: number, unshift?: boolean): this {
+    return this.writeIntCommon('writeIntBE', value, size, false, unshift);
   }
 
   public writeIntLE(value: number, size: number, unshift?: boolean): this {
-    utils.assertInteger(value);
-    utils.assertIntegerSize(size);
-
-    if (unshift) {
-      this.allocStart(size);
-      this._nativeBuffer.writeIntLE(value, this._pointerStart - size, size);
-      this._pointerStart -= size;
-    } else {
-      this.allocEnd(size);
-      this._nativeBuffer.writeIntLE(value, this._pointerEnd, size);
-      this._pointerEnd += size;
-    }
-
-    return this;
+    return this.writeIntCommon('writeIntLE', value, size, false, unshift);
   }
 
   public writeUIntBE(value: number, size: number, unshift?: boolean): this {
-    utils.assertUnsignedInteger(value);
-    utils.assertIntegerSize(size);
-
-    if (unshift) {
-      this.allocStart(size);
-      this._nativeBuffer.writeUIntBE(value, this._pointerStart - size, size);
-      this._pointerStart -= size;
-    } else {
-      this.allocEnd(size);
-      this._nativeBuffer.writeUIntBE(value, this._pointerEnd, size);
-      this._pointerEnd += size;
-    }
-
-    return this;
+    return this.writeIntCommon('writeUIntBE', value, size, true, unshift);
   }
 
   public writeUIntLE(value: number, size: number, unshift?: boolean): this {
-    utils.assertUnsignedInteger(value);
-    utils.assertIntegerSize(size);
-
-    if (unshift) {
-      this.allocStart(size);
-      this._nativeBuffer.writeUIntLE(value, this._pointerStart - size, size);
-      this._pointerStart -= size;
-    } else {
-      this.allocEnd(size);
-      this._nativeBuffer.writeUIntLE(value, this._pointerEnd, size);
-      this._pointerEnd += size;
-    }
-
-    return this;
+    return this.writeIntCommon('writeUIntLE', value, size, true, unshift);
   }
 
   public writeInt8(value: number, unshift?: boolean): this {
-    return this.writeIntBE(value, 1, unshift);
+    return this.writeIntLE(value, 1, unshift);
   }
 
   public writeUInt8(value: number, unshift?: boolean): this {
