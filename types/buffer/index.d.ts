@@ -1,3 +1,3 @@
 declare module 'buffer' {
-    export const kMaxLength: number;
+    //export const kMaxLength: number;
 }

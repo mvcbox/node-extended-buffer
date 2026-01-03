@@ -1,6 +1,9 @@
 export { assertInteger } from './assert-integer';
+export { assertBigInteger } from './assert-big-integer';
 export { assertIntegerSize } from './assert-integer-size';
 export { allocNativeBuffer } from './alloc-native-buffer';
 export { reallocNativeBuffer } from './realloc-native-buffer';
 export { nativeBufferSubarray } from './native-buffer-subarray';
 export { assertUnsignedInteger } from './assert-unsigned-integer';
+export { assertSupportBigInteger } from './assert-support-big-integer';
+export { assertUnsignedBigInteger } from './assert-unsigned-big-integer';

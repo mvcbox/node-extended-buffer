@@ -1,8 +1,12 @@
 import { Buffer } from 'buffer';
 import * as utils from './utils';
 import type { ExtendedBufferOptions } from './ExtendedBufferOptions';
-import { ExtendedBufferError, ExtendedBufferRangeError } from './errors';
 import type { ExtendedBufferTransaction } from './ExtendedBufferTransaction';
+import {
+  ExtendedBufferError,
+  ExtendedBufferRangeError,
+  ExtendedBufferUnsupportedError
+} from './errors';
 
 const DEFAULT_CAPACITY = 16 * 1024;
 const DEFAULT_CAPACITY_STEP = DEFAULT_CAPACITY;
@@ -459,56 +463,36 @@ export class ExtendedBuffer<EBO extends ExtendedBufferOptions = ExtendedBufferOp
     return result;
   }
 
-  public readIntBE(size: number): number {
+  protected readIntCommon(method: 'readIntBE' | 'readIntLE' | 'readUIntBE' | 'readUIntLE', size: number): number {
     utils.assertIntegerSize(size);
 
     if (!this.isReadable(size)) {
       throw new ExtendedBufferRangeError('SIZE_OUT_OF_RANGE');
     }
 
-    const result = this._nativeBuffer.readIntBE(this.nativePointer(), size);
+    const result = this._nativeBuffer[method](this.nativePointer(), size);
     this.offset(size);
     return result;
+  }
+
+  public readIntBE(size: number): number {
+    return this.readIntCommon('readIntBE', size);
   }
 
   public readIntLE(size: number): number {
-    utils.assertIntegerSize(size);
-
-    if (!this.isReadable(size)) {
-      throw new ExtendedBufferRangeError('SIZE_OUT_OF_RANGE');
-    }
-
-    const result = this._nativeBuffer.readIntLE(this.nativePointer(), size);
-    this.offset(size);
-    return result;
+    return this.readIntCommon('readIntLE', size);
   }
 
   public readUIntBE(size: number): number {
-    utils.assertIntegerSize(size);
-
-    if (!this.isReadable(size)) {
-      throw new ExtendedBufferRangeError('SIZE_OUT_OF_RANGE');
-    }
-
-    const result = this._nativeBuffer.readUIntBE(this.nativePointer(), size);
-    this.offset(size);
-    return result;
+    return this.readIntCommon('readUIntBE', size);
   }
 
   public readUIntLE(size: number): number {
-    utils.assertIntegerSize(size);
-
-    if (!this.isReadable(size)) {
-      throw new ExtendedBufferRangeError('SIZE_OUT_OF_RANGE');
-    }
-
-    const result = this._nativeBuffer.readUIntLE(this.nativePointer(), size);
-    this.offset(size);
-    return result;
+    return this.readIntCommon('readUIntLE', size);
   }
 
   public readInt8(): number {
-    return this.readIntBE(1);
+    return this.readIntLE(1);
   }
 
   public readUInt8(): number {
@@ -547,51 +531,62 @@ export class ExtendedBuffer<EBO extends ExtendedBufferOptions = ExtendedBufferOp
     return this.readUIntLE(4);
   }
 
-  public readFloatBE(): number {
-    const size = 4;
+  protected readBigInt64Common(method: 'readBigInt64BE' | 'readBigInt64LE' | 'readBigUInt64BE' | 'readBigUInt64LE'): bigint {
+    utils.assertSupportBigInteger();
+    const size = 8;
 
     if (!this.isReadable(size)) {
       throw new ExtendedBufferRangeError('SIZE_OUT_OF_RANGE');
     }
 
-    const result = this._nativeBuffer.readFloatBE(this.nativePointer());
+    const result = this._nativeBuffer[method](this.nativePointer());
     this.offset(size);
     return result;
+  }
+
+  public readBigInt64BE(): bigint {
+    return this.readBigInt64Common('readBigInt64BE');
+  }
+
+  public readBigInt64LE(): bigint {
+    return this.readBigInt64Common('readBigInt64LE');
+  }
+
+  public readBigUInt64BE(): bigint {
+    return this.readBigInt64Common('readBigUInt64BE');
+  }
+
+  public readBigUInt64LE(): bigint {
+    return this.readBigInt64Common('readBigUInt64LE');
+  }
+
+  protected readFloatingPointCommon(
+    method: 'readFloatBE' | 'readFloatLE' | 'readDoubleBE' | 'readDoubleLE', size: number
+  ): number {
+    utils.assertUnsignedInteger(size);
+
+    if (!this.isReadable(size)) {
+      throw new ExtendedBufferRangeError('SIZE_OUT_OF_RANGE');
+    }
+
+    const result = this._nativeBuffer[method](this.nativePointer());
+    this.offset(size);
+    return result;
+  }
+
+  public readFloatBE(): number {
+    return this.readFloatingPointCommon('readFloatBE', 4);
   }
 
   public readFloatLE(): number {
-    const size = 4;
-
-    if (!this.isReadable(size)) {
-      throw new ExtendedBufferRangeError('SIZE_OUT_OF_RANGE');
-    }
-
-    const result = this._nativeBuffer.readFloatLE(this.nativePointer());
-    this.offset(size);
-    return result;
+    return this.readFloatingPointCommon('readFloatLE', 4);
   }
 
   public readDoubleBE(): number {
-    const size = 8;
-
-    if (!this.isReadable(size)) {
-      throw new ExtendedBufferRangeError('SIZE_OUT_OF_RANGE');
-    }
-
-    const result = this._nativeBuffer.readDoubleBE(this.nativePointer());
-    this.offset(size);
-    return result;
+    return this.readFloatingPointCommon('readDoubleBE', 8);
   }
 
   public readDoubleLE(): number {
-    const size = 8;
-
-    if (!this.isReadable(size)) {
-      throw new ExtendedBufferRangeError('SIZE_OUT_OF_RANGE');
-    }
-
-    const result = this._nativeBuffer.readDoubleLE(this.nativePointer());
-    this.offset(size);
-    return result;
+    return this.readFloatingPointCommon('readDoubleLE', 8);
   }
 }
