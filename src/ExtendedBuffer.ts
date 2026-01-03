@@ -1,12 +1,8 @@
 import { Buffer } from 'buffer';
 import * as utils from './utils';
 import type { ExtendedBufferOptions } from './ExtendedBufferOptions';
+import { ExtendedBufferError, ExtendedBufferRangeError } from './errors';
 import type { ExtendedBufferTransaction } from './ExtendedBufferTransaction';
-import {
-  ExtendedBufferError,
-  ExtendedBufferRangeError,
-  ExtendedBufferUnsupportedError
-} from './errors';
 
 const DEFAULT_CAPACITY = 16 * 1024;
 const DEFAULT_CAPACITY_STEP = DEFAULT_CAPACITY;
