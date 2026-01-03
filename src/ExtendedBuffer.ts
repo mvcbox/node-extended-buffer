@@ -379,60 +379,37 @@ export class ExtendedBuffer<EBO extends ExtendedBufferOptions = ExtendedBufferOp
     return this.writeUIntLE(value, 4, unshift);
   }
 
-  public writeFloatBE(value: number, unshift?: boolean): this {
+  protected writeFloatingPointCommon(
+    method: 'writeFloatBE' | 'writeFloatLE' | 'writeDoubleBE' | 'writeDoubleLE',
+    value: number, size: 4 | 8, unshift?: boolean
+  ): this {
     if (unshift) {
-      this.allocStart(4);
-      this._nativeBuffer.writeFloatBE(value, this._pointerStart - 4);
-      this._pointerStart -= 4;
+      this.allocStart(size);
+      this._nativeBuffer[method](value, this._pointerStart - size);
+      this._pointerStart -= size;
     } else {
-      this.allocEnd(4);
-      this._nativeBuffer.writeFloatBE(value, this._pointerEnd);
-      this._pointerEnd += 4;
+      this.allocEnd(size);
+      this._nativeBuffer[method](value, this._pointerEnd);
+      this._pointerEnd += size;
     }
 
     return this;
+  }
+
+  public writeFloatBE(value: number, unshift?: boolean): this {
+    return this.writeFloatingPointCommon('writeFloatBE', value, 4, unshift);
   }
 
   public writeFloatLE(value: number, unshift?: boolean): this {
-    if (unshift) {
-      this.allocStart(4);
-      this._nativeBuffer.writeFloatLE(value, this._pointerStart - 4);
-      this._pointerStart -= 4;
-    } else {
-      this.allocEnd(4);
-      this._nativeBuffer.writeFloatLE(value, this._pointerEnd);
-      this._pointerEnd += 4;
-    }
-
-    return this;
+    return this.writeFloatingPointCommon('writeFloatLE', value, 4, unshift);
   }
 
   public writeDoubleBE(value: number, unshift?: boolean): this {
-    if (unshift) {
-      this.allocStart(8);
-      this._nativeBuffer.writeDoubleBE(value, this._pointerStart - 8);
-      this._pointerStart -= 8;
-    } else {
-      this.allocEnd(8);
-      this._nativeBuffer.writeDoubleBE(value, this._pointerEnd);
-      this._pointerEnd += 8;
-    }
-
-    return this;
+    return this.writeFloatingPointCommon('writeDoubleBE', value, 8, unshift);
   }
 
   public writeDoubleLE(value: number, unshift?: boolean): this {
-    if (unshift) {
-      this.allocStart(8);
-      this._nativeBuffer.writeDoubleLE(value, this._pointerStart - 8);
-      this._pointerStart -= 8;
-    } else {
-      this.allocEnd(8);
-      this._nativeBuffer.writeDoubleLE(value, this._pointerEnd);
-      this._pointerEnd += 8;
-    }
-
-    return this;
+    return this.writeFloatingPointCommon('writeDoubleLE', value, 8, unshift);
   }
 
   public readBuffer(size: number): this;
@@ -561,7 +538,7 @@ export class ExtendedBuffer<EBO extends ExtendedBufferOptions = ExtendedBufferOp
   }
 
   protected readFloatingPointCommon(
-    method: 'readFloatBE' | 'readFloatLE' | 'readDoubleBE' | 'readDoubleLE', size: number
+    method: 'readFloatBE' | 'readFloatLE' | 'readDoubleBE' | 'readDoubleLE', size: 4 | 8
   ): number {
     utils.assertUnsignedInteger(size);
 
