@@ -352,6 +352,49 @@ export class ExtendedBuffer<EBO extends ExtendedBufferOptions = ExtendedBufferOp
     return this.writeUIntLE(value, 4, unshift);
   }
 
+  protected writeBigInt64Common(
+    method: 'writeBigInt64BE' | 'writeBigInt64LE' | 'writeBigUInt64BE' | 'writeBigUInt64LE',
+    value: bigint, unsigned: boolean, unshift?: boolean
+  ): this {
+    utils.assertSupportBigInteger();
+
+    if (unsigned) {
+      utils.assertUnsignedBigInteger(value);
+    } else {
+      utils.assertBigInteger(value);
+    }
+
+    const size = 8;
+
+    if (unshift) {
+      this.allocStart(size);
+      this._nativeBuffer[method](value, this._pointerStart - size);
+      this._pointerStart -= size;
+    } else {
+      this.allocEnd(size);
+      this._nativeBuffer[method](value, this._pointerEnd);
+      this._pointerEnd += size;
+    }
+
+    return this;
+  }
+
+  public writeBigInt64BE(value: bigint, unshift?: boolean): this {
+    return this.writeBigInt64Common('writeBigInt64BE', value, false, unshift);
+  }
+
+  public writeBigInt64LE(value: bigint, unshift?: boolean): this {
+    return this.writeBigInt64Common('writeBigInt64LE', value, false, unshift);
+  }
+
+  public writeBigUInt64BE(value: bigint, unshift?: boolean): this {
+    return this.writeBigInt64Common('writeBigUInt64BE', value, true, unshift);
+  }
+
+  public writeBigUInt64LE(value: bigint, unshift?: boolean): this {
+    return this.writeBigInt64Common('writeBigUInt64LE', value, true, unshift);
+  }
+
   protected writeFloatingPointCommon(
     method: 'writeFloatBE' | 'writeFloatLE' | 'writeDoubleBE' | 'writeDoubleLE',
     value: number, size: 4 | 8, unshift?: boolean
