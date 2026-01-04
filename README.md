@@ -357,6 +357,7 @@ The library defines these error classes:
 - `ExtendedBufferError`
 - `ExtendedBufferTypeError`
 - `ExtendedBufferRangeError`
+- `ExtendedBufferUnsupportedError`
 
 Common error codes you may see:
 
