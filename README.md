@@ -357,6 +357,7 @@ The library defines these error classes:
 - `ExtendedBufferError`
 - `ExtendedBufferTypeError`
 - `ExtendedBufferRangeError`
+- `ExtendedBufferUnsupportedError`
 
 Common error codes you may see:
 
@@ -419,3 +420,7 @@ Numbers:
   `readInt16BE/LE`, `readUInt16BE/LE`, `readInt32BE/LE`, `readUInt32BE/LE`,
   `readBigInt64BE/LE`, `readBigUInt64BE/LE`,
   `readFloatBE/LE`, `readDoubleBE/LE`
+
+## License
+
+MIT
