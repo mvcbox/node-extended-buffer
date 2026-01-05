@@ -29,7 +29,7 @@ export class ExtendedBuffer<EBO extends ExtendedBufferOptions = ExtendedBufferOp
     this._capacityStep = options?.capacityStep ?? DEFAULT_CAPACITY_STEP;
     utils.assertUnsignedInteger(this._capacity);
     utils.assertUnsignedInteger(this._capacityStep);
-    this.initExtendedBuffer();
+    this.initExtendedBuffer(options?.initNativeBuffer);
   }
 
   protected createInstanceOptions(options?: ExtendedBufferOptions): ExtendedBufferOptions {
@@ -62,17 +62,31 @@ export class ExtendedBuffer<EBO extends ExtendedBufferOptions = ExtendedBufferOp
     return utils.nativeBufferSubarray(this._nativeBuffer, this._pointerStart, this._pointerEnd);
   }
 
-  public initExtendedBuffer(): this {
+  public get bufferView(): this {
+    return this.createInstance({
+      initNativeBuffer: this.nativeBufferView
+    } as EBO);
+  }
+
+  public initExtendedBuffer(initNativeBuffer?: Buffer): this {
     this._pointer = 0;
-    this._nativeBuffer = utils.allocNativeBuffer(this._capacity, this._nativeAllocSlow);
-    this._pointerStart = this._pointerEnd = Math.floor(this._capacity / 2);
+
+    if (initNativeBuffer) {
+      this._nativeBuffer = initNativeBuffer;
+      this._pointerStart = 0;
+      this._pointerEnd = this._nativeBuffer.length;
+    } else {
+      this._nativeBuffer = utils.allocNativeBuffer(this._capacity, this._nativeAllocSlow);
+      this._pointerStart = this._pointerEnd = Math.floor(this._capacity / 2);
+    }
+
     this.assertInstanceState();
     return this;
   }
 
   public assertInstanceState(): this {
     if (
-      !this._nativeBuffer ||
+      !Buffer.isBuffer(this._nativeBuffer) ||
       !Number.isSafeInteger(this._pointer) ||
       !Number.isSafeInteger(this._pointerStart) ||
       !Number.isSafeInteger(this._pointerEnd) ||

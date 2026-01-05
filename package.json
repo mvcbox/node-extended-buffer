@@ -1,6 +1,6 @@
 {
   "name": "extended-buffer",
-  "version": "7.3.1",
+  "version": "7.4.0",
   "description": "Node JS extended Buffer",
   "type": "commonjs",
   "main": "./dist/index.js",

@@ -8,6 +8,77 @@ const ExtendedBufferTypeError = require('..').ExtendedBufferTypeError;
 const ExtendedBufferRangeError = require('..').ExtendedBufferRangeError;
 
 describe('Check invalid input', function () {
+  it('Invalid state', function() {
+    expect(function() {
+      const buffer = new ExtendedBuffer();
+      buffer._pointer = -1;
+      buffer.assertInstanceState();
+    }).to.throw('INVALID_INSTANCE_STATE').instanceOf(ExtendedBufferError);
+
+    expect(function() {
+      const buffer = new ExtendedBuffer();
+      buffer._capacity = -1;
+      buffer.assertInstanceState();
+    }).to.throw('INVALID_INSTANCE_STATE').instanceOf(ExtendedBufferError);
+
+    expect(function() {
+      const buffer = new ExtendedBuffer();
+      buffer._capacityStep = -1;
+      buffer.assertInstanceState();
+    }).to.throw('INVALID_INSTANCE_STATE').instanceOf(ExtendedBufferError);
+
+    expect(function() {
+      const buffer = new ExtendedBuffer();
+      buffer._pointerStart = -1;
+      buffer.assertInstanceState();
+    }).to.throw('INVALID_INSTANCE_STATE').instanceOf(ExtendedBufferError);
+
+    expect(function() {
+      const buffer = new ExtendedBuffer();
+      buffer._pointerEnd = -1;
+      buffer.assertInstanceState();
+    }).to.throw('INVALID_INSTANCE_STATE').instanceOf(ExtendedBufferError);
+
+    expect(function() {
+      const buffer = new ExtendedBuffer();
+      buffer._pointer = 1;
+      buffer.assertInstanceState();
+    }).to.throw('INVALID_INSTANCE_STATE').instanceOf(ExtendedBufferError);
+
+    expect(function() {
+      const buffer = new ExtendedBuffer();
+      buffer._pointerStart = 1;
+      buffer._pointerEnd = 0;
+      buffer.assertInstanceState();
+    }).to.throw('INVALID_INSTANCE_STATE').instanceOf(ExtendedBufferError);
+
+    expect(function() {
+      const buffer = new ExtendedBuffer();
+      buffer._nativeBuffer = undefined;
+      buffer.assertInstanceState();
+    }).to.throw('INVALID_INSTANCE_STATE').instanceOf(ExtendedBufferError);
+  });
+
+  it('Invalid buffer for writeBuffer()', function() {
+    const buffer = new ExtendedBuffer();
+
+    expect(function() {
+      buffer.writeBuffer({});
+    }).to.throw('INVALID_BUFFER_TYPE').instanceOf(ExtendedBufferTypeError);
+
+    expect(function() {
+      buffer.writeBuffer(undefined);
+    }).to.throw('INVALID_BUFFER_TYPE').instanceOf(ExtendedBufferTypeError);
+
+    expect(function() {
+      buffer.writeBuffer(null);
+    }).to.throw('INVALID_BUFFER_TYPE').instanceOf(ExtendedBufferTypeError);
+
+    expect(function() {
+      buffer.writeBuffer(1);
+    }).to.throw('INVALID_BUFFER_TYPE').instanceOf(ExtendedBufferTypeError);
+  });
+
   it('Invalid size for writeIntLE()', function() {
     const buffer = new ExtendedBuffer();
 
