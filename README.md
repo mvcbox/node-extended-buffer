@@ -366,6 +366,7 @@ Common error codes you may see:
 - `INVALID_INTEGER_SIZE_VALUE_TYPE`: size is not a safe integer
 - `INVALID_INTEGER_SIZE_VALUE_RANGE`: integer size not in `1…6`
 - `INVALID_INSTANCE_STATE`: internal invariant check failed
+- `INVALID_BUFFER_TYPE`: attempt write invalid buffer type
 - `VALUE_MUST_BE_AN_INTEGER`: value not a safe integer
 - `VALUE_MUST_BE_AN_UNSIGNED_INTEGER`: value is not a safe integer or less than 0
 - `VALUE_MUST_BE_AN_BIG_INTEGER`: value is not a `bigint`

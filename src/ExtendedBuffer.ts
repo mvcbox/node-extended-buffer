@@ -1,8 +1,12 @@
 import { Buffer } from 'buffer';
 import * as utils from './utils';
 import type { ExtendedBufferOptions } from './ExtendedBufferOptions';
-import { ExtendedBufferError, ExtendedBufferRangeError } from './errors';
 import type { ExtendedBufferTransaction } from './ExtendedBufferTransaction';
+import {
+  ExtendedBufferError,
+  ExtendedBufferTypeError,
+  ExtendedBufferRangeError
+} from './errors';
 
 const DEFAULT_CAPACITY = 16 * 1024;
 const DEFAULT_CAPACITY_STEP = DEFAULT_CAPACITY;
@@ -259,7 +263,11 @@ export class ExtendedBuffer<EBO extends ExtendedBufferOptions = ExtendedBufferOp
       return this.writeNativeBuffer(value.nativeBufferView, unshift);
     }
 
-    return this.writeNativeBuffer(value, unshift);
+    if (Buffer.isBuffer(value)) {
+      return this.writeNativeBuffer(value, unshift);
+    }
+
+    throw new ExtendedBufferTypeError('INVALID_BUFFER_TYPE');
   }
 
   public writeString(string: string, encoding?: BufferEncoding, unshift?: boolean): this {
