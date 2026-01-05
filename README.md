@@ -44,11 +44,36 @@ The buffer stores a contiguous region of bytes. A separate **read pointer** trac
 ### Views
 
 - `nativeBufferView` — a `Buffer` view of **all stored bytes** (from the start of stored data to the end).
-- If you need only unread bytes, you can derive it:
+- `bufferView` — a **new `ExtendedBuffer` instance** that maps to the same bytes as `nativeBufferView` (**zero-copy**).  
+  The new instance starts with `pointer = 0`, so you can read/parse without consuming the parent buffer.
+
+If you need only unread bytes, you can derive it:
 
 ```ts
 const unread = b.nativeBufferView.subarray(b.pointer);
 ```
+
+Example: parse without touching the parent pointer:
+
+```ts
+import { ExtendedBuffer } from 'extended-buffer';
+
+const b = new ExtendedBuffer();
+b.writeString("OK");
+b.writeUInt16BE(1337);
+
+const v = b.bufferView;
+console.log(v.readString(2));   // "OK"
+console.log(v.readUInt16BE());  // 1337
+
+console.log(b.pointer);         // 0 (parent is untouched)
+```
+
+Notes:
+
+- `bufferView` shares memory with the parent. In-place mutations (e.g. `v.nativeBufferView[0] = 0xff`) will be visible in both.
+- The view usually has no spare head/tail capacity, so calling `v.write*()` will likely trigger a reallocation (copy) and then the two instances will diverge.
+
 
 ---
 
@@ -60,6 +85,7 @@ type ExtendedBufferOptions = {
   capacityStep?: number;        // how much to grow when resizing
   nativeAllocSlow?: boolean;    // using Buffer.allocUnsafeSlow() when initializing ExtendedBuffer
   nativeReallocSlow?: boolean;  // using Buffer.allocUnsafeSlow() for further reallocations
+  initNativeBuffer?: Buffer;    // use an existing Buffer as the initial native buffer (no copy)
 };
 ```
 
@@ -80,6 +106,34 @@ const b = new ExtendedBuffer({
   nativeReallocSlow: true
 });
 ```
+
+### Wrap an existing `Buffer` (`initNativeBuffer`)
+
+If you already have a Node.js `Buffer` (from a socket, file, etc.) and want to parse it with `ExtendedBuffer`
+**without copying**, pass it as `initNativeBuffer`.
+
+- The buffer is **not copied** — it becomes the internal `_nativeBuffer`.
+- The instance starts with `pointer = 0` and `length = initNativeBuffer.length`.
+
+```ts
+import { ExtendedBuffer } from 'extended-buffer';
+
+const packet = Buffer.from([0x00, 0x02, 0x4f, 0x4b]); // 2, "OK"
+
+const b = new ExtendedBuffer({ initNativeBuffer: packet });
+
+const len = b.readUInt16BE();
+console.log(b.readString(len)); // "OK"
+```
+
+You can also reuse an instance:
+
+```ts
+b.initExtendedBuffer(packet);
+```
+
+Note: when you construct from `initNativeBuffer`, the buffer is treated as already filled.
+If you later call `write*()`, it will typically require a reallocation (copy) to make room.
 
 ---
 
@@ -400,10 +454,10 @@ In non-Node runtimes, `global` may not exist.
 ## Reference: full public API (names)
 
 Properties:
-- `length`, `capacity`, `pointer`, `nativeBufferView`
+- `length`, `capacity`, `pointer`, `nativeBufferView`, `bufferView`
 
 Core:
-- `initExtendedBuffer()`, `assertInstanceState()`, `clean()`
+- `initExtendedBuffer(initNativeBuffer?)`, `assertInstanceState()`, `clean()`
 - `nativePointer()`, `getWritableSizeStart()`, `getWritableSizeEnd()`, `getWritableSize()`, `getReadableSize()`
 - `transaction(callback)`
 - `allocStart(size)`, `allocEnd(size)`
