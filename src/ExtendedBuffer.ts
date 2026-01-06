@@ -132,8 +132,6 @@ export class ExtendedBuffer<EBO extends ExtendedBufferOptions = ExtendedBufferOp
       return callback();
     }
 
-    this.assertInstanceState();
-
     this._transaction = {
       pointer: this._pointer,
       pointerEnd: this._pointerEnd,
