@@ -238,8 +238,10 @@ export class ExtendedBuffer<EBO extends ExtendedBufferOptions = ExtendedBufferOp
   }
 
   public nodeGc(): this {
-    if (typeof global.gc === 'function') {
-      global.gc();
+    const globalScope = utils.getGlobalContext();
+
+    if (typeof globalScope?.gc === 'function') {
+      globalScope.gc();
     }
 
     return this;
