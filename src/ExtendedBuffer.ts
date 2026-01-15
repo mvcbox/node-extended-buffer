@@ -10,7 +10,6 @@ import {
 
 const DEFAULT_CAPACITY = 16 * 1024;
 const DEFAULT_CAPACITY_STEP = DEFAULT_CAPACITY;
-
 const globalScope = utils.getGlobalContext();
 
 export class ExtendedBuffer<EBO extends ExtendedBufferOptions = ExtendedBufferOptions> {
