@@ -1,4 +1,4 @@
-import { Buffer } from 'buffer';
+import type { Buffer } from 'buffer';
 import { allocNativeBuffer } from './alloc-native-buffer';
 import { assertUnsignedInteger } from './assert-unsigned-integer';
 

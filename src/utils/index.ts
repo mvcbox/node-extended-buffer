@@ -1,5 +1,6 @@
 export { assertInteger } from './assert-integer';
 export { assertBigInteger } from './assert-big-integer';
+export { getGlobalContext } from './get-global-context';
 export { assertIntegerSize } from './assert-integer-size';
 export { allocNativeBuffer } from './alloc-native-buffer';
 export { reallocNativeBuffer } from './realloc-native-buffer';

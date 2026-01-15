@@ -10,6 +10,7 @@ import {
 
 const DEFAULT_CAPACITY = 16 * 1024;
 const DEFAULT_CAPACITY_STEP = DEFAULT_CAPACITY;
+const globalScope = utils.getGlobalContext();
 
 export class ExtendedBuffer<EBO extends ExtendedBufferOptions = ExtendedBufferOptions> {
   protected _pointer!: number;
@@ -238,8 +239,8 @@ export class ExtendedBuffer<EBO extends ExtendedBufferOptions = ExtendedBufferOp
   }
 
   public nodeGc(): this {
-    if (typeof global.gc === 'function') {
-      global.gc();
+    if (typeof globalScope?.gc === 'function') {
+      globalScope.gc();
     }
 
     return this;
