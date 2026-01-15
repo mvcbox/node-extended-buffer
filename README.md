@@ -14,6 +14,90 @@ npm install extended-buffer
 
 ---
 
+## Browser usage (bundlers)
+
+`ExtendedBuffer` works in browsers **as long as a Buffer polyfill is available**. Most bundlers can use the `buffer`
+package as a drop-in implementation.
+
+Install the polyfill:
+
+```bash
+npm install buffer
+```
+
+If your bundler does not expose `Buffer` globally, add a small shim in your app entry:
+
+```ts
+import { Buffer } from "buffer";
+
+if (!globalThis.Buffer) {
+  globalThis.Buffer = Buffer;
+}
+```
+
+### Webpack 5
+
+```js
+// webpack.config.js
+const webpack = require("webpack");
+
+module.exports = {
+  resolve: {
+    fallback: {
+      buffer: require.resolve("buffer/")
+    }
+  },
+  plugins: [
+    new webpack.ProvidePlugin({
+      Buffer: ["buffer", "Buffer"]
+    })
+  ]
+};
+```
+
+### Vite
+
+```ts
+// vite.config.ts
+import { defineConfig } from "vite";
+
+export default defineConfig({
+  resolve: {
+    alias: {
+      buffer: "buffer"
+    }
+  },
+  optimizeDeps: {
+    include: ["buffer"]
+  }
+});
+```
+
+### Rollup
+
+```js
+// rollup.config.js
+import resolve from "@rollup/plugin-node-resolve";
+import commonjs from "@rollup/plugin-commonjs";
+import inject from "@rollup/plugin-inject";
+
+export default {
+  plugins: [
+    resolve({ browser: true, preferBuiltins: false }),
+    commonjs(),
+    inject({
+      Buffer: ["buffer", "Buffer"]
+    })
+  ]
+};
+```
+
+Notes:
+- BigInt read/write methods require a polyfill that supports Node’s BigInt Buffer APIs.
+- If your tooling already provides a Buffer global, you can skip the shim/inject steps.
+
+---
+
 ## Quick start
 
 ```ts
