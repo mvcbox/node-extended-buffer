@@ -18,7 +18,7 @@
     "test": "node ./node_modules/.bin/mocha",
     "coverage": "node ./node_modules/.bin/nyc --reporter=lcov --reporter=html --reporter=text ./node_modules/.bin/mocha",
     "clean": "node -e \"['./dist', './coverage', './.nyc_output'].forEach(item => require('fs').rmSync(item, {recursive:true,force:true}));\"",
-    "prepack": "npm run build"
+    "prepack": "npm run build && npm run test"
   },
   "engines": {
     "node": ">=6.0.0"
