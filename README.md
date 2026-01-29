@@ -30,8 +30,17 @@ If your bundler does not expose `Buffer` globally, add a small shim in your app 
 ```ts
 import { Buffer } from "buffer";
 
-if (!globalThis.Buffer) {
-  globalThis.Buffer = Buffer;
+const globalScope: any =
+  typeof globalThis !== "undefined"
+    ? globalThis
+    : typeof self !== "undefined"
+      ? self
+      : typeof window !== "undefined"
+        ? window
+        : undefined;
+
+if (globalScope && !globalScope.Buffer) {
+  globalScope.Buffer = Buffer;
 }
 ```
 
@@ -64,7 +73,7 @@ import { defineConfig } from "vite";
 export default defineConfig({
   resolve: {
     alias: {
-      buffer: "buffer"
+      buffer: "buffer/"
     }
   },
   optimizeDeps: {
@@ -400,6 +409,7 @@ Rules:
 
 - If the callback **returns normally**, changes are kept (committed).
 - If the callback **throws**, the buffer is restored (rolled back) and the error is re-thrown.
+- The callback must be **synchronous** (returned Promises are not awaited).
 - Transactions are **re-entrant**: nested `transaction()` calls do not create extra snapshots.
 
 What gets rolled back:
@@ -510,7 +520,7 @@ Common error codes you may see:
 - `VALUE_MUST_BE_AN_BIG_INTEGER`: value is not a `bigint`
 - `VALUE_MUST_BE_AN_UNSIGNED_BIG_INTEGER`: value is not a `bigint` or less than 0
 - `EXECUTION_ENVIRONMENT_NOT_SUPPORT_BIG_INT`: BigInt methods are not supported in the current runtime
-- `EXCEEDING_MAXIMUM_BUFFER_SIZE`: allocation exceeds Node’s `kMaxLength` or `os.totalmem()`
+- `EXCEEDING_MAXIMUM_BUFFER_SIZE`: allocation exceeds the runtime maximum Buffer length (for example `kMaxLength`)
 
 ---
 
@@ -530,8 +540,8 @@ b.writeUInt16BE(123, true);
 
 ### `nodeGc()` is Node-specific
 
-`nodeGc()` calls `global.gc()` if it exists. In Node.js it requires starting the process with `--expose-gc`.
-In non-Node runtimes, `global` may not exist.
+`nodeGc()` calls `gc()` on the detected global object if it exists. In Node.js it requires starting the process with `--expose-gc`.
+In browsers/non-Node runtimes it simply no-ops.
 
 ---
 
