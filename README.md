@@ -520,7 +520,7 @@ Common error codes you may see:
 - `VALUE_MUST_BE_AN_BIG_INTEGER`: value is not a `bigint`
 - `VALUE_MUST_BE_AN_UNSIGNED_BIG_INTEGER`: value is not a `bigint` or less than 0
 - `EXECUTION_ENVIRONMENT_NOT_SUPPORT_BIG_INT`: BigInt methods are not supported in the current runtime
-- `EXCEEDING_MAXIMUM_BUFFER_SIZE`: allocation exceeds the runtime maximum Buffer length (for example `kMaxLength`)
+- `EXCEEDING_MAXIMUM_BUFFER_SIZE`: allocation exceeds Node’s maximum buffer size (`kMaxLength` or `os.totalmem()` when available)
 
 ---
 
