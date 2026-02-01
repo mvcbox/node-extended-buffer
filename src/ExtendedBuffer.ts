@@ -302,11 +302,47 @@ export class ExtendedBuffer<EBO extends ExtendedBufferOptions = ExtendedBufferOp
 
     if (unshift) {
       this.allocStart(size);
-      this._nativeBuffer[method](value, this._pointerStart - size, size);
+      const offset = this._pointerStart - size;
+
+      switch (method) {
+        case 'writeIntBE':
+          this._nativeBuffer.writeIntBE(value, offset, size);
+          break;
+        case 'writeIntLE':
+          this._nativeBuffer.writeIntLE(value, offset, size);
+          break;
+        case 'writeUIntBE':
+          this._nativeBuffer.writeUIntBE(value, offset, size);
+          break;
+        case 'writeUIntLE':
+          this._nativeBuffer.writeUIntLE(value, offset, size);
+          break;
+        default:
+          throw new ExtendedBufferError('INVALID_INT_WRITE_METHOD');
+      }
+
       this._pointerStart -= size;
     } else {
       this.allocEnd(size);
-      this._nativeBuffer[method](value, this._pointerEnd, size);
+      const offset = this._pointerEnd;
+
+      switch (method) {
+        case 'writeIntBE':
+          this._nativeBuffer.writeIntBE(value, offset, size);
+          break;
+        case 'writeIntLE':
+          this._nativeBuffer.writeIntLE(value, offset, size);
+          break;
+        case 'writeUIntBE':
+          this._nativeBuffer.writeUIntBE(value, offset, size);
+          break;
+        case 'writeUIntLE':
+          this._nativeBuffer.writeUIntLE(value, offset, size);
+          break;
+        default:
+          throw new ExtendedBufferError('INVALID_INT_WRITE_METHOD');
+      }
+
       this._pointerEnd += size;
     }
 
@@ -385,11 +421,47 @@ export class ExtendedBuffer<EBO extends ExtendedBufferOptions = ExtendedBufferOp
 
     if (unshift) {
       this.allocStart(size);
-      this._nativeBuffer[method](value, this._pointerStart - size);
+      const offset = this._pointerStart - size;
+
+      switch (method) {
+        case 'writeBigInt64BE':
+          this._nativeBuffer.writeBigInt64BE(value, offset);
+          break;
+        case 'writeBigInt64LE':
+          this._nativeBuffer.writeBigInt64LE(value, offset);
+          break;
+        case 'writeBigUInt64BE':
+          this._nativeBuffer.writeBigUInt64BE(value, offset);
+          break;
+        case 'writeBigUInt64LE':
+          this._nativeBuffer.writeBigUInt64LE(value, offset);
+          break;
+        default:
+          throw new ExtendedBufferError('INVALID_BIGINT_WRITE_METHOD');
+      }
+
       this._pointerStart -= size;
     } else {
       this.allocEnd(size);
-      this._nativeBuffer[method](value, this._pointerEnd);
+      const offset = this._pointerEnd;
+
+      switch (method) {
+        case 'writeBigInt64BE':
+          this._nativeBuffer.writeBigInt64BE(value, offset);
+          break;
+        case 'writeBigInt64LE':
+          this._nativeBuffer.writeBigInt64LE(value, offset);
+          break;
+        case 'writeBigUInt64BE':
+          this._nativeBuffer.writeBigUInt64BE(value, offset);
+          break;
+        case 'writeBigUInt64LE':
+          this._nativeBuffer.writeBigUInt64LE(value, offset);
+          break;
+        default:
+          throw new ExtendedBufferError('INVALID_BIGINT_WRITE_METHOD');
+      }
+
       this._pointerEnd += size;
     }
 
@@ -418,11 +490,47 @@ export class ExtendedBuffer<EBO extends ExtendedBufferOptions = ExtendedBufferOp
   ): this {
     if (unshift) {
       this.allocStart(size);
-      this._nativeBuffer[method](value, this._pointerStart - size);
+      const offset = this._pointerStart - size;
+
+      switch (method) {
+        case 'writeFloatBE':
+          this._nativeBuffer.writeFloatBE(value, offset);
+          break;
+        case 'writeFloatLE':
+          this._nativeBuffer.writeFloatLE(value, offset);
+          break;
+        case 'writeDoubleBE':
+          this._nativeBuffer.writeDoubleBE(value, offset);
+          break;
+        case 'writeDoubleLE':
+          this._nativeBuffer.writeDoubleLE(value, offset);
+          break;
+        default:
+          throw new ExtendedBufferError('INVALID_FLOATING_POINT_WRITE_METHOD');
+      }
+
       this._pointerStart -= size;
     } else {
       this.allocEnd(size);
-      this._nativeBuffer[method](value, this._pointerEnd);
+      const offset = this._pointerEnd;
+
+      switch (method) {
+        case 'writeFloatBE':
+          this._nativeBuffer.writeFloatBE(value, offset);
+          break;
+        case 'writeFloatLE':
+          this._nativeBuffer.writeFloatLE(value, offset);
+          break;
+        case 'writeDoubleBE':
+          this._nativeBuffer.writeDoubleBE(value, offset);
+          break;
+        case 'writeDoubleLE':
+          this._nativeBuffer.writeDoubleLE(value, offset);
+          break;
+        default:
+          throw new ExtendedBufferError('INVALID_FLOATING_POINT_WRITE_METHOD');
+      }
+
       this._pointerEnd += size;
     }
 
@@ -480,7 +588,26 @@ export class ExtendedBuffer<EBO extends ExtendedBufferOptions = ExtendedBufferOp
       throw new ExtendedBufferRangeError('SIZE_OUT_OF_RANGE');
     }
 
-    const result = this._nativeBuffer[method](this.nativePointer(), size);
+    const offset = this.nativePointer();
+    let result: number;
+
+    switch (method) {
+      case 'readIntBE':
+        result = this._nativeBuffer.readIntBE(offset, size);
+        break;
+      case 'readIntLE':
+        result = this._nativeBuffer.readIntLE(offset, size);
+        break;
+      case 'readUIntBE':
+        result = this._nativeBuffer.readUIntBE(offset, size);
+        break;
+      case 'readUIntLE':
+        result = this._nativeBuffer.readUIntLE(offset, size);
+        break;
+      default:
+        throw new ExtendedBufferError('INVALID_INT_READ_METHOD');
+    }
+
     this.offset(size);
     return result;
   }
@@ -549,7 +676,26 @@ export class ExtendedBuffer<EBO extends ExtendedBufferOptions = ExtendedBufferOp
       throw new ExtendedBufferRangeError('SIZE_OUT_OF_RANGE');
     }
 
-    const result = this._nativeBuffer[method](this.nativePointer());
+    const offset = this.nativePointer();
+    let result: bigint;
+
+    switch (method) {
+      case 'readBigInt64BE':
+        result = this._nativeBuffer.readBigInt64BE(offset);
+        break;
+      case 'readBigInt64LE':
+        result = this._nativeBuffer.readBigInt64LE(offset);
+        break;
+      case 'readBigUInt64BE':
+        result = this._nativeBuffer.readBigUInt64BE(offset);
+        break;
+      case 'readBigUInt64LE':
+        result = this._nativeBuffer.readBigUInt64LE(offset);
+        break;
+      default:
+        throw new ExtendedBufferError('INVALID_BIGINT_READ_METHOD');
+    }
+
     this.offset(size);
     return result;
   }
@@ -579,7 +725,26 @@ export class ExtendedBuffer<EBO extends ExtendedBufferOptions = ExtendedBufferOp
       throw new ExtendedBufferRangeError('SIZE_OUT_OF_RANGE');
     }
 
-    const result = this._nativeBuffer[method](this.nativePointer());
+    const offset = this.nativePointer();
+    let result: number;
+
+    switch (method) {
+      case 'readFloatBE':
+        result = this._nativeBuffer.readFloatBE(offset);
+        break;
+      case 'readFloatLE':
+        result = this._nativeBuffer.readFloatLE(offset);
+        break;
+      case 'readDoubleBE':
+        result = this._nativeBuffer.readDoubleBE(offset);
+        break;
+      case 'readDoubleLE':
+        result = this._nativeBuffer.readDoubleLE(offset);
+        break;
+      default:
+        throw new ExtendedBufferError('INVALID_FLOATING_POINT_READ_METHOD');
+    }
+
     this.offset(size);
     return result;
   }

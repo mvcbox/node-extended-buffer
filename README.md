@@ -29,18 +29,12 @@ If your bundler does not expose `Buffer` globally, add a small shim in your app 
 
 ```ts
 import { Buffer } from "buffer";
+import { getGlobalContext } from "extended-buffer";
 
-const globalScope: any =
-  typeof globalThis !== "undefined"
-    ? globalThis
-    : typeof self !== "undefined"
-      ? self
-      : typeof window !== "undefined"
-        ? window
-        : undefined;
+const globalScope = getGlobalContext();
 
-if (globalScope && !globalScope.Buffer) {
-  globalScope.Buffer = Buffer;
+if (globalScope && !(globalScope as any).Buffer) {
+  (globalScope as any).Buffer = Buffer;
 }
 ```
 
@@ -185,7 +179,7 @@ type ExtendedBufferOptions = {
 Default values:
 
 - `capacity`: `16 * 1024` bytes (16 KiB)
-- `capacityStep`: same as `capacity`
+- `capacityStep`: `16 * 1024` bytes (same as the default `capacity`; if you override `capacity` and want the same step, set `capacityStep` explicitly)
 - `nativeAllocSlow`: `false`
 - `nativeReallocSlow`: `false`
 
