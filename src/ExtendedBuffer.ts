@@ -563,8 +563,7 @@ export class ExtendedBuffer<EBO extends ExtendedBufferOptions = ExtendedBufferOp
       throw new ExtendedBufferRangeError('SIZE_OUT_OF_RANGE');
     }
 
-    const nativePointer = this.nativePointer();
-    const nativeBuffer = utils.nativeBufferSubarray(this._nativeBuffer, nativePointer, nativePointer + size);
+    const nativeBuffer = utils.nativeBufferSubarray(this._nativeBuffer, this.nativePointer(), this.nativePointer() + size);
     const result = asNative ? Buffer.from(nativeBuffer) : this.createInstance(bufferOptions).writeNativeBuffer(nativeBuffer);
     this.offset(size);
     return result;
@@ -577,8 +576,7 @@ export class ExtendedBuffer<EBO extends ExtendedBufferOptions = ExtendedBufferOp
       throw new ExtendedBufferRangeError('SIZE_OUT_OF_RANGE');
     }
 
-    const nativePointer = this.nativePointer();
-    const result = this._nativeBuffer.toString(encoding, nativePointer, nativePointer + size);
+    const result = this._nativeBuffer.toString(encoding, this.nativePointer(), this.nativePointer() + size);
     this.offset(size);
     return result;
   }
