@@ -600,7 +600,7 @@ export class ExtendedBuffer<EBO extends ExtendedBufferOptions = ExtendedBufferOp
     const nativePointer = this.nativePointer();
     const nativeBuffer = utils.nativeBufferSubarray(this._nativeBuffer, nativePointer, nativePointer + size);
     const result = asNative ? Buffer.from(nativeBuffer) : this.createInstance(bufferOptions).writeNativeBuffer(nativeBuffer);
-    this.offset(size);
+    this._pointer += size;
     return result;
   }
 
@@ -615,7 +615,7 @@ export class ExtendedBuffer<EBO extends ExtendedBufferOptions = ExtendedBufferOp
 
     const nativePointer = this.nativePointer();
     const result = this._nativeBuffer.toString(encoding, nativePointer, nativePointer + size);
-    this.offset(size);
+    this._pointer += size;
     return result;
   }
 
@@ -648,7 +648,7 @@ export class ExtendedBuffer<EBO extends ExtendedBufferOptions = ExtendedBufferOp
         throw new ExtendedBufferError('INVALID_INT_READ_METHOD');
     }
 
-    this.offset(size);
+    this._pointer += size;
     return result;
   }
 
@@ -739,7 +739,7 @@ export class ExtendedBuffer<EBO extends ExtendedBufferOptions = ExtendedBufferOp
         throw new ExtendedBufferError('INVALID_BIGINT_READ_METHOD');
     }
 
-    this.offset(size);
+    this._pointer += size;
     return result;
   }
 
@@ -790,7 +790,7 @@ export class ExtendedBuffer<EBO extends ExtendedBufferOptions = ExtendedBufferOp
         throw new ExtendedBufferError('INVALID_FLOATING_POINT_READ_METHOD');
     }
 
-    this.offset(size);
+    this._pointer += size;
     return result;
   }
 
