@@ -159,7 +159,12 @@ export class ExtendedBuffer<EBO extends ExtendedBufferOptions = ExtendedBufferOp
 
   public allocStart(size: number): this {
     utils.assertUnsignedInteger(size);
+    this.allocStartUnsafe(size);
+    this.assertInstanceState();
+    return this;
+  }
 
+  public allocStartUnsafe(size: number): this {
     if (this.getWritableSizeStart() >= size) {
       return this;
     }
@@ -173,13 +178,17 @@ export class ExtendedBuffer<EBO extends ExtendedBufferOptions = ExtendedBufferOp
     this._nativeBuffer.copy(this._nativeBuffer, this._pointerStart + offset, this._pointerStart, this._pointerEnd);
     this._pointerStart += offset;
     this._pointerEnd += offset;
-    this.assertInstanceState();
     return this;
   }
 
   public allocEnd(size: number): this {
     utils.assertUnsignedInteger(size);
+    this.allocEndUnsafe(size);
+    this.assertInstanceState();
+    return this;
+  }
 
+  public allocEndUnsafe(size: number): this {
     if (this.getWritableSizeEnd() >= size) {
       return this;
     }
@@ -193,7 +202,6 @@ export class ExtendedBuffer<EBO extends ExtendedBufferOptions = ExtendedBufferOp
     this._nativeBuffer.copy(this._nativeBuffer, this._pointerStart + offset, this._pointerStart, this._pointerEnd);
     this._pointerStart += offset;
     this._pointerEnd += offset;
-    this.assertInstanceState();
     return this;
   }
 
@@ -203,11 +211,11 @@ export class ExtendedBuffer<EBO extends ExtendedBufferOptions = ExtendedBufferOp
 
   public writeNativeBuffer(buffer: Buffer, unshift?: boolean): this {
     if (unshift) {
-      this.allocStart(buffer.length);
+      this.allocStartUnsafe(buffer.length);
       buffer.copy(this._nativeBuffer, this._pointerStart - buffer.length);
       this._pointerStart -= buffer.length;
     } else {
-      this.allocEnd(buffer.length);
+      this.allocEndUnsafe(buffer.length);
       buffer.copy(this._nativeBuffer, this._pointerEnd);
       this._pointerEnd += buffer.length;
     }
@@ -222,7 +230,7 @@ export class ExtendedBuffer<EBO extends ExtendedBufferOptions = ExtendedBufferOp
     if (freeSize > this._capacityStep) {
       const reduceSize = freeSize - this._capacityStep;
       const newNativeSize = this._nativeBuffer.length - reduceSize;
-      this.allocEnd(reduceSize);
+      this.allocEndUnsafe(reduceSize);
       this._nativeBuffer = utils.reallocNativeBuffer(this._nativeBuffer, newNativeSize, this._nativeReallocSlow);
     }
 
@@ -307,7 +315,7 @@ export class ExtendedBuffer<EBO extends ExtendedBufferOptions = ExtendedBufferOp
     value: number, size: number, unshift?: boolean
   ): this {
     if (unshift) {
-      this.allocStart(size);
+      this.allocStartUnsafe(size);
       const offset = this._pointerStart - size;
 
       switch (method) {
@@ -329,7 +337,7 @@ export class ExtendedBuffer<EBO extends ExtendedBufferOptions = ExtendedBufferOp
 
       this._pointerStart -= size;
     } else {
-      this.allocEnd(size);
+      this.allocEndUnsafe(size);
       const offset = this._pointerEnd;
 
       switch (method) {
@@ -443,7 +451,7 @@ export class ExtendedBuffer<EBO extends ExtendedBufferOptions = ExtendedBufferOp
     const size = 8;
 
     if (unshift) {
-      this.allocStart(size);
+      this.allocStartUnsafe(size);
       const offset = this._pointerStart - size;
 
       switch (method) {
@@ -465,7 +473,7 @@ export class ExtendedBuffer<EBO extends ExtendedBufferOptions = ExtendedBufferOp
 
       this._pointerStart -= size;
     } else {
-      this.allocEnd(size);
+      this.allocEndUnsafe(size);
       const offset = this._pointerEnd;
 
       switch (method) {
@@ -512,7 +520,7 @@ export class ExtendedBuffer<EBO extends ExtendedBufferOptions = ExtendedBufferOp
     value: number, size: 4 | 8, unshift?: boolean
   ): this {
     if (unshift) {
-      this.allocStart(size);
+      this.allocStartUnsafe(size);
       const offset = this._pointerStart - size;
 
       switch (method) {
@@ -534,7 +542,7 @@ export class ExtendedBuffer<EBO extends ExtendedBufferOptions = ExtendedBufferOp
 
       this._pointerStart -= size;
     } else {
-      this.allocEnd(size);
+      this.allocEndUnsafe(size);
       const offset = this._pointerEnd;
 
       switch (method) {
