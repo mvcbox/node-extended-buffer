@@ -248,6 +248,11 @@ export class ExtendedBuffer<EBO extends ExtendedBufferOptions = ExtendedBufferOp
     return this;
   }
 
+  public setUnsafeMode(unsafeMode: boolean): this {
+    this._unsafeMode = unsafeMode;
+    return this;
+  }
+
   public setPointer(pointer: number): this {
     utils.assertInteger(pointer);
 
