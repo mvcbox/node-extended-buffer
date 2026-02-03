@@ -372,43 +372,53 @@ export class ExtendedBuffer<EBO extends ExtendedBufferOptions = ExtendedBufferOp
   }
 
   public writeInt8(value: number, unshift?: boolean): this {
-    return this.writeIntLE(value, 1, unshift);
+    utils.assertInteger(value);
+    return this.writeIntCommonUnsafe('writeIntLE', value, 1, unshift);
   }
 
   public writeUInt8(value: number, unshift?: boolean): this {
-    return this.writeUIntLE(value, 1, unshift);
+    utils.assertUnsignedInteger(value);
+    return this.writeIntCommonUnsafe('writeUIntLE', value, 1, unshift);
   }
 
   public writeInt16BE(value: number, unshift?: boolean): this {
-    return this.writeIntBE(value, 2, unshift);
+    utils.assertInteger(value);
+    return this.writeIntCommonUnsafe('writeIntBE', value, 2, unshift);
   }
 
   public writeInt16LE(value: number, unshift?: boolean): this {
-    return this.writeIntLE(value, 2, unshift);
+    utils.assertInteger(value);
+    return this.writeIntCommonUnsafe('writeIntLE', value, 2, unshift);
   }
 
   public writeUInt16BE(value: number, unshift?: boolean): this {
-    return this.writeUIntBE(value, 2, unshift);
+    utils.assertUnsignedInteger(value);
+    return this.writeIntCommonUnsafe('writeUIntBE', value, 2, unshift);
   }
 
   public writeUInt16LE(value: number, unshift?: boolean): this {
-    return this.writeUIntLE(value, 2, unshift);
+    utils.assertUnsignedInteger(value);
+    return this.writeIntCommonUnsafe('writeUIntLE', value, 2, unshift);
   }
 
   public writeInt32BE(value: number, unshift?: boolean): this {
-    return this.writeIntBE(value, 4, unshift);
+    utils.assertInteger(value);
+    return this.writeIntCommonUnsafe('writeIntBE', value, 4, unshift);
   }
 
   public writeInt32LE(value: number, unshift?: boolean): this {
-    return this.writeIntLE(value, 4, unshift);
+    utils.assertInteger(value);
+    return this.writeIntCommonUnsafe('writeIntLE', value, 4, unshift);
   }
 
   public writeUInt32BE(value: number, unshift?: boolean): this {
-    return this.writeUIntBE(value, 4, unshift);
+    utils.assertUnsignedInteger(value);
+    return this.writeIntCommonUnsafe('writeUIntBE', value, 4, unshift);
   }
 
   public writeUInt32LE(value: number, unshift?: boolean): this {
-    return this.writeUIntLE(value, 4, unshift);
+    utils.assertUnsignedInteger(value);
+    return this.writeIntCommonUnsafe('writeUIntLE', value, 4, unshift);
   }
 
   public writeBigInt64Common(
@@ -650,43 +660,43 @@ export class ExtendedBuffer<EBO extends ExtendedBufferOptions = ExtendedBufferOp
   }
 
   public readInt8(): number {
-    return this.readIntLE(1);
+    return this.readIntCommonUnsafe('readIntLE', 1);
   }
 
   public readUInt8(): number {
-    return this.readUIntLE(1);
+    return this.readIntCommonUnsafe('readUIntLE', 1);
   }
 
   public readInt16BE(): number {
-    return this.readIntBE(2);
+    return this.readIntCommonUnsafe('readIntBE', 2);
   }
 
   public readInt16LE(): number {
-    return this.readIntLE(2);
+    return this.readIntCommonUnsafe('readIntLE', 2);
   }
 
   public readUInt16BE(): number {
-    return this.readUIntBE(2);
+    return this.readIntCommonUnsafe('readUIntBE', 2);
   }
 
   public readUInt16LE(): number {
-    return this.readUIntLE(2);
+    return this.readIntCommonUnsafe('readUIntLE', 2);
   }
 
   public readInt32BE(): number {
-    return this.readIntBE(4);
+    return this.readIntCommonUnsafe('readIntBE', 4);
   }
 
   public readInt32LE(): number {
-    return this.readIntLE(4);
+    return this.readIntCommonUnsafe('readIntLE', 4);
   }
 
   public readUInt32BE(): number {
-    return this.readUIntBE(4);
+    return this.readIntCommonUnsafe('readUIntBE', 4);
   }
 
   public readUInt32LE(): number {
-    return this.readUIntLE(4);
+    return this.readIntCommonUnsafe('readUIntLE', 4);
   }
 
   public readBigInt64Common(method: 'readBigInt64BE' | 'readBigInt64LE' | 'readBigUInt64BE' | 'readBigUInt64LE'): bigint {
@@ -783,18 +793,18 @@ export class ExtendedBuffer<EBO extends ExtendedBufferOptions = ExtendedBufferOp
   }
 
   public readFloatBE(): number {
-    return this.readFloatingPointCommon('readFloatBE', 4);
+    return this.readFloatingPointCommonUnsafe('readFloatBE', 4);
   }
 
   public readFloatLE(): number {
-    return this.readFloatingPointCommon('readFloatLE', 4);
+    return this.readFloatingPointCommonUnsafe('readFloatLE', 4);
   }
 
   public readDoubleBE(): number {
-    return this.readFloatingPointCommon('readDoubleBE', 8);
+    return this.readFloatingPointCommonUnsafe('readDoubleBE', 8);
   }
 
   public readDoubleLE(): number {
-    return this.readFloatingPointCommon('readDoubleLE', 8);
+    return this.readFloatingPointCommonUnsafe('readDoubleLE', 8);
   }
 }
