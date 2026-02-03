@@ -17,6 +17,7 @@ export class ExtendedBuffer<EBO extends ExtendedBufferOptions = ExtendedBufferOp
   protected _pointerEnd!: number;
   protected _pointerStart!: number;
   protected _nativeBuffer!: Buffer;
+  protected _unsafeMode: boolean;
   protected readonly _capacity: number;
   protected readonly _capacityStep: number;
   protected readonly _nativeAllocSlow?: boolean;
@@ -24,6 +25,7 @@ export class ExtendedBuffer<EBO extends ExtendedBufferOptions = ExtendedBufferOp
   protected _transaction?: ExtendedBufferTransaction;
 
   public constructor(options?: ExtendedBufferOptions) {
+    this._unsafeMode = options?.unsafeMode ?? false;
     this._nativeAllocSlow = options?.nativeAllocSlow;
     this._nativeReallocSlow = options?.nativeReallocSlow;
     this._capacity = options?.capacity ?? DEFAULT_CAPACITY;
