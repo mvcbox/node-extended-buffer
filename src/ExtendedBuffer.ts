@@ -559,7 +559,7 @@ export class ExtendedBuffer<EBO extends ExtendedBufferOptions = ExtendedBufferOp
   public readBuffer(size: number, asNative?: boolean, bufferOptions?: EBO): this | Buffer {
     utils.assertUnsignedInteger(size);
 
-    if (!this.isReadable(size)) {
+    if (this.getReadableSize() < size) {
       throw new ExtendedBufferRangeError('SIZE_OUT_OF_RANGE');
     }
 
@@ -573,7 +573,7 @@ export class ExtendedBuffer<EBO extends ExtendedBufferOptions = ExtendedBufferOp
   public readString(size: number, encoding?: BufferEncoding): string {
     utils.assertUnsignedInteger(size);
 
-    if (!this.isReadable(size)) {
+    if (this.getReadableSize() < size) {
       throw new ExtendedBufferRangeError('SIZE_OUT_OF_RANGE');
     }
 
@@ -586,7 +586,7 @@ export class ExtendedBuffer<EBO extends ExtendedBufferOptions = ExtendedBufferOp
   protected readIntCommon(method: 'readIntBE' | 'readIntLE' | 'readUIntBE' | 'readUIntLE', size: number): number {
     utils.assertIntegerSize(size);
 
-    if (!this.isReadable(size)) {
+    if (this.getReadableSize() < size) {
       throw new ExtendedBufferRangeError('SIZE_OUT_OF_RANGE');
     }
 
@@ -674,7 +674,7 @@ export class ExtendedBuffer<EBO extends ExtendedBufferOptions = ExtendedBufferOp
     utils.assertSupportBigInteger();
     const size = 8;
 
-    if (!this.isReadable(size)) {
+    if (this.getReadableSize() < size) {
       throw new ExtendedBufferRangeError('SIZE_OUT_OF_RANGE');
     }
 
@@ -723,7 +723,7 @@ export class ExtendedBuffer<EBO extends ExtendedBufferOptions = ExtendedBufferOp
   ): number {
     utils.assertUnsignedInteger(size);
 
-    if (!this.isReadable(size)) {
+    if (this.getReadableSize() < size) {
       throw new ExtendedBufferRangeError('SIZE_OUT_OF_RANGE');
     }
 
