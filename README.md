@@ -25,7 +25,8 @@ Install the polyfill:
 npm install buffer
 ```
 
-If your bundler does not expose `Buffer` globally, add a small shim in your app entry:
+`ExtendedBuffer` imports `Buffer` from the `buffer` module, so a global `Buffer` is usually not required.
+If your tooling (or other dependencies) expects a global `Buffer`, add a small shim in your app entry:
 
 ```ts
 import { Buffer } from "buffer";
@@ -173,6 +174,7 @@ type ExtendedBufferOptions = {
   nativeAllocSlow?: boolean;    // using Buffer.allocUnsafeSlow() when initializing ExtendedBuffer
   nativeReallocSlow?: boolean;  // using Buffer.allocUnsafeSlow() for further reallocations
   initNativeBuffer?: Buffer;    // use an existing Buffer as the initial native buffer (no copy)
+  unsafeMode?: boolean;         // skip most runtime asserts inside ExtendedBuffer (for performance)
 };
 ```
 
@@ -190,9 +192,19 @@ const b = new ExtendedBuffer({
   capacity: 1024 * 1024,
   capacityStep: 1024 * 1024,
   nativeAllocSlow: true,
-  nativeReallocSlow: true
+  nativeReallocSlow: true,
+  unsafeMode: false
 });
 ```
+
+### Unsafe mode
+
+`unsafeMode` disables internal `assert*` validations inside `ExtendedBuffer` (and skips `assertInstanceState()`).
+It is useful in hot paths when all parameters are controlled by your code, but it can make misuse fail later (or in less obvious ways).
+
+Notes:
+- Range checks like `SIZE_OUT_OF_RANGE` / `POINTER_OUT_OF_RANGE` are still enforced.
+- `unsafeMode` is inherited by derived instances created via `bufferView` and `readBuffer(...)` (unless overridden via options).
 
 ### Wrap an existing `Buffer` (`initNativeBuffer`)
 
@@ -271,14 +283,17 @@ If your runtime supports `BigInt` and Node's `Buffer.readBig*` / `Buffer.writeBi
 ```ts
 import { ExtendedBuffer } from 'extended-buffer';
 
-const b = new ExtendedBuffer();
+if (typeof BigInt === 'function') {
+  const b = new ExtendedBuffer();
 
-b.writeBigUInt64BE(2n ** 63n); // 9223372036854775808n
-b.writeBigInt64LE(-42n);
+  const twoPow63 = BigInt('9223372036854775808'); // 2^63
+  b.writeBigUInt64BE(twoPow63);
+  b.writeBigInt64LE(BigInt(-42));
 
-b.setPointer(0);
-console.log(b.readBigUInt64BE()); // 9223372036854775808n
-console.log(b.readBigInt64LE());  // -42n
+  b.setPointer(0);
+  console.log(String(b.readBigUInt64BE())); // "9223372036854775808"
+  console.log(String(b.readBigInt64LE()));  // "-42"
+}
 ```
 
 If `BigInt` is not supported, these methods throw `ExtendedBufferUnsupportedError('EXECUTION_ENVIRONMENT_NOT_SUPPORT_BIG_INT')`.
@@ -309,7 +324,7 @@ if (b.isReadable(4)) {
 // Copy out as a native Buffer
 const chunk: Buffer = b.readBuffer(10, true);
 
-// Copy out as a new ExtendedBuffer (same capacity/capacityStep/nativeAllocSlow/nativeReallocSlow by default)
+// Copy out as a new ExtendedBuffer (same capacity/capacityStep/nativeAllocSlow/nativeReallocSlow/unsafeMode by default)
 const eb: ExtendedBuffer = b.readBuffer(10);
 ```
 
@@ -342,12 +357,14 @@ Fixed-width helpers:
 ```ts
 const b = new ExtendedBuffer();
 
-b.writeBigInt64BE(-1n);
-b.writeBigUInt64BE(18446744073709551615n); // 2^64 - 1
+if (typeof BigInt === 'function') {
+  b.writeBigInt64BE(BigInt(-1));
+  b.writeBigUInt64BE(BigInt('18446744073709551615')); // 2^64 - 1
 
-b.setPointer(0);
-console.log(b.readBigInt64BE());  // -1n
-console.log(b.readBigUInt64BE()); // 18446744073709551615n
+  b.setPointer(0);
+  console.log(String(b.readBigInt64BE()));  // "-1"
+  console.log(String(b.readBigUInt64BE())); // "18446744073709551615"
+}
 ```
 
 Note: Node's `Buffer` will throw a native `RangeError` if the value doesn't fit into signed/unsigned 64-bit range.
@@ -546,6 +563,7 @@ Properties:
 
 Core:
 - `initExtendedBuffer(initNativeBuffer?)`, `assertInstanceState()`, `clean()`
+- `setUnsafeMode(unsafeMode)`
 - `nativePointer()`, `getWritableSizeStart()`, `getWritableSizeEnd()`, `getWritableSize()`, `getReadableSize()`
 - `transaction(callback)`
 - `allocStart(size)`, `allocEnd(size)`

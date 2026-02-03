@@ -6,4 +6,5 @@ export type ExtendedBufferOptions = {
   nativeAllocSlow?: boolean;
   nativeReallocSlow?: boolean;
   initNativeBuffer?: Buffer;
+  unsafeMode?: boolean;
 };
