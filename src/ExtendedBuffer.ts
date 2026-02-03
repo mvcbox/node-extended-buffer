@@ -288,7 +288,7 @@ export class ExtendedBuffer<EBO extends ExtendedBufferOptions = ExtendedBufferOp
     return this.writeNativeBuffer(bytes, unshift);
   }
 
-  public writeIntCommon(
+  protected writeIntCommon(
     method: 'writeIntBE' | 'writeIntLE' | 'writeUIntBE' | 'writeUIntLE',
     value: number, size: number, unsigned: boolean, unshift?: boolean
   ): this {
@@ -299,13 +299,7 @@ export class ExtendedBuffer<EBO extends ExtendedBufferOptions = ExtendedBufferOp
     }
 
     utils.assertIntegerSize(size);
-    return this.writeIntCommonUnsafe(method, value, size, unshift);
-  }
 
-  public writeIntCommonUnsafe(
-    method: 'writeIntBE' | 'writeIntLE' | 'writeUIntBE' | 'writeUIntLE',
-    value: number, size: number, unshift?: boolean
-  ): this {
     if (unshift) {
       this.allocStart(size);
       const offset = this._pointerStart - size;
@@ -411,7 +405,7 @@ export class ExtendedBuffer<EBO extends ExtendedBufferOptions = ExtendedBufferOp
     return this.writeUIntLE(value, 4, unshift);
   }
 
-  public writeBigInt64Common(
+  protected writeBigInt64Common(
     method: 'writeBigInt64BE' | 'writeBigInt64LE' | 'writeBigUInt64BE' | 'writeBigUInt64LE',
     value: bigint, unsigned: boolean, unshift?: boolean
   ): this {
@@ -423,13 +417,6 @@ export class ExtendedBuffer<EBO extends ExtendedBufferOptions = ExtendedBufferOp
       utils.assertBigInteger(value);
     }
 
-    return this.writeBigInt64CommonUnsafe(method, value, unshift);
-  }
-
-  public writeBigInt64CommonUnsafe(
-    method: 'writeBigInt64BE' | 'writeBigInt64LE' | 'writeBigUInt64BE' | 'writeBigUInt64LE',
-    value: bigint, unshift?: boolean
-  ): this {
     const size = 8;
 
     if (unshift) {
@@ -497,7 +484,7 @@ export class ExtendedBuffer<EBO extends ExtendedBufferOptions = ExtendedBufferOp
     return this.writeBigInt64Common('writeBigUInt64LE', value, true, unshift);
   }
 
-  public writeFloatingPointCommon(
+  protected writeFloatingPointCommon(
     method: 'writeFloatBE' | 'writeFloatLE' | 'writeDoubleBE' | 'writeDoubleLE',
     value: number, size: 4 | 8, unshift?: boolean
   ): this {
@@ -596,16 +583,10 @@ export class ExtendedBuffer<EBO extends ExtendedBufferOptions = ExtendedBufferOp
     return result;
   }
 
-  public readIntCommon(method: 'readIntBE' | 'readIntLE' | 'readUIntBE' | 'readUIntLE', size: number): number {
+  protected readIntCommon(method: 'readIntBE' | 'readIntLE' | 'readUIntBE' | 'readUIntLE', size: number): number {
     utils.assertIntegerSize(size);
-    return this.readIntCommonUnsafe(method, size);
-  }
 
-  public readIntCommonUnsafe(
-    method: 'readIntBE' | 'readIntLE' | 'readUIntBE' | 'readUIntLE',
-    size: number
-  ): number {
-    if (this.getReadableSize() < size) {
+    if (!this.isReadable(size)) {
       throw new ExtendedBufferRangeError('SIZE_OUT_OF_RANGE');
     }
 
@@ -629,7 +610,7 @@ export class ExtendedBuffer<EBO extends ExtendedBufferOptions = ExtendedBufferOp
         throw new ExtendedBufferError('INVALID_INT_READ_METHOD');
     }
 
-    this._pointer += size;
+    this.offset(size);
     return result;
   }
 
@@ -689,17 +670,11 @@ export class ExtendedBuffer<EBO extends ExtendedBufferOptions = ExtendedBufferOp
     return this.readUIntLE(4);
   }
 
-  public readBigInt64Common(method: 'readBigInt64BE' | 'readBigInt64LE' | 'readBigUInt64BE' | 'readBigUInt64LE'): bigint {
+  protected readBigInt64Common(method: 'readBigInt64BE' | 'readBigInt64LE' | 'readBigUInt64BE' | 'readBigUInt64LE'): bigint {
     utils.assertSupportBigInteger();
-    return this.readBigInt64CommonUnsafe(method);
-  }
-
-  public readBigInt64CommonUnsafe(
-    method: 'readBigInt64BE' | 'readBigInt64LE' | 'readBigUInt64BE' | 'readBigUInt64LE'
-  ): bigint {
     const size = 8;
 
-    if (this.getReadableSize() < size) {
+    if (!this.isReadable(size)) {
       throw new ExtendedBufferRangeError('SIZE_OUT_OF_RANGE');
     }
 
@@ -723,7 +698,7 @@ export class ExtendedBuffer<EBO extends ExtendedBufferOptions = ExtendedBufferOp
         throw new ExtendedBufferError('INVALID_BIGINT_READ_METHOD');
     }
 
-    this._pointer += size;
+    this.offset(size);
     return result;
   }
 
@@ -743,18 +718,12 @@ export class ExtendedBuffer<EBO extends ExtendedBufferOptions = ExtendedBufferOp
     return this.readBigInt64Common('readBigUInt64LE');
   }
 
-  public readFloatingPointCommon(
+  protected readFloatingPointCommon(
     method: 'readFloatBE' | 'readFloatLE' | 'readDoubleBE' | 'readDoubleLE', size: 4 | 8
   ): number {
     utils.assertUnsignedInteger(size);
-    return this.readFloatingPointCommonUnsafe(method, size);
-  }
 
-  public readFloatingPointCommonUnsafe(
-    method: 'readFloatBE' | 'readFloatLE' | 'readDoubleBE' | 'readDoubleLE',
-    size: 4 | 8
-  ): number {
-    if (this.getReadableSize() < size) {
+    if (!this.isReadable(size)) {
       throw new ExtendedBufferRangeError('SIZE_OUT_OF_RANGE');
     }
 
@@ -778,7 +747,7 @@ export class ExtendedBuffer<EBO extends ExtendedBufferOptions = ExtendedBufferOp
         throw new ExtendedBufferError('INVALID_FLOATING_POINT_READ_METHOD');
     }
 
-    this._pointer += size;
+    this.offset(size);
     return result;
   }
 
