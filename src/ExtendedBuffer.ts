@@ -288,7 +288,7 @@ export class ExtendedBuffer<EBO extends ExtendedBufferOptions = ExtendedBufferOp
     return this.writeNativeBuffer(bytes, unshift);
   }
 
-  protected writeIntCommon(
+  public writeIntCommon(
     method: 'writeIntBE' | 'writeIntLE' | 'writeUIntBE' | 'writeUIntLE',
     value: number, size: number, unsigned: boolean, unshift?: boolean
   ): this {
@@ -299,7 +299,13 @@ export class ExtendedBuffer<EBO extends ExtendedBufferOptions = ExtendedBufferOp
     }
 
     utils.assertIntegerSize(size);
+    return this.writeIntCommonUnsafe(method, value, size, unshift);
+  }
 
+  public writeIntCommonUnsafe(
+    method: 'writeIntBE' | 'writeIntLE' | 'writeUIntBE' | 'writeUIntLE',
+    value: number, size: number, unshift?: boolean
+  ): this {
     if (unshift) {
       this.allocStart(size);
       const offset = this._pointerStart - size;
@@ -405,7 +411,7 @@ export class ExtendedBuffer<EBO extends ExtendedBufferOptions = ExtendedBufferOp
     return this.writeUIntLE(value, 4, unshift);
   }
 
-  protected writeBigInt64Common(
+  public writeBigInt64Common(
     method: 'writeBigInt64BE' | 'writeBigInt64LE' | 'writeBigUInt64BE' | 'writeBigUInt64LE',
     value: bigint, unsigned: boolean, unshift?: boolean
   ): this {
@@ -417,6 +423,13 @@ export class ExtendedBuffer<EBO extends ExtendedBufferOptions = ExtendedBufferOp
       utils.assertBigInteger(value);
     }
 
+    return this.writeBigInt64CommonUnsafe(method, value, unshift);
+  }
+
+  public writeBigInt64CommonUnsafe(
+    method: 'writeBigInt64BE' | 'writeBigInt64LE' | 'writeBigUInt64BE' | 'writeBigUInt64LE',
+    value: bigint, unshift?: boolean
+  ): this {
     const size = 8;
 
     if (unshift) {
@@ -484,7 +497,7 @@ export class ExtendedBuffer<EBO extends ExtendedBufferOptions = ExtendedBufferOp
     return this.writeBigInt64Common('writeBigUInt64LE', value, true, unshift);
   }
 
-  protected writeFloatingPointCommon(
+  public writeFloatingPointCommon(
     method: 'writeFloatBE' | 'writeFloatLE' | 'writeDoubleBE' | 'writeDoubleLE',
     value: number, size: 4 | 8, unshift?: boolean
   ): this {
@@ -563,7 +576,8 @@ export class ExtendedBuffer<EBO extends ExtendedBufferOptions = ExtendedBufferOp
       throw new ExtendedBufferRangeError('SIZE_OUT_OF_RANGE');
     }
 
-    const nativeBuffer = utils.nativeBufferSubarray(this._nativeBuffer, this.nativePointer(), this.nativePointer() + size);
+    const nativePointer = this.nativePointer();
+    const nativeBuffer = utils.nativeBufferSubarray(this._nativeBuffer, nativePointer, nativePointer + size);
     const result = asNative ? Buffer.from(nativeBuffer) : this.createInstance(bufferOptions).writeNativeBuffer(nativeBuffer);
     this.offset(size);
     return result;
@@ -576,15 +590,22 @@ export class ExtendedBuffer<EBO extends ExtendedBufferOptions = ExtendedBufferOp
       throw new ExtendedBufferRangeError('SIZE_OUT_OF_RANGE');
     }
 
-    const result = this._nativeBuffer.toString(encoding, this.nativePointer(), this.nativePointer() + size);
+    const nativePointer = this.nativePointer();
+    const result = this._nativeBuffer.toString(encoding, nativePointer, nativePointer + size);
     this.offset(size);
     return result;
   }
 
-  protected readIntCommon(method: 'readIntBE' | 'readIntLE' | 'readUIntBE' | 'readUIntLE', size: number): number {
+  public readIntCommon(method: 'readIntBE' | 'readIntLE' | 'readUIntBE' | 'readUIntLE', size: number): number {
     utils.assertIntegerSize(size);
+    return this.readIntCommonUnsafe(method, size);
+  }
 
-    if (!this.isReadable(size)) {
+  public readIntCommonUnsafe(
+    method: 'readIntBE' | 'readIntLE' | 'readUIntBE' | 'readUIntLE',
+    size: number
+  ): number {
+    if (this.getReadableSize() < size) {
       throw new ExtendedBufferRangeError('SIZE_OUT_OF_RANGE');
     }
 
@@ -608,7 +629,7 @@ export class ExtendedBuffer<EBO extends ExtendedBufferOptions = ExtendedBufferOp
         throw new ExtendedBufferError('INVALID_INT_READ_METHOD');
     }
 
-    this.offset(size);
+    this._pointer += size;
     return result;
   }
 
@@ -668,11 +689,17 @@ export class ExtendedBuffer<EBO extends ExtendedBufferOptions = ExtendedBufferOp
     return this.readUIntLE(4);
   }
 
-  protected readBigInt64Common(method: 'readBigInt64BE' | 'readBigInt64LE' | 'readBigUInt64BE' | 'readBigUInt64LE'): bigint {
+  public readBigInt64Common(method: 'readBigInt64BE' | 'readBigInt64LE' | 'readBigUInt64BE' | 'readBigUInt64LE'): bigint {
     utils.assertSupportBigInteger();
+    return this.readBigInt64CommonUnsafe(method);
+  }
+
+  public readBigInt64CommonUnsafe(
+    method: 'readBigInt64BE' | 'readBigInt64LE' | 'readBigUInt64BE' | 'readBigUInt64LE'
+  ): bigint {
     const size = 8;
 
-    if (!this.isReadable(size)) {
+    if (this.getReadableSize() < size) {
       throw new ExtendedBufferRangeError('SIZE_OUT_OF_RANGE');
     }
 
@@ -696,7 +723,7 @@ export class ExtendedBuffer<EBO extends ExtendedBufferOptions = ExtendedBufferOp
         throw new ExtendedBufferError('INVALID_BIGINT_READ_METHOD');
     }
 
-    this.offset(size);
+    this._pointer += size;
     return result;
   }
 
@@ -716,12 +743,18 @@ export class ExtendedBuffer<EBO extends ExtendedBufferOptions = ExtendedBufferOp
     return this.readBigInt64Common('readBigUInt64LE');
   }
 
-  protected readFloatingPointCommon(
+  public readFloatingPointCommon(
     method: 'readFloatBE' | 'readFloatLE' | 'readDoubleBE' | 'readDoubleLE', size: 4 | 8
   ): number {
     utils.assertUnsignedInteger(size);
+    return this.readFloatingPointCommonUnsafe(method, size);
+  }
 
-    if (!this.isReadable(size)) {
+  public readFloatingPointCommonUnsafe(
+    method: 'readFloatBE' | 'readFloatLE' | 'readDoubleBE' | 'readDoubleLE',
+    size: 4 | 8
+  ): number {
+    if (this.getReadableSize() < size) {
       throw new ExtendedBufferRangeError('SIZE_OUT_OF_RANGE');
     }
 
@@ -745,7 +778,7 @@ export class ExtendedBuffer<EBO extends ExtendedBufferOptions = ExtendedBufferOp
         throw new ExtendedBufferError('INVALID_FLOATING_POINT_READ_METHOD');
     }
 
-    this.offset(size);
+    this._pointer += size;
     return result;
   }
 
