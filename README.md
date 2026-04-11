@@ -16,14 +16,18 @@ npm install extended-buffer
 
 ## Browser usage (bundlers)
 
-`ExtendedBuffer` works in browsers **as long as a Buffer polyfill is available**. Most bundlers can use the `buffer`
-package as a drop-in implementation.
+`ExtendedBuffer` works in browsers at runtime **as long as a Buffer polyfill is available**. Most bundlers can use
+the `buffer` package as a drop-in implementation.
 
 Install the polyfill:
 
 ```bash
 npm install buffer
 ```
+
+If you consume the package from TypeScript, note that the current published `.d.ts` files reference Node ambient
+types such as `Buffer`, `BufferEncoding`, and `NodeJS.Global`. In a browser-only TS project you may also need
+`@types/node` (or equivalent ambient declarations) in addition to the runtime polyfill.
 
 `ExtendedBuffer` imports `Buffer` from the `buffer` module, so a global `Buffer` is usually not required.
 If your tooling (or other dependencies) expects a global `Buffer`, add a small shim in your app entry:
@@ -324,9 +328,12 @@ if (b.isReadable(4)) {
 // Copy out as a native Buffer
 const chunk: Buffer = b.readBuffer(10, true);
 
-// Copy out as a new ExtendedBuffer (same capacity/capacityStep/nativeAllocSlow/nativeReallocSlow/unsafeMode by default)
+// Copy out as a new ExtendedBuffer (inherits the source instance's configured
+// capacity/capacityStep/nativeAllocSlow/nativeReallocSlow/unsafeMode by default)
 const eb: ExtendedBuffer = b.readBuffer(10);
 ```
+
+Note: this inherits the constructor configuration, not the source instance's current grown `capacity`.
 
 ### Strings
 
@@ -419,11 +426,14 @@ const result = b.transaction(() => {
 Rules:
 
 - If the callback **returns normally**, changes are kept (committed).
-- If the callback **throws**, the buffer is restored (rolled back) and the error is re-thrown.
+- If the **outermost** transaction callback throws, the buffer is restored (rolled back) and the error is re-thrown.
 - The callback must be **synchronous** (returned Promises are not awaited).
 - Transactions are **re-entrant**: nested `transaction()` calls do not create extra snapshots.
+- Only the outermost transaction owns the snapshot/rollback. A nested `transaction()` call is effectively pass-through,
+  so if an inner error is caught before it escapes the outer transaction, its intermediate changes are not rolled back
+  on their own.
 
-What gets rolled back:
+What gets rolled back when the outermost transaction aborts:
 
 - stored payload bytes
 - `pointer` (read pointer)
@@ -528,7 +538,7 @@ Common error codes you may see:
 - `INVALID_BUFFER_TYPE`: attempt write invalid buffer type
 - `VALUE_MUST_BE_AN_INTEGER`: value not a safe integer
 - `VALUE_MUST_BE_AN_UNSIGNED_INTEGER`: value is not a safe integer or less than 0
-- `VALUE_MUST_BE_AN_BIG_INTEGER`: value is not a `bigint`
+- `VALUE_MUST_BE_A_BIG_INTEGER`: value is not a `bigint`
 - `VALUE_MUST_BE_AN_UNSIGNED_BIG_INTEGER`: value is not a `bigint` or less than 0
 - `EXECUTION_ENVIRONMENT_NOT_SUPPORT_BIG_INT`: BigInt methods are not supported in the current runtime
 - `EXCEEDING_MAXIMUM_BUFFER_SIZE`: allocation exceeds Node’s maximum buffer size (`kMaxLength` or `os.totalmem()` when available)
@@ -556,7 +566,7 @@ In browsers/non-Node runtimes it simply no-ops.
 
 ---
 
-## Reference: full public API (names)
+## Reference: ExtendedBuffer class API
 
 Properties:
 - `length`, `capacity`, `pointer`, `nativeBufferView`, `bufferView`
@@ -581,6 +591,14 @@ Numbers:
   `readInt16BE/LE`, `readUInt16BE/LE`, `readInt32BE/LE`, `readUInt32BE/LE`,
   `readBigInt64BE/LE`, `readBigUInt64BE/LE`,
   `readFloatBE/LE`, `readDoubleBE/LE`
+
+Additional top-level exports from `extended-buffer`:
+- Class: `ExtendedBuffer`
+- Types: `ExtendedBufferOptions`, `ExtendedBufferTransaction`
+- Errors: `ExtendedBufferError`, `ExtendedBufferTypeError`, `ExtendedBufferRangeError`, `ExtendedBufferUnsupportedError`
+- Utils: `getGlobalContext`, `allocNativeBuffer`, `reallocNativeBuffer`, `nativeBufferSubarray`,
+  `assertInteger`, `assertUnsignedInteger`, `assertIntegerSize`, `assertBigInteger`,
+  `assertUnsignedBigInteger`, `assertSupportBigInteger`
 
 ## License
 

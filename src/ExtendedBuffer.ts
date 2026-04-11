@@ -312,6 +312,9 @@ export class ExtendedBuffer<EBO extends ExtendedBufferOptions = ExtendedBufferOp
   }
 
   public writeString(string: string, encoding?: BufferEncoding, unshift?: boolean): this {
+    // Buffer.from() materializes the exact encoded payload before allocation.
+    // Direct writes would require predicting the byte length up front, and
+    // size estimations can diverge from the actual payload for malformed input.
     const bytes = Buffer.from(string, encoding);
     return this.writeNativeBuffer(bytes, unshift);
   }
