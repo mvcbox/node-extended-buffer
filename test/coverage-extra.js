@@ -252,7 +252,7 @@ describe('Coverage: Missing Branches', function () {
     const { assertBigInteger } = require('../dist/utils/assert-big-integer');
     const { assertUnsignedBigInteger } = require('../dist/utils/assert-unsigned-big-integer');
 
-    expect(() => assertBigInteger(1)).to.throw(ExtendedBufferTypeError, 'VALUE_MUST_BE_AN_BIG_INTEGER');
+    expect(() => assertBigInteger(1)).to.throw(ExtendedBufferTypeError, 'VALUE_MUST_BE_A_BIG_INTEGER');
     expect(() => assertUnsignedBigInteger(1)).to.throw(ExtendedBufferTypeError, 'VALUE_MUST_BE_AN_UNSIGNED_BIG_INTEGER');
 
     if (typeof BigInt === 'function') {
