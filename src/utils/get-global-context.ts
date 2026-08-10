@@ -2,25 +2,29 @@
 declare const self: unknown;
 declare const window: unknown;
 
-export function getGlobalContext(): NodeJS.Global | undefined {
+type GlobalContext = typeof global & {
+  gc?: () => void;
+};
+
+export function getGlobalContext(): GlobalContext | undefined {
   if (typeof globalThis !== 'undefined') {
-    return globalThis as unknown as NodeJS.Global;
+    return globalThis as unknown as GlobalContext;
   }
 
   if (typeof self !== 'undefined') {
-    return self as unknown as NodeJS.Global;
+    return self as unknown as GlobalContext;
   }
 
   if (typeof window !== 'undefined') {
-    return window as unknown as NodeJS.Global;
+    return window as unknown as GlobalContext;
   }
 
   if (typeof global !== 'undefined') {
-    return global as unknown as NodeJS.Global;
+    return global as GlobalContext;
   }
 
   try {
-    return Function('return this')() as unknown as NodeJS.Global;
+    return Function('return this')() as unknown as GlobalContext;
   } catch {
     return undefined;
   }

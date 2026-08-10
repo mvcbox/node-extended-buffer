@@ -25,9 +25,13 @@ Install the polyfill:
 npm install buffer
 ```
 
-If you consume the package from TypeScript, note that the current published `.d.ts` files reference Node ambient
-types such as `Buffer`, `BufferEncoding`, and `NodeJS.Global`. In a browser-only TS project you may also need
-`@types/node` (or equivalent ambient declarations) in addition to the runtime polyfill.
+If you consume the package from TypeScript, note that its `.d.ts` files reference Node ambient declarations such as
+`Buffer`, `BufferEncoding`, and `global`. A browser-only TypeScript project may therefore need a version of
+`@types/node` compatible with its TypeScript compiler (or equivalent ambient declarations), in addition to the
+runtime polyfill.
+
+Runtime support starts at Node.js 6. The declarations require TypeScript 3.8 or later and support `@types/node`
+6 or later when the selected typings release is compatible with the TypeScript compiler used by the project.
 
 `ExtendedBuffer` imports `Buffer` from the `buffer` module, so a global `Buffer` is usually not required.
 If your tooling (or other dependencies) expects a global `Buffer`, add a small shim in your app entry:
